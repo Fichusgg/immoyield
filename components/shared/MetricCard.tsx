@@ -19,23 +19,23 @@ export function MetricCard({
   trendValue,
 }: MetricCardProps) {
   const trendColors = {
-    up: 'text-green-600 dark:text-green-400',
+    up: 'text-emerald-700 dark:text-emerald-300',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-gray-600 dark:text-gray-400',
+    neutral: 'text-slate-700',
   };
   
   return (
     <Card>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <p className="text-sm font-medium text-slate-700 mb-1">
             {title}
           </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-2xl font-bold text-slate-900">
             {typeof value === 'number' ? value.toLocaleString() : value}
           </p>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               {subtitle}
             </p>
           )}
@@ -46,7 +46,7 @@ export function MetricCard({
           )}
         </div>
         {icon && (
-          <div className="ml-4 text-gray-400 dark:text-gray-500">
+          <div className="ml-4 text-slate-500">
             {icon}
           </div>
         )}

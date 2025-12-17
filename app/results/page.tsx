@@ -45,7 +45,7 @@ export default function ResultsPage() {
       <Layout>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-400">Loading analysis...</p>
+            <p className="text-slate-700">Loading analysis...</p>
           </div>
         </div>
       </Layout>
@@ -81,10 +81,10 @@ export default function ResultsPage() {
             </Button>
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
                   Analysis Results
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-slate-700">
                   {analysis.address || 'Property Analysis'}
                 </p>
               </div>
@@ -127,78 +127,78 @@ export default function ResultsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Monthly Breakdown */}
             <Card className="lg:col-span-2">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+              <h2 className="text-xl font-semibold text-slate-900 mb-6">
                 Monthly Breakdown
               </h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Monthly Income</span>
-                  <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Monthly Income</span>
+                  <span className="text-lg font-semibold text-slate-900">
                     {formatCurrency(results.monthlyIncome)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Rent (after vacancy)</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Rent (after vacancy)</span>
+                  <span className="text-slate-900">
                     {formatCurrency((analysis.monthlyRent * (100 - analysis.vacancyRate)) / 100)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Other Income</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Other Income</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.otherIncome || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Monthly Expenses</span>
-                  <span className="text-lg font-semibold text-red-600 dark:text-red-400">
+                  <span className="text-slate-700">Monthly Expenses</span>
+                  <span className="text-lg font-semibold text-red-600">
                     -{formatCurrency(results.monthlyExpenses)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Mortgage Payment</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Mortgage Payment</span>
+                  <span className="text-slate-900">
                     {formatCurrency(results.monthlyMortgagePayment)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Property Tax</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Property Tax</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.propertyTax || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Insurance</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Insurance</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.insurance || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Maintenance</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Maintenance</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.maintenance || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Property Management</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Property Management</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.propertyManagement || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-400">Utilities</span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="text-slate-700">Utilities</span>
+                  <span className="text-slate-900">
                     {formatCurrency(analysis.utilities || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-4 pt-6 border-t-2 border-gray-300 dark:border-gray-600">
-                  <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-lg font-semibold text-slate-900">
                     Monthly Cash Flow
                   </span>
                   <span
                     className={`text-2xl font-bold ${
                       results.monthlyCashFlow >= 0
-                        ? 'text-green-600 dark:text-green-400'
+                        ? 'text-emerald-700 dark:text-emerald-300'
                         : 'text-red-600 dark:text-red-400'
                     }`}
                   >
@@ -210,50 +210,50 @@ export default function ResultsPage() {
 
             {/* Investment Metrics */}
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+              <h2 className="text-xl font-semibold text-slate-900 mb-6">
                 Investment Metrics
               </h2>
               <div className="space-y-6">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-slate-700 mb-1">
                     Purchase Price
                   </p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-lg font-semibold text-slate-900">
                     {formatCurrency(analysis.purchasePrice)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-slate-700 mb-1">
                     Total Investment
                   </p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-lg font-semibold text-slate-900">
                     {formatCurrency(
                       (analysis.downPayment || 0) + (analysis.closingCosts || 0)
                     )}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-slate-700 mb-1">
                     Gross Rent Multiplier
                   </p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-lg font-semibold text-slate-900">
                     {results.grossRentMultiplier.toFixed(2)}x
                   </p>
                 </div>
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <p className="text-sm text-slate-700 mb-2">
                     Appreciation Projections
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">5 Years</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="text-sm text-slate-700">5 Years</span>
+                      <span className="text-sm font-medium text-slate-900">
                         {formatCurrency(results.fiveYearAppreciation)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">10 Years</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="text-sm text-slate-700">10 Years</span>
+                      <span className="text-sm font-medium text-slate-900">
                         {formatCurrency(results.tenYearAppreciation)}
                       </span>
                     </div>
@@ -265,24 +265,24 @@ export default function ResultsPage() {
 
           {/* Annual Summary */}
           <Card className="mt-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">
               Annual Summary
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Annual Income</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                <p className="text-sm text-slate-700 mb-1">Annual Income</p>
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                   {formatCurrency(results.annualIncome)}
                 </p>
               </div>
               <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Annual Expenses</p>
+                <p className="text-sm text-slate-700 mb-1">Annual Expenses</p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   {formatCurrency(results.annualExpenses)}
                 </p>
               </div>
               <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Annual Cash Flow</p>
+                <p className="text-sm text-slate-700 mb-1">Annual Cash Flow</p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(results.annualCashFlow)}
                 </p>
