@@ -1,25 +1,49 @@
-import { createClient } from '@/lib/supabase/server';
+// Force Vercel to load this dynamically so we get real-time env variables
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from('market_benchmarks').select('*').limit(3);
+  // Safely grab the variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Create safe boolean checks (true/false) instead of the actual strings
+  const hasUrl = !!supabaseUrl;
+  const hasAnonKey = !!supabaseAnonKey;
+
+  // Optional: Get the length to ensure they aren't accidentally empty strings or cut off
+  const urlLength = supabaseUrl ? supabaseUrl.length : 0;
+  const keyLength = supabaseAnonKey ? supabaseAnonKey.length : 0;
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>Supabase Connection Test</h1>
-      
-      {error ? (
-        <div style={{ padding: '1.5rem', border: '2px solid #ef4444', borderRadius: '8px', backgroundColor: '#fef2f2' }}>
-          <h2 style={{ color: '#b91c1c', marginTop: 0 }}>Connection Failed ❌</h2>
-          <pre style={{ overflowX: 'auto' }}>{JSON.stringify(error, null, 2)}</pre>
+    <main style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
+      <h1>Environment Variable Security Check</h1>
+      <p style={{ color: '#555' }}>
+        This page safely checks if Vercel can see your secrets without printing them.
+      </p>
+
+      <div style={{ marginTop: '2rem', padding: '1.5rem', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <h3>Supabase URL</h3>
+        <p>
+          Status: {hasUrl ? <span style={{ color: 'green' }}>Detected ✅</span> : <span style={{ color: 'red' }}>Missing ❌</span>}
+        </p>
+        <p>Length: {urlLength} characters</p>
+      </div>
+
+      <div style={{ marginTop: '1rem', padding: '1.5rem', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <h3>Supabase Anon Key</h3>
+        <p>
+          Status: {hasAnonKey ? <span style={{ color: 'green' }}>Detected ✅</span> : <span style={{ color: 'red' }}>Missing ❌</span>}
+        </p>
+        <p>Length: {keyLength} characters</p>
+      </div>
+
+      {!hasUrl || !hasAnonKey ? (
+        <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#fef2f2', color: '#991b1b', borderRadius: '6px' }}>
+          <strong>Action Required:</strong> Your variables are missing on Vercel. You need to add them to your Project Settings and Redeploy.
         </div>
       ) : (
-        <div style={{ padding: '1.5rem', border: '2px solid #22c55e', borderRadius: '8px', backgroundColor: '#f0fdf4' }}>
-          <h2 style={{ color: '#15803d', marginTop: 0 }}>Connected Successfully ✅</h2>
-          <p style={{ color: '#166534' }}>Here is a raw sample of your data:</p>
-          <pre style={{ backgroundColor: '#ffffff', padding: '1rem', borderRadius: '4px', overflowX: 'auto', border: '1px solid #e2e8f0' }}>
-            {JSON.stringify(data, null, 2)}
-          </pre>
+        <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0fdf4', color: '#166534', borderRadius: '6px' }}>
+          <strong>All good!</strong> Vercel sees your variables. If your app is still breaking, the issue is likely with your database permissions or network settings, not the environment variables.
         </div>
       )}
     </main>
