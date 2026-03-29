@@ -1,0 +1,80 @@
+'use client';
+
+import { SavedDeal, deleteDeal } from '@/lib/supabase/deals';
+import { Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { useState } from 'react';
+
+const fmt = (v: number) =>
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(v);
+
+interface DealCardProps {
+  deal: SavedDeal;
+  onDelete: () => void;
+}
+
+export default function DealCard({ deal, onDelete }: DealCardProps) {
+  const [deleting, setDeleting] = useState(false);
+  const m = deal.results_cache?.metrics;
+  const positive = (m?.monthlyCashFlow ?? 0) >= 0;
+
+  const handleDelete = async () => {
+    if (!confirm('Remover esta análise?')) return;
+    setDeleting(true);
+    try {
+      await deleteDeal(deal.id);
+      onDelete();
+    } catch {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-black text-slate-900 text-sm truncate">{deal.name}</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="text-slate-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-50"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+
+      {/* KPI grid */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="bg-slate-50 rounded-xl p-3">
+          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold mb-1">Cap Rate</p>
+          <p className="font-black text-slate-900">{m?.capRate?.toFixed(2)}%</p>
+        </div>
+        <div className={`rounded-xl p-3 ${positive ? 'bg-emerald-50' : 'bg-red-50'}`}>
+          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold mb-1">Fluxo/mês</p>
+          <p className={`font-black flex items-center gap-1 ${positive ? 'text-emerald-700' : 'text-red-600'}`}>
+            {positive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+            {fmt(m?.monthlyCashFlow ?? 0)}
+          </p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-xs text-slate-400 border-t border-slate-50 pt-2 flex justify-between">
+        <span>{fmt(deal.inputs?.purchasePrice ?? 0)}</span>
+        <span>{deal.inputs?.financing?.enabled ? deal.inputs.financing.system : 'À vista'}</span>
+      </div>
+    </div>
+  );
+}
