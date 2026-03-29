@@ -17,6 +17,7 @@ import {
   Legend,
 } from 'recharts';
 import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
+import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { DealInput } from '@/lib/validations/deal';
@@ -642,28 +643,36 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
           </p>
           {saveError && <p className="text-red-400 text-xs mt-1">{saveError}</p>}
         </div>
-        {isAuthenticated ? (
-          <button
-            onClick={handleSave}
-            disabled={saving || savedOk}
-            className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-700 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
-          >
-            {savedOk ? (
-              <><Check size={12} /> Salvo</>
-            ) : saving ? (
-              'Salvando...'
-            ) : (
-              'Salvar análise'
-            )}
-          </button>
-        ) : (
-          <a
-            href="/auth"
-            className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
-          >
-            Criar conta <ArrowUpRight size={12} />
-          </a>
-        )}
+        <div className="flex flex-col gap-2">
+          <DownloadPDFButton
+            result={result}
+            inputs={inputs}
+            dealName={dealName ?? 'Deal'}
+            className="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+          />
+          {isAuthenticated ? (
+            <button
+              onClick={handleSave}
+              disabled={saving || savedOk}
+              className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-700 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            >
+              {savedOk ? (
+                <><Check size={12} /> Salvo</>
+              ) : saving ? (
+                'Salvando...'
+              ) : (
+                'Salvar análise'
+              )}
+            </button>
+          ) : (
+            <a
+              href="/auth"
+              className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            >
+              Criar conta <ArrowUpRight size={12} />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
