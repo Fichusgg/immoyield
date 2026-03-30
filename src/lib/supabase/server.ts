@@ -1,5 +1,14 @@
+import 'server-only';
+
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+/**
+ * Supabase server client.
+ *
+ * Server Components / Route Handlers may import this module.
+ * Client Components must use `@/lib/supabase/client` instead.
+ */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

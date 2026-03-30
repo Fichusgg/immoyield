@@ -10,6 +10,11 @@ function copyResponseCookies(from: NextResponse, to: NextResponse) {
 export async function middleware(request: NextRequest) {
   const { response, user } = await getSupabaseSession(request);
 
+  // Public share links — no auth gate
+  if (request.nextUrl.pathname.startsWith('/r/')) {
+    return response;
+  }
+
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/auth';

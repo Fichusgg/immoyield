@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
+import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { DealInput } from '@/lib/validations/deal';
@@ -65,7 +66,11 @@ interface ResultsScreenProps {
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
 const fmt = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(v);
 
 const fmtK = (v: number) => {
   if (Math.abs(v) >= 1_000_000) return `R$${(v / 1_000_000).toFixed(1)}M`;
@@ -88,8 +93,8 @@ function logSupabaseError(context: string, error: unknown) {
     typeof anyError?.message === 'string'
       ? anyError.message
       : error instanceof Error
-      ? error.message
-      : String(anyError?.message ?? error);
+        ? error.message
+        : String(anyError?.message ?? error);
 
   const code = typeof anyError?.code === 'string' ? anyError.code : undefined;
   const details = typeof anyError?.details === 'string' ? anyError.details : undefined;
@@ -136,7 +141,12 @@ function looksLikeRlsError(error: unknown) {
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
-const ChartTooltip = ({ active, payload, label, prefix = '' }: {
+const ChartTooltip = ({
+  active,
+  payload,
+  label,
+  prefix = '',
+}: {
   active?: boolean;
   payload?: Array<{ name: string; value: number; color: string }>;
   label?: string | number;
@@ -144,8 +154,11 @@ const ChartTooltip = ({ active, payload, label, prefix = '' }: {
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 text-white rounded-xl px-3 py-2 text-xs shadow-2xl border border-slate-700">
-      <p className="text-slate-400 mb-1">{prefix}{label}</p>
+    <div className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white shadow-2xl">
+      <p className="mb-1 text-slate-400">
+        {prefix}
+        {label}
+      </p>
       {payload.map((p, i) => (
         <p key={i} className="font-semibold" style={{ color: p.color }}>
           {p.name}: {fmtK(p.value)}
@@ -173,30 +186,30 @@ const KPICard = ({
   negative?: boolean;
 }) => (
   <div
-    className={`rounded-2xl p-5 flex flex-col gap-1.5 ${
+    className={`flex flex-col gap-1.5 rounded-2xl p-5 ${
       highlight
         ? 'bg-emerald-500 text-white'
         : negative
-        ? 'bg-red-50 border border-red-100'
-        : 'bg-white border border-slate-100'
+          ? 'border border-red-100 bg-red-50'
+          : 'border border-slate-100 bg-white'
     }`}
   >
     <span
-      className={`text-[10px] font-bold uppercase tracking-widest ${
+      className={`text-[10px] font-bold tracking-widest uppercase ${
         highlight ? 'text-emerald-100' : 'text-slate-400'
       }`}
     >
       {label}
     </span>
     <span
-      className={`text-2xl font-black tabular-nums tracking-tight ${
+      className={`text-2xl font-black tracking-tight tabular-nums ${
         highlight
           ? 'text-white'
           : positive
-          ? 'text-emerald-600'
-          : negative
-          ? 'text-red-500'
-          : 'text-slate-900'
+            ? 'text-emerald-600'
+            : negative
+              ? 'text-red-500'
+              : 'text-slate-900'
       }`}
     >
       {value}
@@ -210,14 +223,21 @@ const KPICard = ({
 // ─── Section Header ───────────────────────────────────────────────────────────
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">{children}</h3>
+  <h3 className="mb-4 text-xs font-black tracking-widest text-slate-400 uppercase">{children}</h3>
 );
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ResultsScreen({ result, dealName, inputs, onReset, isAuthenticated }: ResultsScreenProps) {
+export default function ResultsScreen({
+  result,
+  dealName,
+  inputs,
+  onReset,
+  isAuthenticated,
+}: ResultsScreenProps) {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
+  const [savedDealId, setSavedDealId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const handleSave = async () => {
@@ -268,7 +288,9 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
 
       const { data, error } = await supabase.from('deals').insert(payload).select('*').single();
       const insertedId =
-        data && typeof data === 'object' && 'id' in data ? (data as { id?: unknown }).id : undefined;
+        data && typeof data === 'object' && 'id' in data
+          ? (data as { id?: unknown }).id
+          : undefined;
 
       console.debug('[deals.save] insert response', {
         ok: !error,
@@ -287,6 +309,8 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
         throw new Error(`Erro ao salvar: ${error.message}`);
       }
 
+      const savedId = typeof insertedId === 'string' ? insertedId : null;
+      setSavedDealId(savedId);
       setSavedOk(true);
     } catch (e) {
       if (e instanceof Error) {
@@ -329,30 +353,33 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
 
   // ── Benchmark comparison ────────────────────────────────────────────────────
   const CDI_RATE = 10.5; // approximate CDI a.a.
-  const FII_RATE = 8.0;  // typical FII dividend yield
+  const FII_RATE = 8.0; // typical FII dividend yield
   const benchmarkData = [
     { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#0ea5e9' },
-    { name: 'Cash-on-Cash', value: +metrics.cashOnCash.toFixed(2), fill: metrics.cashOnCash >= 0 ? '#10b981' : '#ef4444' },
+    {
+      name: 'Cash-on-Cash',
+      value: +metrics.cashOnCash.toFixed(2),
+      fill: metrics.cashOnCash >= 0 ? '#10b981' : '#ef4444',
+    },
     { name: 'CDI (ref.)', value: CDI_RATE, fill: '#94a3b8' },
     { name: 'FII (ref.)', value: FII_RATE, fill: '#94a3b8' },
   ];
 
   return (
     <div className="space-y-8 pb-10">
-
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Análise Concluída</p>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">
+          <p className="mb-1 text-xs font-semibold tracking-widest text-slate-400 uppercase">
+            Análise Concluída
+          </p>
+          <h2 className="text-xl font-black tracking-tight text-slate-900">
             {dealName ?? 'Resultado do Deal'}
           </h2>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="mt-2 flex items-center gap-2">
             <span
-              className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
-                cashFlowPositive
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-red-50 text-red-600'
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                cashFlowPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
               }`}
             >
               {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
@@ -362,7 +389,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
         </div>
         <button
           onClick={onReset}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 bg-white border border-slate-200 px-3 py-2 rounded-xl transition-colors hover:bg-slate-50"
+          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
         >
           <RotateCcw size={12} />
           Nova análise
@@ -401,7 +428,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       {/* ── Capital Breakdown ────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Estrutura de Capital</SectionTitle>
-        <div className="bg-white rounded-2xl border border-slate-100 divide-y divide-slate-100 text-sm">
+        <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
           {[
             { label: 'Investimento total', value: fmt(metrics.totalInvestment) },
             { label: 'Capital próprio (entrada)', value: fmt(metrics.cashOutlay) },
@@ -431,9 +458,13 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       {cashflowMonthlyData.length > 0 && (
         <div>
           <SectionTitle>Fluxo de Caixa Mensal — 24 Meses</SectionTitle>
-          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5">
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={cashflowMonthlyData} barSize={8} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+              <BarChart
+                data={cashflowMonthlyData}
+                barSize={8}
+                margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis
                   dataKey="mes"
@@ -465,7 +496,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       {/* ── Benchmarks ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Benchmarks — % a.a.</SectionTitle>
-        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5">
           <ResponsiveContainer width="100%" height={160}>
             <BarChart
               data={benchmarkData}
@@ -508,7 +539,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <p className="text-[10px] text-slate-400 mt-2 text-right">
+          <p className="mt-2 text-right text-[10px] text-slate-400">
             CDI e FII são referências de mercado, não garantidas.
           </p>
         </div>
@@ -518,7 +549,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       {projectionData.length > 0 && (
         <div>
           <SectionTitle>Projeção 10 Anos — Valorização e Equity</SectionTitle>
-          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5">
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={projectionData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
@@ -571,7 +602,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
                 />
               </AreaChart>
             </ResponsiveContainer>
-            <p className="text-[10px] text-slate-400 mt-2">
+            <p className="mt-2 text-[10px] text-slate-400">
               Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
             </p>
           </div>
@@ -582,7 +613,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       {amortData.length > 0 && (
         <div>
           <SectionTitle>Amortização — Saldo Devedor Anual</SectionTitle>
-          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5">
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={amortData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -629,35 +660,44 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
       )}
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl bg-slate-900 p-5 flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-900 p-5">
         <div>
-          <p className="text-white font-black text-sm">
+          <p className="text-sm font-black text-white">
             {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
           </p>
-          <p className="text-slate-400 text-xs mt-0.5">
+          <p className="mt-0.5 text-xs text-slate-400">
             {savedOk
               ? 'Disponível no seu dashboard.'
               : isAuthenticated
-              ? 'Guarde este deal na sua conta.'
-              : 'Crie uma conta gratuita para guardar e compartilhar.'}
+                ? 'Guarde este deal na sua conta.'
+                : 'Crie uma conta gratuita para guardar e compartilhar.'}
           </p>
-          {saveError && <p className="text-red-400 text-xs mt-1">{saveError}</p>}
+          {saveError && <p className="mt-1 text-xs text-red-400">{saveError}</p>}
         </div>
         <div className="flex flex-col gap-2">
           <DownloadPDFButton
             result={result}
             inputs={inputs}
             dealName={dealName ?? 'Deal'}
-            className="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 rounded-xl bg-slate-700 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-slate-600"
           />
+          {savedOk && savedDealId && (
+            <ShareButton
+              dealId={savedDealId}
+              dealName={dealName ?? 'Deal'}
+              className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-sky-500"
+            />
+          )}
           {isAuthenticated ? (
             <button
               onClick={handleSave}
               disabled={saving || savedOk}
-              className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-700 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400 disabled:bg-emerald-700"
             >
               {savedOk ? (
-                <><Check size={12} /> Salvo</>
+                <>
+                  <Check size={12} /> Salvo
+                </>
               ) : saving ? (
                 'Salvando...'
               ) : (
@@ -667,7 +707,7 @@ export default function ResultsScreen({ result, dealName, inputs, onReset, isAut
           ) : (
             <a
               href="/auth"
-              className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400"
             >
               Criar conta <ArrowUpRight size={12} />
             </a>

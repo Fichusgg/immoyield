@@ -19,8 +19,8 @@ function logSupabaseError(context: string, error: unknown) {
     typeof anyError?.message === 'string'
       ? anyError.message
       : error instanceof Error
-      ? error.message
-      : String(anyError?.message ?? error);
+        ? error.message
+        : String(anyError?.message ?? error);
 
   const code = typeof anyError?.code === 'string' ? anyError.code : undefined;
   const details = typeof anyError?.details === 'string' ? anyError.details : undefined;
@@ -137,9 +137,12 @@ export default function DealList() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-36 animate-pulse" />
+          <div
+            key={i}
+            className="h-36 animate-pulse rounded-2xl border border-slate-100 bg-white p-5"
+          />
         ))}
       </div>
     );
@@ -147,8 +150,8 @@ export default function DealList() {
 
   if (error) {
     return (
-      <div className="text-center py-16">
-        <p className="text-red-500 text-sm">{error}</p>
+      <div className="py-16 text-center">
+        <p className="text-sm text-red-500">{error}</p>
         <button
           onClick={load}
           className="mt-4 text-xs text-slate-500 underline hover:text-slate-800"
@@ -161,12 +164,14 @@ export default function DealList() {
 
   if (deals.length === 0) {
     return (
-      <div className="text-center py-20 border-2 border-dashed border-slate-200 rounded-2xl">
-        <p className="text-slate-400 text-sm mb-1">Nenhuma análise salva ainda.</p>
-        <p className="text-slate-300 text-xs mb-6">Complete uma análise e clique em &ldquo;Salvar&rdquo;.</p>
+      <div className="rounded-2xl border-2 border-dashed border-slate-200 py-20 text-center">
+        <p className="mb-1 text-sm text-slate-400">Nenhuma análise salva ainda.</p>
+        <p className="mb-6 text-xs text-slate-300">
+          Complete uma análise e clique em &ldquo;Salvar&rdquo;.
+        </p>
         <Link
           href="/"
-          className="inline-block bg-slate-900 text-white text-sm font-black px-5 py-2.5 rounded-xl hover:bg-slate-700 transition-colors"
+          className="inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition-colors hover:bg-slate-700"
         >
           Nova análise →
         </Link>
@@ -175,7 +180,7 @@ export default function DealList() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {deals.map((d) => (
         <DealCard key={d.id} deal={d} onDelete={load} />
       ))}

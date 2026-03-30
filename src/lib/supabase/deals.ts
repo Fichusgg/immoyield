@@ -13,7 +13,9 @@ export interface SavedDeal {
 
 export async function saveDeal(inputs: DealInput, results: AnalysisResult): Promise<SavedDeal> {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Não autenticado');
 
   const { data, error } = await supabase

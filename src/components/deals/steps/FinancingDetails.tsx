@@ -38,8 +38,8 @@ export function FinancingDetails() {
         interestRateYear: formData.financing?.interestRateYear ?? 0,
         termMonths: formData.financing?.termMonths ?? 360,
         system: formData.financing?.system ?? 'SAC',
-      }
-    }
+      },
+    },
   });
 
   const isFinancingEnabled = useWatch({ control, name: 'financing.enabled' });
@@ -61,43 +61,79 @@ export function FinancingDetails() {
         <h3 className="font-bold">Acquisition Costs</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs block mb-1">ITBI (%)</label>
-            <input type="number" step="0.01" {...register('acquisitionCosts.itbiPercent', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+            <label className="mb-1 block text-xs">ITBI (%)</label>
+            <input
+              type="number"
+              step="0.01"
+              {...register('acquisitionCosts.itbiPercent', { valueAsNumber: true })}
+              className="w-full rounded border p-2 text-black"
+            />
           </div>
           <div>
-            <label className="text-xs block mb-1">Cartorio (R$)</label>
-            <input type="number" {...register('acquisitionCosts.cartorio', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+            <label className="mb-1 block text-xs">Cartorio (R$)</label>
+            <input
+              type="number"
+              {...register('acquisitionCosts.cartorio', { valueAsNumber: true })}
+              className="w-full rounded border p-2 text-black"
+            />
           </div>
           <div>
-            <label className="text-xs block mb-1">Reforms (R$)</label>
-            <input type="number" {...register('acquisitionCosts.reforms', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+            <label className="mb-1 block text-xs">Reforms (R$)</label>
+            <input
+              type="number"
+              {...register('acquisitionCosts.reforms', { valueAsNumber: true })}
+              className="w-full rounded border p-2 text-black"
+            />
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <input type="checkbox" {...register('financing.enabled')} id="f-enabled" className="w-4 h-4" />
-          <label htmlFor="f-enabled" className="font-bold cursor-pointer">Use Financing?</label>
+          <input
+            type="checkbox"
+            {...register('financing.enabled')}
+            id="f-enabled"
+            className="h-4 w-4"
+          />
+          <label htmlFor="f-enabled" className="cursor-pointer font-bold">
+            Use Financing?
+          </label>
         </div>
 
         {isFinancingEnabled && (
-          <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1">
+          <div className="animate-in fade-in slide-in-from-top-1 grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs block mb-1">Down Payment (R$)</label>
-              <input type="number" {...register('financing.downPayment', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+              <label className="mb-1 block text-xs">Down Payment (R$)</label>
+              <input
+                type="number"
+                {...register('financing.downPayment', { valueAsNumber: true })}
+                className="w-full rounded border p-2 text-black"
+              />
             </div>
             <div>
-              <label className="text-xs block mb-1">Interest Rate (% p.a.)</label>
-              <input type="number" step="0.1" {...register('financing.interestRateYear', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+              <label className="mb-1 block text-xs">Interest Rate (% p.a.)</label>
+              <input
+                type="number"
+                step="0.1"
+                {...register('financing.interestRateYear', { valueAsNumber: true })}
+                className="w-full rounded border p-2 text-black"
+              />
             </div>
             <div>
-              <label className="text-xs block mb-1">Loan Term (months)</label>
-              <input type="number" {...register('financing.termMonths', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+              <label className="mb-1 block text-xs">Loan Term (months)</label>
+              <input
+                type="number"
+                {...register('financing.termMonths', { valueAsNumber: true })}
+                className="w-full rounded border p-2 text-black"
+              />
             </div>
             <div className="col-span-2">
-              <label className="text-xs block mb-1">Amortization System</label>
-              <select {...register('financing.system')} className="w-full p-2 border rounded text-black">
+              <label className="mb-1 block text-xs">Amortization System</label>
+              <select
+                {...register('financing.system')}
+                className="w-full rounded border p-2 text-black"
+              >
                 <option value="SAC">SAC (Constant Amortization)</option>
                 <option value="PRICE">PRICE (Fixed Installments)</option>
               </select>
@@ -107,8 +143,19 @@ export function FinancingDetails() {
       </div>
 
       <div className="flex gap-2 pt-4">
-        <button type="button" onClick={() => setStep(1)} className="w-1/3 border p-2 rounded hover:bg-gray-50 text-black">Back</button>
-        <button type="submit" className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-bold transition-colors">Next: Revenue</button>
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className="w-1/3 rounded border p-2 text-black hover:bg-gray-50"
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          className="w-2/3 rounded bg-blue-600 p-2 font-bold text-white transition-colors hover:bg-blue-700"
+        >
+          Next: Revenue
+        </button>
       </div>
     </form>
   );

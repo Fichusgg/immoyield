@@ -10,10 +10,19 @@
  *   <DownloadPDFButton result={result} inputs={inputs} dealName="Apto 204" />
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { FileDown, Loader2 } from 'lucide-react';
 import type { AnalysisResult } from '@/components/deals/ResultsScreen';
 import type { DealInput } from '@/lib/validations/deal';
+
+// SSR-safe client detection via useSyncExternalStore
+function useIsClient() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
 
 interface DownloadPDFButtonProps {
   result: AnalysisResult;
@@ -22,23 +31,19 @@ interface DownloadPDFButtonProps {
   className?: string;
 }
 
-export function DownloadPDFButton({ result, inputs, dealName = 'Deal', className }: DownloadPDFButtonProps) {
-  const [mounted, setMounted] = useState(false);
-
-  // Only render PDFDownloadLink on the client — react-pdf uses browser APIs
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function DownloadPDFButton({
+  result,
+  inputs,
+  dealName = 'Deal',
+  className,
+}: DownloadPDFButtonProps) {
+  const isClient = useIsClient();
 
   const fileName = `immoyield-${dealName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
 
-  if (!mounted) {
+  if (!isClient) {
     return (
-      <button
-        disabled
-        className={className ?? defaultClass}
-        aria-label="Preparando PDF..."
-      >
+      <button disabled className={className ?? defaultClass} aria-label="Preparando PDF...">
         <Loader2 size={13} className="animate-spin" />
         Preparando PDF...
       </button>
@@ -46,7 +51,15 @@ export function DownloadPDFButton({ result, inputs, dealName = 'Deal', className
   }
 
   // Dynamically import to keep SSR clean
-  return <AsyncPDFLink result={result} inputs={inputs} dealName={dealName} fileName={fileName} className={className} />;
+  return (
+    <AsyncPDFLink
+      result={result}
+      inputs={inputs}
+      dealName={dealName}
+      fileName={fileName}
+      className={className}
+    />
+  );
 }
 
 // ─── Inner async component ────────────────────────────────────────────────────

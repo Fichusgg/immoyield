@@ -2,6 +2,7 @@
 
 import { SavedDeal, deleteDeal } from '@/lib/supabase/deals';
 import { Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
 
 const fmt = (v: number) =>
@@ -33,12 +34,12 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <div className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-5 transition-shadow hover:shadow-md">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-black text-slate-900 text-sm truncate">{deal.name}</p>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="truncate text-sm font-black text-slate-900">{deal.name}</p>
+          <p className="mt-0.5 text-xs text-slate-400">
             {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
               day: '2-digit',
               month: 'short',
@@ -46,24 +47,33 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
             })}
           </p>
         </div>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="text-slate-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-50"
-        >
-          <Trash2 size={14} />
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <ShareButton dealId={deal.id} dealName={deal.name} compact />
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-slate-300 transition-colors hover:text-red-500 disabled:opacity-50"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold mb-1">Cap Rate</p>
+        <div className="rounded-xl bg-slate-50 p-3">
+          <p className="mb-1 text-[9px] font-bold tracking-wider text-slate-400 uppercase">
+            Cap Rate
+          </p>
           <p className="font-black text-slate-900">{m?.capRate?.toFixed(2)}%</p>
         </div>
         <div className={`rounded-xl p-3 ${positive ? 'bg-emerald-50' : 'bg-red-50'}`}>
-          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold mb-1">Fluxo/mês</p>
-          <p className={`font-black flex items-center gap-1 ${positive ? 'text-emerald-700' : 'text-red-600'}`}>
+          <p className="mb-1 text-[9px] font-bold tracking-wider text-slate-400 uppercase">
+            Fluxo/mês
+          </p>
+          <p
+            className={`flex items-center gap-1 font-black ${positive ? 'text-emerald-700' : 'text-red-600'}`}
+          >
             {positive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {fmt(m?.monthlyCashFlow ?? 0)}
           </p>
@@ -71,7 +81,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="text-xs text-slate-400 border-t border-slate-50 pt-2 flex justify-between">
+      <div className="flex justify-between border-t border-slate-50 pt-2 text-xs text-slate-400">
         <span>{fmt(deal.inputs?.purchasePrice ?? 0)}</span>
         <span>{deal.inputs?.financing?.enabled ? deal.inputs.financing.system : 'À vista'}</span>
       </div>

@@ -3,7 +3,7 @@ export type AmortizationSystem = 'SAC' | 'PRICE';
 export interface DealInputs {
   purchasePrice: number;
   acquisitionCosts: {
-    itbiPercent: number; 
+    itbiPercent: number;
     cartorio: number;
     reforms: number;
   };

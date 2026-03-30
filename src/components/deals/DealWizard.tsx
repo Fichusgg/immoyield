@@ -77,23 +77,23 @@ export default function DealWizard() {
   return (
     <div className="w-full">
       {/* Step indicator */}
-      <div className="flex items-center gap-0 mb-8">
+      <div className="mb-8 flex items-center gap-0">
         {STEPS.map((s, i) => (
-          <div key={s.n} className="flex items-center flex-1">
-            <div className="flex flex-col items-center gap-1 flex-1">
+          <div key={s.n} className="flex flex-1 items-center">
+            <div className="flex flex-1 flex-col items-center gap-1">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all duration-300 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-all duration-300 ${
                   step > s.n
                     ? 'bg-emerald-500 text-white'
                     : step === s.n
-                    ? 'bg-slate-900 text-white ring-4 ring-slate-200'
-                    : 'bg-slate-100 text-slate-400'
+                      ? 'bg-slate-900 text-white ring-4 ring-slate-200'
+                      : 'bg-slate-100 text-slate-400'
                 }`}
               >
                 {step > s.n ? '✓' : s.n}
               </div>
               <span
-                className={`text-[10px] font-semibold uppercase tracking-wider ${
+                className={`text-[10px] font-semibold tracking-wider uppercase ${
                   step >= s.n ? 'text-slate-700' : 'text-slate-300'
                 }`}
               >
@@ -102,7 +102,7 @@ export default function DealWizard() {
             </div>
             {i < STEPS.length - 1 && (
               <div
-                className={`h-px flex-1 mb-4 transition-all duration-500 ${
+                className={`mb-4 h-px flex-1 transition-all duration-500 ${
                   step > s.n ? 'bg-emerald-400' : 'bg-slate-200'
                 }`}
               />
@@ -112,7 +112,7 @@ export default function DealWizard() {
       </div>
 
       {/* Step content */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
         {step === 1 && <PropertyBasics />}
         {step === 2 && <FinancingDetails />}
         {step === 3 && <RevenueExpenses />}
@@ -121,17 +121,21 @@ export default function DealWizard() {
           <div className="space-y-5">
             <div>
               <h2 className="text-lg font-black text-slate-900">Revisar &amp; Calcular</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Confirme os dados antes de rodar a análise.</p>
+              <p className="mt-0.5 text-sm text-slate-500">
+                Confirme os dados antes de rodar a análise.
+              </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 border border-slate-100 divide-y divide-slate-100 text-sm">
+            <div className="divide-y divide-slate-100 rounded-xl border border-slate-100 bg-slate-50 text-sm">
               <div className="flex justify-between px-4 py-2.5">
                 <span className="text-slate-500">Imóvel</span>
                 <span className="font-semibold text-slate-800">{formData.name}</span>
               </div>
               <div className="flex justify-between px-4 py-2.5">
                 <span className="text-slate-500">Preço de compra</span>
-                <span className="font-semibold text-slate-800">{fmt(formData.purchasePrice ?? 0)}</span>
+                <span className="font-semibold text-slate-800">
+                  {fmt(formData.purchasePrice ?? 0)}
+                </span>
               </div>
               <div className="flex justify-between px-4 py-2.5">
                 <span className="text-slate-500">ITBI</span>
@@ -149,7 +153,9 @@ export default function DealWizard() {
               </div>
               <div className="flex justify-between px-4 py-2.5">
                 <span className="text-slate-500">Aluguel mensal</span>
-                <span className="font-semibold text-slate-800">{fmt(formData.revenue?.monthlyRent ?? 0)}</span>
+                <span className="font-semibold text-slate-800">
+                  {fmt(formData.revenue?.monthlyRent ?? 0)}
+                </span>
               </div>
               <div className="flex justify-between px-4 py-2.5">
                 <span className="text-slate-500">Vacância</span>
@@ -160,7 +166,7 @@ export default function DealWizard() {
             </div>
 
             {apiError && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {apiError}
               </p>
             )}
@@ -169,14 +175,14 @@ export default function DealWizard() {
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="w-1/3 border border-slate-200 text-slate-700 p-2.5 rounded-xl hover:bg-slate-50 font-semibold text-sm transition-colors"
+                className="w-1/3 rounded-xl border border-slate-200 p-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
               >
                 Voltar
               </button>
               <button
                 onClick={calculateDeal}
                 disabled={loading}
-                className="w-2/3 bg-slate-900 hover:bg-slate-700 disabled:bg-slate-300 text-white p-2.5 rounded-xl font-black text-sm transition-colors"
+                className="w-2/3 rounded-xl bg-slate-900 p-2.5 text-sm font-black text-white transition-colors hover:bg-slate-700 disabled:bg-slate-300"
               >
                 {loading ? 'Calculando...' : 'Rodar Análise →'}
               </button>

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const dealSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  purchasePrice: z.number().positive("Purchase price must be positive"),
+  name: z.string().min(3, 'Name must be at least 3 characters'),
+  purchasePrice: z.number().positive('Purchase price must be positive'),
   acquisitionCosts: z.object({
     itbiPercent: z.number().min(0).max(0.1), // Max 10%
     cartorio: z.number().min(0),

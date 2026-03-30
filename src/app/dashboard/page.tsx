@@ -14,20 +14,24 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <span className="text-white text-xs font-black">I</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600">
+              <span className="text-xs font-black text-white">I</span>
             </div>
-            <span className="font-black text-slate-900 tracking-tight">ImmoYield</span>
-            <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">beta</span>
+            <span className="font-black tracking-tight text-slate-900">ImmoYield</span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+              beta
+            </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 hidden sm:block truncate max-w-[160px]">{user.email}</span>
+            <span className="hidden max-w-[160px] truncate text-xs text-slate-400 sm:block">
+              {user.email}
+            </span>
             <Link
               href="/"
-              className="text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-black text-white transition-colors hover:bg-emerald-500"
             >
               + Nova análise
             </Link>
@@ -36,10 +40,10 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-6 py-10">
+      <div className="mx-auto max-w-3xl px-6 py-10">
         <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Minhas Análises</h1>
-          <p className="text-sm text-slate-400 mt-1">Todos os deals salvos na sua conta.</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Minhas Análises</h1>
+          <p className="mt-1 text-sm text-slate-400">Todos os deals salvos na sua conta.</p>
         </div>
         <DealList />
       </div>

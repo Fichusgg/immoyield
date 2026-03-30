@@ -35,7 +35,7 @@ export function RevenueExpenses() {
         managementPercent: (formData.expenses?.managementPercent ?? 0) * 100,
         maintenancePercent: (formData.expenses?.maintenancePercent ?? 0) * 100,
       },
-    }
+    },
   });
 
   const onSubmit = (data: StepData) => {
@@ -59,39 +59,70 @@ export function RevenueExpenses() {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-xs">Monthly Rent (R$)</label>
-          <input type="number" {...register('revenue.monthlyRent', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            {...register('revenue.monthlyRent', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
         <div>
           <label className="text-xs">Vacancy Rate (%)</label>
-          <input type="number" step="0.1" {...register('revenue.vacancyRate', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            step="0.1"
+            {...register('revenue.vacancyRate', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-xs">Condo (R$)</label>
-          <input type="number" {...register('expenses.condo', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            {...register('expenses.condo', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
         <div>
           <label className="text-xs">IPTU (Monthly)</label>
-          <input type="number" {...register('expenses.iptu', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            {...register('expenses.iptu', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-xs">Management Fee (%)</label>
-          <input type="number" step="0.1" {...register('expenses.managementPercent', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            step="0.1"
+            {...register('expenses.managementPercent', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
         <div>
           <label className="text-xs">Maintenance Reserve (%)</label>
-          <input type="number" step="0.1" {...register('expenses.maintenancePercent', { valueAsNumber: true })} className="w-full p-2 border rounded text-black" />
+          <input
+            type="number"
+            step="0.1"
+            {...register('expenses.maintenancePercent', { valueAsNumber: true })}
+            className="w-full rounded border p-2 text-black"
+          />
         </div>
       </div>
 
       <div className="flex gap-2">
-        <button type="button" onClick={() => setStep(2)} className="w-1/3 border p-2 rounded">Back</button>
-        <button type="submit" className="w-2/3 bg-blue-600 text-white p-2 rounded font-bold">Review Deal</button>
+        <button type="button" onClick={() => setStep(2)} className="w-1/3 rounded border p-2">
+          Back
+        </button>
+        <button type="submit" className="w-2/3 rounded bg-blue-600 p-2 font-bold text-white">
+          Review Deal
+        </button>
       </div>
     </form>
   );

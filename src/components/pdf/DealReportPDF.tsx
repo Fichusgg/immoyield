@@ -9,13 +9,7 @@
  *   Page 4 — 10-year projection table + disclaimer footer
  */
 
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { AnalysisResult } from '@/components/deals/ResultsScreen';
 import type { DealInput } from '@/lib/validations/deal';
 
@@ -341,16 +335,20 @@ const KPI = ({
   variant?: 'default' | 'highlight' | 'positive' | 'negative';
 }) => {
   const cardStyle =
-    variant === 'highlight' ? s.kpiCardHighlight : variant === 'negative' ? s.kpiCardNegative : s.kpiCard;
+    variant === 'highlight'
+      ? s.kpiCardHighlight
+      : variant === 'negative'
+        ? s.kpiCardNegative
+        : s.kpiCard;
   const labelStyle = variant === 'highlight' ? s.kpiLabelHighlight : s.kpiLabel;
   const valueStyle =
     variant === 'highlight'
       ? s.kpiValueHighlight
       : variant === 'positive'
-      ? s.kpiValuePositive
-      : variant === 'negative'
-      ? s.kpiValueNegative
-      : s.kpiValue;
+        ? s.kpiValuePositive
+        : variant === 'negative'
+          ? s.kpiValueNegative
+          : s.kpiValue;
   const subStyle = variant === 'highlight' ? s.kpiSubHighlight : s.kpiSub;
 
   return (
@@ -390,7 +388,11 @@ export interface DealReportPDFProps {
   dealName?: string;
 }
 
-export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }: DealReportPDFProps) {
+export function DealReportPDF({
+  result,
+  inputs,
+  dealName = 'Análise de Deal',
+}: DealReportPDFProps) {
   const { metrics, schedule, projections } = result;
   const cashFlowPositive = metrics.monthlyCashFlow >= 0;
 
@@ -444,7 +446,12 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
             sub="por mês"
             variant={cashFlowPositive ? 'positive' : 'negative'}
           />
-          <KPI label="Cap Rate" value={fmtPct(metrics.capRate)} sub="retorno bruto a.a." variant="highlight" />
+          <KPI
+            label="Cap Rate"
+            value={fmtPct(metrics.capRate)}
+            sub="retorno bruto a.a."
+            variant="highlight"
+          />
         </View>
         <View style={s.kpiRow}>
           <KPI
@@ -456,7 +463,11 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
           <KPI label="NOI Mensal" value={fmt(noi)} sub="resultado operacional líquido" />
         </View>
         <View style={[s.kpiRow, { marginBottom: 0 }]}>
-          <KPI label="Investimento Total" value={fmt(metrics.totalInvestment)} sub="preço + custos de aquisição" />
+          <KPI
+            label="Investimento Total"
+            value={fmt(metrics.totalInvestment)}
+            sub="preço + custos de aquisição"
+          />
           <KPI label="Capital Próprio" value={fmt(metrics.cashOutlay)} sub="entrada efetiva" />
         </View>
 
@@ -520,18 +531,51 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
         <View style={s.card}>
           {[
             { label: 'Aluguel bruto', value: grossRent, ratio: 1, color: C.sky500 },
-            { label: '− Vacância', value: -vacancyLoss, ratio: vacancyLoss / grossRent, color: C.red500 },
-            { label: '= Aluguel efetivo', value: effRent, ratio: effRent / grossRent, color: C.slate700 },
-            { label: '− Condomínio', value: -inputs.expenses.condo, ratio: inputs.expenses.condo / grossRent, color: C.amber400 },
-            { label: '− IPTU', value: -inputs.expenses.iptu, ratio: inputs.expenses.iptu / grossRent, color: C.amber400 },
+            {
+              label: '− Vacância',
+              value: -vacancyLoss,
+              ratio: vacancyLoss / grossRent,
+              color: C.red500,
+            },
+            {
+              label: '= Aluguel efetivo',
+              value: effRent,
+              ratio: effRent / grossRent,
+              color: C.slate700,
+            },
+            {
+              label: '− Condomínio',
+              value: -inputs.expenses.condo,
+              ratio: inputs.expenses.condo / grossRent,
+              color: C.amber400,
+            },
+            {
+              label: '− IPTU',
+              value: -inputs.expenses.iptu,
+              ratio: inputs.expenses.iptu / grossRent,
+              color: C.amber400,
+            },
             { label: '− Gestão', value: -mgmtCost, ratio: mgmtCost / grossRent, color: C.amber400 },
-            { label: '− Manutenção', value: -maintCost, ratio: maintCost / grossRent, color: C.amber400 },
+            {
+              label: '− Manutenção',
+              value: -maintCost,
+              ratio: maintCost / grossRent,
+              color: C.amber400,
+            },
             { label: '= NOI', value: noi, ratio: noi / grossRent, color: C.emerald500 },
           ].map((row, i) => (
             <View key={i} style={s.waterfallRow}>
               <Text style={s.waterfallLabel}>{row.label}</Text>
               <InlineBar ratio={row.ratio} color={row.color} />
-              <Text style={{ width: 64, fontSize: 9, fontFamily: 'Helvetica-Bold', textAlign: 'right', color: row.value >= 0 ? C.slate900 : C.red500 }}>
+              <Text
+                style={{
+                  width: 64,
+                  fontSize: 9,
+                  fontFamily: 'Helvetica-Bold',
+                  textAlign: 'right',
+                  color: row.value >= 0 ? C.slate900 : C.red500,
+                }}
+              >
                 {fmt(row.value)}
               </Text>
             </View>
@@ -540,15 +584,35 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
             <View style={s.waterfallRow}>
               <Text style={s.waterfallLabel}>− Parcela (mês 1)</Text>
               <InlineBar ratio={firstInstallment / grossRent} color={C.red500} />
-              <Text style={{ width: 64, fontSize: 9, fontFamily: 'Helvetica-Bold', textAlign: 'right', color: C.red500 }}>
+              <Text
+                style={{
+                  width: 64,
+                  fontSize: 9,
+                  fontFamily: 'Helvetica-Bold',
+                  textAlign: 'right',
+                  color: C.red500,
+                }}
+              >
                 {fmt(-firstInstallment)}
               </Text>
             </View>
           )}
-          <View style={[s.waterfallRow, { backgroundColor: cashFlowPositive ? C.emerald50 : C.red50 }]}>
-            <Text style={[s.waterfallLabel, { fontFamily: 'Helvetica-Bold' }]}>= Fluxo de Caixa</Text>
+          <View
+            style={[s.waterfallRow, { backgroundColor: cashFlowPositive ? C.emerald50 : C.red50 }]}
+          >
+            <Text style={[s.waterfallLabel, { fontFamily: 'Helvetica-Bold' }]}>
+              = Fluxo de Caixa
+            </Text>
             <View style={{ flex: 3 }} />
-            <Text style={{ width: 64, fontSize: 9, fontFamily: 'Helvetica-Bold', textAlign: 'right', color: cashFlowPositive ? C.emerald500 : C.red500 }}>
+            <Text
+              style={{
+                width: 64,
+                fontSize: 9,
+                fontFamily: 'Helvetica-Bold',
+                textAlign: 'right',
+                color: cashFlowPositive ? C.emerald500 : C.red500,
+              }}
+            >
               {fmt(metrics.monthlyCashFlow)}
             </Text>
           </View>
@@ -558,13 +622,25 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
         <View style={s.card}>
           {[
             { name: 'Cap Rate', value: metrics.capRate, color: C.sky500 },
-            { name: 'Cash-on-Cash', value: metrics.cashOnCash, color: metrics.cashOnCash >= 0 ? C.emerald500 : C.red500 },
+            {
+              name: 'Cash-on-Cash',
+              value: metrics.cashOnCash,
+              color: metrics.cashOnCash >= 0 ? C.emerald500 : C.red500,
+            },
             { name: 'CDI (referência)', value: CDI, color: C.slate400 },
             { name: 'FII (referência)', value: FII, color: C.slate400 },
           ].map((b, i) => (
             <View key={i} style={s.benchRow}>
               <Text style={s.benchName}>{b.name}</Text>
-              <View style={{ flex: 1, height: 10, backgroundColor: C.slate100, borderRadius: 5, overflow: 'hidden' }}>
+              <View
+                style={{
+                  flex: 1,
+                  height: 10,
+                  backgroundColor: C.slate100,
+                  borderRadius: 5,
+                  overflow: 'hidden',
+                }}
+              >
                 <View
                   style={{
                     height: 10,
@@ -574,7 +650,15 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
                   }}
                 />
               </View>
-              <Text style={{ width: 44, fontSize: 9, fontFamily: 'Helvetica-Bold', textAlign: 'right', color: b.color }}>
+              <Text
+                style={{
+                  width: 44,
+                  fontSize: 9,
+                  fontFamily: 'Helvetica-Bold',
+                  textAlign: 'right',
+                  color: b.color,
+                }}
+              >
                 {fmtPct(b.value)}
               </Text>
             </View>
@@ -608,7 +692,12 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
                   <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.installment)}</Text>
                   <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.interest)}</Text>
                   <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.amortization)}</Text>
-                  <Text style={[p.cashFlow >= 0 ? s.tdValuePositive : s.tdValueNegative, { flex: 2, fontSize: 8 }]}>
+                  <Text
+                    style={[
+                      p.cashFlow >= 0 ? s.tdValuePositive : s.tdValueNegative,
+                      { flex: 2, fontSize: 8 },
+                    ]}
+                  >
                     {fmtK(p.cashFlow)}
                   </Text>
                 </View>
@@ -629,10 +718,16 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
               </View>
               {amortYearly.map((p, i) => (
                 <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-                  <Text style={[s.tdLabel, { flex: 1, fontSize: 8 }]}>{Math.round(p.month / 12)}</Text>
-                  <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.remainingBalance)}</Text>
+                  <Text style={[s.tdLabel, { flex: 1, fontSize: 8 }]}>
+                    {Math.round(p.month / 12)}
+                  </Text>
+                  <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>
+                    {fmtK(p.remainingBalance)}
+                  </Text>
                   <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.interest * 12)}</Text>
-                  <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.amortization * 12)}</Text>
+                  <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>
+                    {fmtK(p.amortization * 12)}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -655,13 +750,20 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
                 <Text style={[s.thText, { flex: 2, textAlign: 'right' }]}>Valorização</Text>
               </View>
               {projections.map((p, i) => {
-                const appreciation = ((p.estimatedValue - inputs.purchasePrice) / inputs.purchasePrice) * 100;
+                const appreciation =
+                  ((p.estimatedValue - inputs.purchasePrice) / inputs.purchasePrice) * 100;
                 return (
                   <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
                     <Text style={[s.tdLabel, { flex: 1, fontSize: 8 }]}>{p.year}</Text>
-                    <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>{fmtK(p.estimatedValue)}</Text>
-                    <Text style={[s.tdValuePositive, { flex: 2, fontSize: 8 }]}>{fmtK(p.equity)}</Text>
-                    <Text style={[s.tdValuePositive, { flex: 2, fontSize: 8 }]}>+{appreciation.toFixed(1)}%</Text>
+                    <Text style={[s.tdValue, { flex: 2, fontSize: 8 }]}>
+                      {fmtK(p.estimatedValue)}
+                    </Text>
+                    <Text style={[s.tdValuePositive, { flex: 2, fontSize: 8 }]}>
+                      {fmtK(p.equity)}
+                    </Text>
+                    <Text style={[s.tdValuePositive, { flex: 2, fontSize: 8 }]}>
+                      +{appreciation.toFixed(1)}%
+                    </Text>
                   </View>
                 );
               })}
@@ -678,7 +780,9 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
             ['Fluxo de Caixa Mensal', fmt(metrics.monthlyCashFlow)],
             ['Investimento Total', fmt(metrics.totalInvestment)],
             ['Capital Próprio', fmt(metrics.cashOutlay)],
-            ...(metrics.loanAmount > 0 ? [['Saldo Financiamento (início)', fmt(metrics.loanAmount)]] : []),
+            ...(metrics.loanAmount > 0
+              ? [['Saldo Financiamento (início)', fmt(metrics.loanAmount)]]
+              : []),
           ].map(([label, value], i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
               <Text style={s.tdLabel}>{label}</Text>
@@ -692,11 +796,12 @@ export function DealReportPDF({ result, inputs, dealName = 'Análise de Deal' }:
             Aviso Legal
           </Text>
           <Text style={s.disclaimerText}>
-            Este relatório foi gerado automaticamente pela plataforma immoyield para fins informativos.
-            As projeções de valorização (5% a.a.) são estimativas baseadas em tendências históricas e
-            não constituem garantia de retorno. Taxas de CDI e FII são referências de mercado e podem variar.
-            Consulte um profissional de investimentos antes de tomar decisões financeiras.
-            O immoyield não se responsabiliza por decisões baseadas neste relatório.
+            Este relatório foi gerado automaticamente pela plataforma immoyield para fins
+            informativos. As projeções de valorização (5% a.a.) são estimativas baseadas em
+            tendências históricas e não constituem garantia de retorno. Taxas de CDI e FII são
+            referências de mercado e podem variar. Consulte um profissional de investimentos antes
+            de tomar decisões financeiras. O immoyield não se responsabiliza por decisões baseadas
+            neste relatório.
           </Text>
         </View>
 
