@@ -3,22 +3,39 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const redirectingRef = useRef(false);
+
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const checked = useRef(false);
+
+  const goToMeusNegocios = useCallback(() => {
+    if (redirectingRef.current) return;
+    redirectingRef.current = true;
+    setLoginSuccess(true);
+    window.setTimeout(() => {
+      router.replace('/meus-negocios');
+    }, 800);
+  }, [router]);
 
   useEffect(() => {
-    if (checked.current) return;
-    checked.current = true;
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) router.replace('/dashboard');
+      if (data.user) goToMeusNegocios();
     });
-  }, [router, supabase.auth]);
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') goToMeusNegocios();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [goToMeusNegocios, supabase]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
@@ -40,6 +57,16 @@ export default function AuthPage() {
             Salve e gerencie suas análises de investimento.
           </p>
 
+          {loginSuccess ? (
+            <div
+              role="status"
+              aria-live="polite"
+              className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"
+            >
+              Login realizado com sucesso. Redirecionando…
+            </div>
+          ) : null}
+
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -58,7 +85,7 @@ export default function AuthPage() {
               },
             }}
             providers={[]}
-            redirectTo={`${origin}/auth/callback`}
+            redirectTo={`${origin}/auth/callback?next=/meus-negocios`}
             localization={{
               variables: {
                 sign_in: {

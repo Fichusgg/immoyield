@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  if (request.nextUrl.pathname.startsWith('/meus-negocios') && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/auth';
 

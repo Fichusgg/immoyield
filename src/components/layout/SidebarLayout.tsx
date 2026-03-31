@@ -26,7 +26,7 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
         <div className="border-b border-[#e5e5e3] px-5 py-5">
           <Link
             href="/"
-            className="block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a5c3a] focus-visible:ring-offset-2"
+            className="block rounded-sm focus-visible:ring-2 focus-visible:ring-[#1a5c3a] focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             <p className="text-base font-bold tracking-tight text-[#1a1a1a]">ImmoYield</p>
             <p className="mt-0.5 text-[9px] font-semibold tracking-widest text-[#a3a3a1] uppercase">

@@ -148,7 +148,7 @@ export default async function Home() {
               CONTATO
             </Link>
           </div>
-          <span className="text-xs text-[#a3a3a1]">© 2024 ImmoYield.</span>
+          <span className="text-xs text-[#a3a3a1]">© 2026 ImmoYield.</span>
         </div>
       </footer>
     </main>
