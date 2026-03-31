@@ -4,24 +4,33 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { createClient } from '@/lib/supabase/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function AuthPage() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const redirectingRef = useRef(false);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const nextParam = searchParams.get('next');
+  const nextPath = nextParam?.startsWith('/') ? nextParam : '/meus-negocios';
 
   const goToMeusNegocios = useCallback(() => {
     if (redirectingRef.current) return;
     redirectingRef.current = true;
     setLoginSuccess(true);
     window.setTimeout(() => {
-      router.replace('/meus-negocios');
+      router.replace(nextPath);
     }, 800);
-  }, [router]);
+  }, [nextPath, router]);
+
+  useEffect(() => {
+    setRedirectTo(
+      `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+    );
+  }, [nextPath]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -67,54 +76,56 @@ export default function AuthPage() {
             </div>
           ) : null}
 
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#059669',
-                    brandAccent: '#047857',
+          {redirectTo ? (
+            <Auth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#059669',
+                      brandAccent: '#047857',
+                    },
+                    radii: {
+                      borderRadiusButton: '12px',
+                      inputBorderRadius: '12px',
+                    },
                   },
-                  radii: {
-                    borderRadiusButton: '12px',
-                    inputBorderRadius: '12px',
+                },
+              }}
+              providers={[]}
+              redirectTo={redirectTo}
+              localization={{
+                variables: {
+                  sign_in: {
+                    email_label: 'Email',
+                    password_label: 'Senha',
+                    button_label: 'Entrar',
+                    link_text: 'Já tem conta? Entre',
+                    email_input_placeholder: 'seu@email.com',
+                    password_input_placeholder: 'Sua senha',
+                  },
+                  sign_up: {
+                    email_label: 'Email',
+                    password_label: 'Senha',
+                    button_label: 'Criar conta',
+                    link_text: 'Não tem conta? Cadastre-se',
+                    email_input_placeholder: 'seu@email.com',
+                    password_input_placeholder: 'Mínimo 6 caracteres',
+                    confirmation_text: 'Verifique seu email para confirmar o cadastro.',
+                  },
+                  forgotten_password: {
+                    link_text: 'Esqueceu a senha?',
+                    button_label: 'Enviar instruções',
+                    email_label: 'Email',
+                    email_input_placeholder: 'seu@email.com',
+                    confirmation_text: 'Verifique seu email.',
                   },
                 },
-              },
-            }}
-            providers={[]}
-            redirectTo={`${origin}/auth/callback?next=/meus-negocios`}
-            localization={{
-              variables: {
-                sign_in: {
-                  email_label: 'Email',
-                  password_label: 'Senha',
-                  button_label: 'Entrar',
-                  link_text: 'Já tem conta? Entre',
-                  email_input_placeholder: 'seu@email.com',
-                  password_input_placeholder: 'Sua senha',
-                },
-                sign_up: {
-                  email_label: 'Email',
-                  password_label: 'Senha',
-                  button_label: 'Criar conta',
-                  link_text: 'Não tem conta? Cadastre-se',
-                  email_input_placeholder: 'seu@email.com',
-                  password_input_placeholder: 'Mínimo 6 caracteres',
-                  confirmation_text: 'Verifique seu email para confirmar o cadastro.',
-                },
-                forgotten_password: {
-                  link_text: 'Esqueceu a senha?',
-                  button_label: 'Enviar instruções',
-                  email_label: 'Email',
-                  email_input_placeholder: 'seu@email.com',
-                  confirmation_text: 'Verifique seu email.',
-                },
-              },
-            }}
-          />
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </main>

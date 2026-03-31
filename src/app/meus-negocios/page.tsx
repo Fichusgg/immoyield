@@ -10,7 +10,7 @@ export default async function MeusNegociosPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect('/auth');
+  if (!user) redirect('/auth?next=/meus-negocios');
 
   return (
     <SidebarLayout userEmail={user.email}>

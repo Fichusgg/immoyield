@@ -9,15 +9,36 @@ function copyResponseCookies(from: NextResponse, to: NextResponse) {
 
 export async function middleware(request: NextRequest) {
   const { response, user } = await getSupabaseSession(request);
+  const pathname = request.nextUrl.pathname;
 
   // Public share links — no auth gate
-  if (request.nextUrl.pathname.startsWith('/r/')) {
+  if (pathname.startsWith('/r/')) {
     return response;
   }
 
-  if (request.nextUrl.pathname.startsWith('/meus-negocios') && !user) {
+  // Vercel cron endpoints — no auth gate
+  if (pathname.startsWith('/api/cron/')) {
+    return response;
+  }
+
+  // Static files (e.g. images in /public) — no auth gate
+  const lastSegment = pathname.split('/').pop() ?? '';
+  const isStaticFile = lastSegment.includes('.');
+  if (isStaticFile) {
+    return response;
+  }
+
+  // Auth routes + landing page — public
+  const isPublic =
+    pathname === '/' || pathname === '/auth' || pathname.startsWith('/auth/callback');
+  if (isPublic) {
+    return response;
+  }
+
+  if (!user && (request.method === 'GET' || request.method === 'HEAD')) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/auth';
+    redirectUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`);
 
     const redirectResponse = NextResponse.redirect(redirectUrl);
     copyResponseCookies(response, redirectResponse);
