@@ -4,47 +4,45 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { createClient } from '@/lib/supabase/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const redirectingRef = useRef(false);
+  const nextPathRef = useRef('/meus-negocios');
 
-  const nextParam = searchParams.get('next');
-  const nextPath = nextParam?.startsWith('/') ? nextParam : '/meus-negocios';
-
-  const goToMeusNegocios = useCallback(() => {
+  const startRedirect = useCallback((to: string) => {
     if (redirectingRef.current) return;
     redirectingRef.current = true;
     setLoginSuccess(true);
     window.setTimeout(() => {
-      router.replace(nextPath);
+      router.replace(to);
     }, 800);
-  }, [nextPath, router]);
+  }, [router]);
 
   useEffect(() => {
-    setRedirectTo(
-      `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-    );
-  }, [nextPath]);
+    const params = new URLSearchParams(window.location.search);
+    const nextParam = params.get('next');
+    const nextPath = nextParam?.startsWith('/') ? nextParam : '/meus-negocios';
+    nextPathRef.current = nextPath;
+    const redirectToUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+    queueMicrotask(() => setRedirectTo(redirectToUrl));
 
-  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) goToMeusNegocios();
+      if (data.user) startRedirect(nextPathRef.current);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') goToMeusNegocios();
+      if (event === 'SIGNED_IN') startRedirect(nextPathRef.current);
     });
 
     return () => subscription.unsubscribe();
-  }, [goToMeusNegocios, supabase]);
+  }, [startRedirect, supabase]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
