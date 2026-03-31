@@ -10,17 +10,27 @@ import { createClient } from '@/lib/supabase/client';
 import { DealInput } from '@/lib/validations/deal';
 
 const STEPS = [
-  { n: 1, label: 'Propriedade' },
-  { n: 2, label: 'Financiamento' },
+  { n: 1, label: 'Imóvel' },
+  { n: 2, label: 'Custos' },
   { n: 3, label: 'Receitas' },
-  { n: 4, label: 'Análise' },
+  { n: 4, label: 'Revisão' },
 ];
 
 function fmt(value: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-export default function DealWizard() {
+interface Benchmarks {
+  cdi: number;
+  fii: number;
+  updatedAt: string | null;
+}
+
+interface DealWizardProps {
+  benchmarks?: Benchmarks;
+}
+
+export default function DealWizard({ benchmarks }: DealWizardProps) {
   const { step, formData, setStep, reset } = useDealStore();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -70,99 +80,76 @@ export default function DealWizard() {
         inputs={formData as DealInput}
         onReset={handleReset}
         isAuthenticated={isAuthenticated}
+        benchmarks={benchmarks}
       />
     );
   }
 
+  const progress = ((step - 1) / (STEPS.length - 1)) * 100;
+
   return (
-    <div className="w-full">
-      {/* Step indicator */}
-      <div className="mb-8 flex items-center gap-0">
-        {STEPS.map((s, i) => (
-          <div key={s.n} className="flex flex-1 items-center">
-            <div className="flex flex-1 flex-col items-center gap-1">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-all duration-300 ${
-                  step > s.n
-                    ? 'bg-emerald-500 text-white'
-                    : step === s.n
-                      ? 'bg-slate-900 text-white ring-4 ring-slate-200'
-                      : 'bg-slate-100 text-slate-400'
-                }`}
-              >
-                {step > s.n ? '✓' : s.n}
-              </div>
-              <span
-                className={`text-[10px] font-semibold tracking-wider uppercase ${
-                  step >= s.n ? 'text-slate-700' : 'text-slate-300'
-                }`}
-              >
-                {s.label}
-              </span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div
-                className={`mb-4 h-px flex-1 transition-all duration-500 ${
-                  step > s.n ? 'bg-emerald-400' : 'bg-slate-200'
-                }`}
-              />
-            )}
-          </div>
-        ))}
+    <div className="mx-auto max-w-2xl">
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <p className="mb-1 text-[10px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
+          Onboarding Flow
+        </p>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">Novo Investimento</h1>
+          <span className="text-sm text-[#737373]">
+            Passo {step} de {STEPS.length}: {STEPS[step - 1].label}
+          </span>
+        </div>
       </div>
 
-      {/* Step content */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      {/* ── Progress bar ────────────────────────────────────────────────────── */}
+      <div className="mb-8 h-1.5 w-full rounded-full bg-[#e5e5e3]">
+        <div
+          className="h-1.5 rounded-full bg-[#1a5c3a] transition-all duration-500"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {/* ── Form card ───────────────────────────────────────────────────────── */}
+      <div className="rounded-xl border border-[#e5e5e3] bg-white p-8">
         {step === 1 && <PropertyBasics />}
         {step === 2 && <FinancingDetails />}
         {step === 3 && <RevenueExpenses />}
 
         {step === 4 && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-black text-slate-900">Revisar &amp; Calcular</h2>
-              <p className="mt-0.5 text-sm text-slate-500">
+              <h2 className="text-lg font-bold text-[#1a1a1a]">Revisar &amp; Calcular</h2>
+              <p className="mt-1 text-sm text-[#737373]">
                 Confirme os dados antes de rodar a análise.
               </p>
             </div>
 
-            <div className="divide-y divide-slate-100 rounded-xl border border-slate-100 bg-slate-50 text-sm">
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">Imóvel</span>
-                <span className="font-semibold text-slate-800">{formData.name}</span>
-              </div>
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">Preço de compra</span>
-                <span className="font-semibold text-slate-800">
-                  {fmt(formData.purchasePrice ?? 0)}
-                </span>
-              </div>
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">ITBI</span>
-                <span className="font-semibold text-slate-800">
-                  {((formData.acquisitionCosts?.itbiPercent ?? 0) * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">Financiamento</span>
-                <span className="font-semibold text-slate-800">
-                  {formData.financing?.enabled
+            <div className="divide-y divide-[#f5f5f3] rounded-xl border border-[#e5e5e3] text-sm">
+              {[
+                { label: 'Imóvel', value: formData.name },
+                { label: 'Preço de compra', value: fmt(formData.purchasePrice ?? 0) },
+                {
+                  label: 'ITBI',
+                  value: `${((formData.acquisitionCosts?.itbiPercent ?? 0) * 100).toFixed(1)}%`,
+                },
+                {
+                  label: 'Financiamento',
+                  value: formData.financing?.enabled
                     ? `${formData.financing.system} · ${formData.financing.interestRateYear}% a.a. · ${formData.financing.termMonths} meses`
-                    : 'À vista'}
-                </span>
-              </div>
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">Aluguel mensal</span>
-                <span className="font-semibold text-slate-800">
-                  {fmt(formData.revenue?.monthlyRent ?? 0)}
-                </span>
-              </div>
-              <div className="flex justify-between px-4 py-2.5">
-                <span className="text-slate-500">Vacância</span>
-                <span className="font-semibold text-slate-800">
-                  {((formData.revenue?.vacancyRate ?? 0) * 100).toFixed(0)}%
-                </span>
-              </div>
+                    : 'À vista',
+                },
+                { label: 'Aluguel mensal', value: fmt(formData.revenue?.monthlyRent ?? 0) },
+                {
+                  label: 'Vacância',
+                  value: `${((formData.revenue?.vacancyRate ?? 0) * 100).toFixed(0)}%`,
+                },
+              ].map((row) => (
+                <div key={row.label} className="flex justify-between px-4 py-3">
+                  <span className="text-[#737373]">{row.label}</span>
+                  <span className="font-semibold text-[#1a1a1a]">{row.value}</span>
+                </div>
+              ))}
             </div>
 
             {apiError && (
@@ -171,18 +158,18 @@ export default function DealWizard() {
               </p>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="w-1/3 rounded-xl border border-slate-200 p-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                className="w-1/3 rounded-lg border border-[#e5e5e3] px-4 py-3 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a]"
               >
                 Voltar
               </button>
               <button
                 onClick={calculateDeal}
                 disabled={loading}
-                className="w-2/3 rounded-xl bg-slate-900 p-2.5 text-sm font-black text-white transition-colors hover:bg-slate-700 disabled:bg-slate-300"
+                className="w-2/3 rounded-lg bg-[#1a1a1a] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333] disabled:bg-[#a3a3a1]"
               >
                 {loading ? 'Calculando...' : 'Rodar Análise →'}
               </button>

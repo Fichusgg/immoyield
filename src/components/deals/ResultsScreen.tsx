@@ -16,7 +16,14 @@ import {
   ReferenceLine,
   Legend,
 } from 'recharts';
-import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
+import {
+  RotateCcw,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  Check,
+  TrendingUp as BeatIcon,
+} from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
@@ -55,12 +62,19 @@ export interface AnalysisResult {
   projections: Projection[];
 }
 
+interface Benchmarks {
+  cdi: number;
+  fii: number;
+  updatedAt: string | null;
+}
+
 interface ResultsScreenProps {
   result: AnalysisResult;
   dealName?: string;
   inputs: DealInput;
   onReset: () => void;
   isAuthenticated?: boolean;
+  benchmarks?: Benchmarks;
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -226,6 +240,88 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="mb-4 text-xs font-black tracking-widest text-slate-400 uppercase">{children}</h3>
 );
 
+// ─── CDI Comparison Banner ────────────────────────────────────────────────────
+
+const CDIBanner = ({
+  yourReturn,
+  label,
+  benchmarks,
+}: {
+  yourReturn: number;
+  label: string;
+  benchmarks?: Benchmarks;
+}) => {
+  const cdiRate = benchmarks?.cdi ?? 13.65;
+  const delta = yourReturn - cdiRate;
+  const beating = delta >= 0;
+
+  return (
+    <div
+      className={`rounded-2xl p-5 ${
+        beating ? 'border border-emerald-200 bg-emerald-50' : 'border border-amber-200 bg-amber-50'
+      }`}
+    >
+      <p
+        className={`mb-3 text-[10px] font-black tracking-widest uppercase ${
+          beating ? 'text-emerald-500' : 'text-amber-500'
+        }`}
+      >
+        Seu retorno vs CDI
+      </p>
+
+      <div className="flex items-center justify-between gap-4">
+        {/* Left: your return + CDI reference */}
+        <div className="flex-1 space-y-2">
+          <div>
+            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-slate-400 uppercase">
+              {label}
+            </p>
+            <p className="text-3xl font-black tracking-tight text-slate-900 tabular-nums">
+              {fmtPct(yourReturn)}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-500">vs CDI:</span>
+            <span className="text-sm font-bold text-slate-700">{fmtPct(cdiRate)}</span>
+            {benchmarks?.updatedAt && (
+              <span className="text-[9px] text-slate-400">
+                (atualizado {new Date(benchmarks.updatedAt).toLocaleDateString('pt-BR')})
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right: delta badge */}
+        <div
+          className={`flex min-w-[90px] flex-col items-center justify-center rounded-2xl px-5 py-4 ${
+            beating ? 'bg-emerald-500' : 'bg-amber-400'
+          }`}
+        >
+          {beating ? (
+            <BeatIcon size={14} className="mb-1 text-white opacity-80" />
+          ) : (
+            <TrendingDown size={14} className="mb-1 text-white opacity-80" />
+          )}
+          <p className="text-xl leading-none font-black text-white tabular-nums">
+            {beating ? '+' : ''}
+            {fmtPct(delta)}
+          </p>
+          <p className="mt-1 text-center text-[9px] leading-tight font-semibold text-white opacity-80">
+            {beating ? 'acima do CDI' : 'abaixo do CDI'}
+          </p>
+        </div>
+      </div>
+
+      {/* Context note */}
+      <p className={`mt-3 text-[10px] ${beating ? 'text-emerald-600' : 'text-amber-600'}`}>
+        {beating
+          ? `Seu imóvel supera o CDI em ${fmtPct(delta)}. Excelente retorno ajustado ao risco.`
+          : `O CDI supera seu retorno em ${fmtPct(Math.abs(delta))}. Considere renegociar o financiamento ou reduzir custos.`}
+      </p>
+    </div>
+  );
+};
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ResultsScreen({
@@ -234,6 +330,7 @@ export default function ResultsScreen({
   inputs,
   onReset,
   isAuthenticated,
+  benchmarks,
 }: ResultsScreenProps) {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
@@ -324,9 +421,14 @@ export default function ResultsScreen({
       setSaving(false);
     }
   };
+
   const { metrics, schedule, projections } = result;
 
   const cashFlowPositive = metrics.monthlyCashFlow >= 0;
+
+  // ── Rates ───────────────────────────────────────────────────────────────────
+  const CDI_RATE = benchmarks?.cdi ?? 13.65;
+  const FII_RATE = benchmarks?.fii ?? 8.0;
 
   // ── Monthly cashflow bar data (first 24 months from schedule) ───────────────
   const cashflowMonthlyData = schedule.slice(0, 24).map((p) => ({
@@ -352,8 +454,6 @@ export default function ResultsScreen({
     }));
 
   // ── Benchmark comparison ────────────────────────────────────────────────────
-  const CDI_RATE = 10.5; // approximate CDI a.a.
-  const FII_RATE = 8.0; // typical FII dividend yield
   const benchmarkData = [
     { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#0ea5e9' },
     {
@@ -424,6 +524,13 @@ export default function ResultsScreen({
           sub="resultado operacional líquido"
         />
       </div>
+
+      {/* ── CDI Comparison Banner ─────────────────────────────────────────────*/}
+      <CDIBanner
+        yourReturn={metrics.cashOnCash}
+        label="Cash-on-Cash a.a."
+        benchmarks={benchmarks}
+      />
 
       {/* ── Capital Breakdown ────────────────────────────────────────────────── */}
       <div>
@@ -540,7 +647,7 @@ export default function ResultsScreen({
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-right text-[10px] text-slate-400">
-            CDI e FII são referências de mercado, não garantidas.
+            CDI atualizado semanalmente via Banco Central. FII é referência de mercado.
           </p>
         </div>
       </div>

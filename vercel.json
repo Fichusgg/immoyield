@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-benchmarks",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}

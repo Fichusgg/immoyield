@@ -22,6 +22,12 @@ const stepSchema = z.object({
 
 type StepData = z.infer<typeof stepSchema>;
 
+const fieldClass =
+  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#1a1a1a] focus:bg-white';
+
+const labelClass =
+  'mb-1.5 block text-[10px] font-semibold tracking-widest text-[#737373] uppercase';
+
 export function FinancingDetails() {
   const { formData, updateFormData, setStep } = useDealStore();
   const { register, handleSubmit, control } = useForm<StepData>({
@@ -57,104 +63,119 @@ export function FinancingDetails() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="space-y-4 border-b pb-4">
-        <h3 className="font-bold">Acquisition Costs</h3>
-        <div className="grid grid-cols-2 gap-4">
+      {/* Acquisition costs */}
+      <div>
+        <p className="mb-4 text-sm font-semibold text-[#1a1a1a]">Custos de Aquisição</p>
+        <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="mb-1 block text-xs">ITBI (%)</label>
+            <label className={labelClass}>ITBI (%)</label>
             <input
               type="number"
               step="0.01"
               {...register('acquisitionCosts.itbiPercent', { valueAsNumber: true })}
-              className="w-full rounded border p-2 text-black"
+              className={fieldClass}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs">Cartorio (R$)</label>
+            <label className={labelClass}>Cartório (R$)</label>
             <input
               type="number"
               {...register('acquisitionCosts.cartorio', { valueAsNumber: true })}
-              className="w-full rounded border p-2 text-black"
+              className={fieldClass}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs">Reforms (R$)</label>
+            <label className={labelClass}>Reformas (R$)</label>
             <input
               type="number"
               {...register('acquisitionCosts.reforms', { valueAsNumber: true })}
-              className="w-full rounded border p-2 text-black"
+              className={fieldClass}
             />
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            {...register('financing.enabled')}
-            id="f-enabled"
-            className="h-4 w-4"
-          />
-          <label htmlFor="f-enabled" className="cursor-pointer font-bold">
-            Use Financing?
+      <div className="border-t border-[#e5e5e3]" />
+
+      {/* Financing toggle */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-[#1a1a1a]">Financiamento</p>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              {...register('financing.enabled')}
+              id="f-enabled"
+              className="sr-only"
+            />
+            <div
+              className={`relative h-5 w-9 rounded-full transition-colors ${
+                isFinancingEnabled ? 'bg-[#1a5c3a]' : 'bg-[#e5e5e3]'
+              }`}
+            >
+              <div
+                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                  isFinancingEnabled ? 'translate-x-4' : 'translate-x-0.5'
+                }`}
+              />
+            </div>
+            <span className="text-xs text-[#737373]">
+              {isFinancingEnabled ? 'Ativado' : 'À vista'}
+            </span>
           </label>
         </div>
 
         {isFinancingEnabled && (
-          <div className="animate-in fade-in slide-in-from-top-1 grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-xs">Down Payment (R$)</label>
+              <label className={labelClass}>Entrada (R$)</label>
               <input
                 type="number"
                 {...register('financing.downPayment', { valueAsNumber: true })}
-                className="w-full rounded border p-2 text-black"
+                className={fieldClass}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs">Interest Rate (% p.a.)</label>
+              <label className={labelClass}>Taxa de juros (% a.a.)</label>
               <input
                 type="number"
                 step="0.1"
                 {...register('financing.interestRateYear', { valueAsNumber: true })}
-                className="w-full rounded border p-2 text-black"
+                className={fieldClass}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs">Loan Term (months)</label>
+              <label className={labelClass}>Prazo (meses)</label>
               <input
                 type="number"
                 {...register('financing.termMonths', { valueAsNumber: true })}
-                className="w-full rounded border p-2 text-black"
+                className={fieldClass}
               />
             </div>
-            <div className="col-span-2">
-              <label className="mb-1 block text-xs">Amortization System</label>
-              <select
-                {...register('financing.system')}
-                className="w-full rounded border p-2 text-black"
-              >
-                <option value="SAC">SAC (Constant Amortization)</option>
-                <option value="PRICE">PRICE (Fixed Installments)</option>
+            <div>
+              <label className={labelClass}>Sistema de amortização</label>
+              <select {...register('financing.system')} className={fieldClass}>
+                <option value="SAC">SAC (Amortização Constante)</option>
+                <option value="PRICE">PRICE (Parcela Fixa)</option>
               </select>
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex gap-2 pt-4">
+      <div className="flex justify-between pt-2">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="w-1/3 rounded border p-2 text-black hover:bg-gray-50"
+          className="rounded-lg border border-[#e5e5e3] px-5 py-2.5 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a]"
         >
-          Back
+          Voltar
         </button>
         <button
           type="submit"
-          className="w-2/3 rounded bg-blue-600 p-2 font-bold text-white transition-colors hover:bg-blue-700"
+          className="rounded-lg bg-[#1a1a1a] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
         >
-          Next: Revenue
+          Próximo →
         </button>
       </div>
     </form>
