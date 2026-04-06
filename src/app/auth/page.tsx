@@ -14,14 +14,17 @@ export default function AuthPage() {
   const redirectingRef = useRef(false);
   const nextPathRef = useRef('/meus-negocios');
 
-  const startRedirect = useCallback((to: string) => {
-    if (redirectingRef.current) return;
-    redirectingRef.current = true;
-    setLoginSuccess(true);
-    window.setTimeout(() => {
-      router.replace(to);
-    }, 800);
-  }, [router]);
+  const startRedirect = useCallback(
+    (to: string) => {
+      if (redirectingRef.current) return;
+      redirectingRef.current = true;
+      setLoginSuccess(true);
+      window.setTimeout(() => {
+        router.replace(to);
+      }, 800);
+    },
+    [router]
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

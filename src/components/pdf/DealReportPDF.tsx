@@ -360,6 +360,9 @@ const KPI = ({
   );
 };
 
+const clampPercent = (pct: number) =>
+  Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : 0;
+
 const InlineBar = ({ ratio, color }: { ratio: number; color: string }) => (
   <View
     style={{
@@ -373,7 +376,7 @@ const InlineBar = ({ ratio, color }: { ratio: number; color: string }) => (
     <View
       style={{
         height: 8,
-        width: `${Math.min(100, Math.max(0, ratio * 100))}%`,
+        width: `${clampPercent(ratio * 100)}%`,
         backgroundColor: color,
         borderRadius: 4,
       }}
@@ -644,7 +647,7 @@ export function DealReportPDF({
                 <View
                   style={{
                     height: 10,
-                    width: `${Math.min(100, Math.max(0, (b.value / maxBench) * 100))}%`,
+                    width: `${clampPercent((b.value / maxBench) * 100)}%`,
                     backgroundColor: b.color,
                     borderRadius: 5,
                   }}

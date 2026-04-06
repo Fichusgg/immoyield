@@ -1,9 +1,10 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDealStore } from '@/store/useDealStore';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 const stepSchema = z.object({
   revenue: z.object({
@@ -22,7 +23,7 @@ type StepData = z.infer<typeof stepSchema>;
 
 export function RevenueExpenses() {
   const { formData, updateFormData, setStep } = useDealStore();
-  const { register, handleSubmit } = useForm<StepData>({
+  const { register, handleSubmit, control } = useForm<StepData>({
     resolver: zodResolver(stepSchema),
     defaultValues: {
       revenue: {
@@ -59,10 +60,17 @@ export function RevenueExpenses() {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-xs">Monthly Rent (R$)</label>
-          <input
-            type="number"
-            {...register('revenue.monthlyRent', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+          <Controller
+            control={control}
+            name="revenue.monthlyRent"
+            render={({ field }) => (
+              <CurrencyInput
+                className="w-full rounded border p-2 text-black"
+                placeholder="0"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
           />
         </div>
         <div>
@@ -79,18 +87,32 @@ export function RevenueExpenses() {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-xs">Condo (R$)</label>
-          <input
-            type="number"
-            {...register('expenses.condo', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+          <Controller
+            control={control}
+            name="expenses.condo"
+            render={({ field }) => (
+              <CurrencyInput
+                className="w-full rounded border p-2 text-black"
+                placeholder="0"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
           />
         </div>
         <div>
           <label className="text-xs">IPTU (Monthly)</label>
-          <input
-            type="number"
-            {...register('expenses.iptu', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+          <Controller
+            control={control}
+            name="expenses.iptu"
+            render={({ field }) => (
+              <CurrencyInput
+                className="w-full rounded border p-2 text-black"
+                placeholder="0"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
           />
         </div>
       </div>

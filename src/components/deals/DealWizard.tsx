@@ -1,24 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useDealStore } from '@/store/useDealStore';
-import { PropertyBasics } from './steps/PropertyBasics';
-import { FinancingDetails } from './steps/FinancingDetails';
-import { RevenueExpenses } from './steps/RevenueExpenses';
+import { DadosImovel } from './tabs/DadosImovel';
+import { CompraECustos } from './tabs/CompraECustos';
+import { ReceitasEDespesas } from './tabs/ReceitasEDespesas';
+import { ProjecoesLongoPrazo } from './tabs/ProjecoesLongoPrazo';
+import { ProjecoesTab } from './tabs/ProjecoesTab';
 import ResultsScreen, { AnalysisResult } from './ResultsScreen';
 import { createClient } from '@/lib/supabase/client';
 import { DealInput } from '@/lib/validations/deal';
+import { useState, useEffect } from 'react';
+import { PROPERTY_TYPE_LABELS } from '@/lib/validations/deal';
 
-const STEPS = [
-  { n: 1, label: 'Imóvel' },
-  { n: 2, label: 'Custos' },
-  { n: 3, label: 'Receitas' },
-  { n: 4, label: 'Revisão' },
+const TABS = [
+  { id: 0, label: 'Dados do Imóvel', sub: 'Descrição, detalhes e endereço' },
+  { id: 1, label: 'Compra & Custos', sub: 'Valor de compra, ITBI e financiamento' },
+  { id: 2, label: 'Receitas & Despesas', sub: 'Aluguel, vacância e despesas' },
+  { id: 3, label: 'Projeções', sub: 'Valorização e horizonte' },
+  { id: 4, label: 'Revisar', sub: 'Confirmar e calcular' },
 ];
-
-function fmt(value: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-}
 
 interface Benchmarks {
   cdi: number;
@@ -31,17 +31,19 @@ interface DealWizardProps {
 }
 
 export default function DealWizard({ benchmarks }: DealWizardProps) {
-  const { step, formData, setStep, reset } = useDealStore();
+  const { activeTab, setActiveTab, formData, reset } = useDealStore();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    reset();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setIsAuthenticated(!!data.user);
-    });
+    supabase.auth.getUser().then(({ data }) => setIsAuthenticated(!!data.user));
   }, []);
 
   const calculateDeal = async () => {
@@ -85,96 +87,94 @@ export default function DealWizard({ benchmarks }: DealWizardProps) {
     );
   }
 
-  const progress = ((step - 1) / (STEPS.length - 1)) * 100;
+  const propertyType = formData.propertyType ?? 'residential';
+  const propertyLabel = PROPERTY_TYPE_LABELS[propertyType];
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-3xl">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <p className="mb-1 text-[10px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
-          Onboarding Flow
-        </p>
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">Novo Investimento</h1>
-          <span className="text-sm text-[#737373]">
-            Passo {step} de {STEPS.length}: {STEPS[step - 1].label}
-          </span>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">
+            {formData.name ? formData.name : 'Nova Análise'}
+          </h1>
+          {formData.name && <p className="mt-0.5 text-sm text-[#737373]">{propertyLabel}</p>}
+        </div>
+        <div className="flex items-center gap-3">
+          {result === null && formData.name && activeTab === 4 && (
+            <button
+              onClick={calculateDeal}
+              disabled={loading}
+              className="rounded-lg bg-[#1a5c3a] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#154d30] disabled:opacity-60"
+            >
+              {loading ? 'Calculando...' : 'Calcular →'}
+            </button>
+          )}
+          <button
+            onClick={handleReset}
+            className="rounded-lg border border-[#e5e5e3] px-4 py-2.5 text-sm text-[#737373] transition-colors hover:bg-[#f5f5f3]"
+          >
+            Recomeçar
+          </button>
         </div>
       </div>
 
-      {/* ── Progress bar ────────────────────────────────────────────────────── */}
-      <div className="mb-8 h-1.5 w-full rounded-full bg-[#e5e5e3]">
-        <div
-          className="h-1.5 rounded-full bg-[#1a5c3a] transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
+      {/* ── Tab strip ───────────────────────────────────────────────────────── */}
+      <div className="mb-6 grid grid-cols-5 overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
+        {TABS.map((tab) => {
+          const active = activeTab === tab.id;
+          const completed = activeTab > tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col gap-0.5 border-r border-[#e5e5e3] px-3 py-4 text-left transition-colors last:border-r-0 ${
+                active
+                  ? 'bg-[#1a1a1a] text-white'
+                  : completed
+                    ? 'bg-[#f5f5f3] text-[#1a1a1a] hover:bg-[#ebebeb]'
+                    : 'text-[#1a1a1a] hover:bg-[#f5f5f3]'
+              }`}
+            >
+              <span
+                className={`text-[11px] font-bold ${
+                  active ? 'text-white' : completed ? 'text-[#1a5c3a]' : 'text-[#1a1a1a]'
+                }`}
+              >
+                {completed && !active ? '✓ ' : ''}
+                {tab.label}
+              </span>
+              <span
+                className={`text-[9px] leading-tight ${
+                  active ? 'text-white/60' : 'text-[#a3a3a1]'
+                }`}
+              >
+                {tab.sub}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* ── Form card ───────────────────────────────────────────────────────── */}
+      {/* ── Tab content ─────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-[#e5e5e3] bg-white p-8">
-        {step === 1 && <PropertyBasics />}
-        {step === 2 && <FinancingDetails />}
-        {step === 3 && <RevenueExpenses />}
-
-        {step === 4 && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-[#1a1a1a]">Revisar &amp; Calcular</h2>
-              <p className="mt-1 text-sm text-[#737373]">
-                Confirme os dados antes de rodar a análise.
-              </p>
-            </div>
-
-            <div className="divide-y divide-[#f5f5f3] rounded-xl border border-[#e5e5e3] text-sm">
-              {[
-                { label: 'Imóvel', value: formData.name },
-                { label: 'Preço de compra', value: fmt(formData.purchasePrice ?? 0) },
-                {
-                  label: 'ITBI',
-                  value: `${((formData.acquisitionCosts?.itbiPercent ?? 0) * 100).toFixed(1)}%`,
-                },
-                {
-                  label: 'Financiamento',
-                  value: formData.financing?.enabled
-                    ? `${formData.financing.system} · ${formData.financing.interestRateYear}% a.a. · ${formData.financing.termMonths} meses`
-                    : 'À vista',
-                },
-                { label: 'Aluguel mensal', value: fmt(formData.revenue?.monthlyRent ?? 0) },
-                {
-                  label: 'Vacância',
-                  value: `${((formData.revenue?.vacancyRate ?? 0) * 100).toFixed(0)}%`,
-                },
-              ].map((row) => (
-                <div key={row.label} className="flex justify-between px-4 py-3">
-                  <span className="text-[#737373]">{row.label}</span>
-                  <span className="font-semibold text-[#1a1a1a]">{row.value}</span>
-                </div>
-              ))}
-            </div>
-
-            {apiError && (
-              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {apiError}
-              </p>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setStep(3)}
-                className="w-1/3 rounded-lg border border-[#e5e5e3] px-4 py-3 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a]"
-              >
-                Voltar
-              </button>
-              <button
-                onClick={calculateDeal}
-                disabled={loading}
-                className="w-2/3 rounded-lg bg-[#1a1a1a] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333] disabled:bg-[#a3a3a1]"
-              >
-                {loading ? 'Calculando...' : 'Rodar Análise →'}
-              </button>
-            </div>
-          </div>
+        {activeTab === 0 && <DadosImovel onNext={() => setActiveTab(1)} />}
+        {activeTab === 1 && (
+          <CompraECustos onBack={() => setActiveTab(0)} onNext={() => setActiveTab(2)} />
+        )}
+        {activeTab === 2 && (
+          <ReceitasEDespesas onBack={() => setActiveTab(1)} onNext={() => setActiveTab(3)} />
+        )}
+        {activeTab === 3 && (
+          <ProjecoesLongoPrazo onBack={() => setActiveTab(2)} onNext={() => setActiveTab(4)} />
+        )}
+        {activeTab === 4 && (
+          <ProjecoesTab
+            onBack={() => setActiveTab(3)}
+            onCalculate={calculateDeal}
+            loading={loading}
+            apiError={apiError}
+          />
         )}
       </div>
     </div>

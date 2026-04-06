@@ -98,7 +98,6 @@ export default async function Home() {
       {/* ── Feature Banner ──────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-5xl px-6 pb-24">
         <div className="relative overflow-hidden rounded-2xl bg-[#1a1a1a]">
-          {/* Abstract grid texture */}
           <div
             className="absolute inset-0 opacity-10"
             style={{

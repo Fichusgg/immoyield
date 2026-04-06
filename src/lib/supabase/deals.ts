@@ -23,7 +23,7 @@ export async function saveDeal(inputs: DealInput, results: AnalysisResult): Prom
     .insert({
       user_id: user.id,
       name: inputs.name,
-      property_type: 'aluguel',
+      property_type: inputs.propertyType,
       inputs,
       results_cache: results,
     })

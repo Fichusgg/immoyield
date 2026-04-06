@@ -1,26 +1,20 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDealStore } from '@/store/useDealStore';
+import { CurrencyInput } from '@/components/ui/currency-input';
+import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 
 const stepSchema = z.object({
   name: z.string().min(3, 'Mínimo 3 caracteres'),
   purchasePrice: z.number().positive('Informe um valor positivo'),
-  propertyType: z.string().optional(),
+  propertyType: z.enum(PROPERTY_TYPES).default(PROPERTY_TYPES[0]),
   appreciationRate: z.number().optional(),
 });
 
 type StepData = z.infer<typeof stepSchema>;
-
-const PROPERTY_TYPES = [
-  { value: 'residential', label: 'Residencial' },
-  { value: 'airbnb', label: 'Airbnb / Temporada' },
-  { value: 'flip', label: 'Reforma e Venda' },
-  { value: 'multifamily', label: 'Multifamiliar' },
-  { value: 'commercial', label: 'Comercial' },
-];
 
 const fieldClass =
   'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#1a1a1a] focus:bg-white';
@@ -36,19 +30,20 @@ export function PropertyBasics() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<StepData>({
     resolver: zodResolver(stepSchema),
     defaultValues: {
       name: formData.name || '',
       purchasePrice: formData.purchasePrice || undefined,
-      propertyType: 'residential',
+      propertyType: (formData.propertyType as PropertyType | undefined) ?? PROPERTY_TYPES[0],
       appreciationRate: 5.0,
     },
   });
 
   const onSubmit = (data: StepData) => {
-    updateFormData({ name: data.name, purchasePrice: data.purchasePrice });
+    updateFormData({ name: data.name, purchasePrice: data.purchasePrice, propertyType: data.propertyType });
     setStep(2);
   };
 
@@ -66,9 +61,9 @@ export function PropertyBasics() {
         <div>
           <label className={labelClass}>Tipo de Imóvel</label>
           <select {...register('propertyType')} className={fieldClass}>
-            {PROPERTY_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {PROPERTY_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {PROPERTY_TYPE_LABELS[type]}
               </option>
             ))}
           </select>
@@ -79,11 +74,17 @@ export function PropertyBasics() {
             <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-[#a3a3a1]">
               R$
             </span>
-            <input
-              type="number"
-              {...register('purchasePrice', { valueAsNumber: true })}
-              placeholder="0,00"
-              className={`${fieldClass} pl-9`}
+            <Controller
+              control={control}
+              name="purchasePrice"
+              render={({ field }) => (
+                <CurrencyInput
+                  placeholder="0"
+                  className={`${fieldClass} pl-9`}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
           </div>
           {errors.purchasePrice && <p className={errorClass}>{errors.purchasePrice.message}</p>}

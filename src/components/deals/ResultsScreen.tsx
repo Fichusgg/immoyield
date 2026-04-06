@@ -40,6 +40,11 @@ interface Metrics {
   monthlyCashFlow: number;
   loanAmount: number;
   cashOutlay: number;
+  grossMonthlyRent?: number;
+  vacancyLoss?: number;
+  effectiveRent?: number;
+  operatingExpenses?: number;
+  firstInstallment?: number;
 }
 
 interface AmortizationPeriod {
@@ -56,10 +61,20 @@ interface Projection {
   equity: number;
 }
 
+interface FlipMetrics {
+  salePrice: number;
+  sellingCosts: number;
+  capitalGainTax: number;
+  netProfit: number;
+  roi: number;
+  holdingMonths: number;
+}
+
 export interface AnalysisResult {
   metrics: Metrics;
   schedule: AmortizationPeriod[];
   projections: Projection[];
+  flipMetrics?: FlipMetrics | null;
 }
 
 interface Benchmarks {
@@ -73,6 +88,8 @@ interface ResultsScreenProps {
   dealName?: string;
   inputs: DealInput;
   onReset: () => void;
+  hideHeader?: boolean;
+  hideSaveButton?: boolean;
   isAuthenticated?: boolean;
   benchmarks?: Benchmarks;
 }
@@ -331,6 +348,8 @@ export default function ResultsScreen({
   onReset,
   isAuthenticated,
   benchmarks,
+  hideHeader = false,
+  hideSaveButton = false,
 }: ResultsScreenProps) {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
@@ -366,7 +385,7 @@ export default function ResultsScreen({
       const payload = {
         user_id: user.id,
         name: inputs.name,
-        property_type: 'aluguel',
+        property_type: inputs.propertyType,
         inputs,
         results_cache: result,
       };
@@ -468,33 +487,35 @@ export default function ResultsScreen({
   return (
     <div className="space-y-8 pb-10">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="mb-1 text-xs font-semibold tracking-widest text-slate-400 uppercase">
-            Análise Concluída
-          </p>
-          <h2 className="text-xl font-black tracking-tight text-slate-900">
-            {dealName ?? 'Resultado do Deal'}
-          </h2>
-          <div className="mt-2 flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                cashFlowPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
-              }`}
-            >
-              {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-              Fluxo de caixa {cashFlowPositive ? 'positivo' : 'negativo'}
-            </span>
+      {!hideHeader && (
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="mb-1 text-xs font-semibold tracking-widest text-slate-400 uppercase">
+              Análise Concluída
+            </p>
+            <h2 className="text-xl font-black tracking-tight text-slate-900">
+              {dealName ?? 'Resultado do Deal'}
+            </h2>
+            <div className="mt-2 flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                  cashFlowPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                }`}
+              >
+                {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                Fluxo de caixa {cashFlowPositive ? 'positivo' : 'negativo'}
+              </span>
+            </div>
           </div>
+          <button
+            onClick={onReset}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
+          >
+            <RotateCcw size={12} />
+            Nova análise
+          </button>
         </div>
-        <button
-          onClick={onReset}
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
-        >
-          <RotateCcw size={12} />
-          Nova análise
-        </button>
-      </div>
+      )}
 
       {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3">
@@ -531,6 +552,123 @@ export default function ResultsScreen({
         label="Cash-on-Cash a.a."
         benchmarks={benchmarks}
       />
+
+      {/* ── Cash Flow Waterfall ───────────────────────────────────────────────── */}
+      {metrics.grossMonthlyRent != null && metrics.grossMonthlyRent > 0 && (
+        <div>
+          <SectionTitle>Fluxo de Caixa — Ano 1 (Mensal)</SectionTitle>
+          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+            {[
+              { label: 'Aluguel bruto', value: fmt(metrics.grossMonthlyRent), sign: '' },
+              { label: 'Perda por vacância', value: fmt(-(metrics.vacancyLoss ?? 0)), sign: 'neg' },
+              {
+                label: 'Receita efetiva',
+                value: fmt(metrics.effectiveRent ?? metrics.monthlyNOI),
+                sign: 'sub',
+                bold: true,
+              },
+              {
+                label: 'Despesas operacionais',
+                value: fmt(-(metrics.operatingExpenses ?? 0)),
+                sign: 'neg',
+              },
+              {
+                label: 'NOI (Resultado Op. Líquido)',
+                value: fmt(metrics.monthlyNOI),
+                sign: 'sub',
+                bold: true,
+              },
+              ...(metrics.loanAmount > 0
+                ? [
+                    {
+                      label: 'Parcela de financiamento',
+                      value: fmt(-(metrics.firstInstallment ?? 0)),
+                      sign: 'neg',
+                    },
+                  ]
+                : []),
+              {
+                label: 'Fluxo de Caixa Líquido',
+                value: fmt(metrics.monthlyCashFlow),
+                sign: metrics.monthlyCashFlow >= 0 ? 'pos' : 'neg',
+                bold: true,
+                final: true,
+              },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-slate-50' : ''}`}
+              >
+                <span className={row.bold ? 'font-semibold text-slate-700' : 'text-slate-500'}>
+                  {row.label}
+                </span>
+                <span
+                  className={`font-bold ${
+                    row.sign === 'pos'
+                      ? 'text-emerald-600'
+                      : row.sign === 'neg'
+                        ? 'text-red-500'
+                        : 'text-slate-800'
+                  }`}
+                >
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Flip / Reforma metrics ───────────────────────────────────────────── */}
+      {result.flipMetrics && (
+        <div>
+          <SectionTitle>Reforma e Venda — Resultado</SectionTitle>
+          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+            {[
+              { label: 'Preço de venda (ARV)', value: fmt(result.flipMetrics.salePrice) },
+              { label: 'Custos de venda', value: fmt(-result.flipMetrics.sellingCosts), neg: true },
+              { label: 'Prazo da operação', value: `${result.flipMetrics.holdingMonths} meses` },
+              {
+                label: 'Ganho de capital bruto',
+                value: fmt(result.flipMetrics.netProfit + result.flipMetrics.capitalGainTax),
+                bold: true,
+              },
+              {
+                label: 'Imposto (Ganho de Capital 15%)',
+                value: fmt(-result.flipMetrics.capitalGainTax),
+                neg: true,
+              },
+              {
+                label: 'Lucro líquido',
+                value: fmt(result.flipMetrics.netProfit),
+                green: true,
+                bold: true,
+                final: true,
+              },
+              {
+                label: 'ROI da operação',
+                value: fmtPct(result.flipMetrics.roi),
+                green: result.flipMetrics.roi >= 0,
+                bold: true,
+              },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-slate-50' : ''}`}
+              >
+                <span className={row.bold ? 'font-semibold text-slate-700' : 'text-slate-500'}>
+                  {row.label}
+                </span>
+                <span
+                  className={`font-bold ${row.green ? 'text-emerald-600' : row.neg ? 'text-red-500' : 'text-slate-800'}`}
+                >
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Capital Breakdown ────────────────────────────────────────────────── */}
       <div>
@@ -767,60 +905,62 @@ export default function ResultsScreen({
       )}
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-900 p-5">
-        <div>
-          <p className="text-sm font-black text-white">
-            {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
-          </p>
-          <p className="mt-0.5 text-xs text-slate-400">
-            {savedOk
-              ? 'Disponível no seu dashboard.'
-              : isAuthenticated
-                ? 'Guarde este deal na sua conta.'
-                : 'Crie uma conta gratuita para guardar e compartilhar.'}
-          </p>
-          {saveError && <p className="mt-1 text-xs text-red-400">{saveError}</p>}
-        </div>
-        <div className="flex flex-col gap-2">
-          <DownloadPDFButton
-            result={result}
-            inputs={inputs}
-            dealName={dealName ?? 'Deal'}
-            className="flex items-center gap-1.5 rounded-xl bg-slate-700 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-slate-600"
-          />
-          {savedOk && savedDealId && (
-            <ShareButton
-              dealId={savedDealId}
+      {!hideSaveButton && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-900 p-5">
+          <div>
+            <p className="text-sm font-black text-white">
+              {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
+            </p>
+            <p className="mt-0.5 text-xs text-slate-400">
+              {savedOk
+                ? 'Disponível no seu dashboard.'
+                : isAuthenticated
+                  ? 'Guarde este deal na sua conta.'
+                  : 'Crie uma conta gratuita para guardar e compartilhar.'}
+            </p>
+            {saveError && <p className="mt-1 text-xs text-red-400">{saveError}</p>}
+          </div>
+          <div className="flex flex-col gap-2">
+            <DownloadPDFButton
+              result={result}
+              inputs={inputs}
               dealName={dealName ?? 'Deal'}
-              className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-sky-500"
+              className="flex items-center gap-1.5 rounded-xl bg-slate-700 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-slate-600"
             />
-          )}
-          {isAuthenticated ? (
-            <button
-              onClick={handleSave}
-              disabled={saving || savedOk}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400 disabled:bg-emerald-700"
-            >
-              {savedOk ? (
-                <>
-                  <Check size={12} /> Salvo
-                </>
-              ) : saving ? (
-                'Salvando...'
-              ) : (
-                'Salvar análise'
-              )}
-            </button>
-          ) : (
-            <a
-              href="/auth"
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400"
-            >
-              Criar conta <ArrowUpRight size={12} />
-            </a>
-          )}
+            {savedOk && savedDealId && (
+              <ShareButton
+                dealId={savedDealId}
+                dealName={dealName ?? 'Deal'}
+                className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-sky-500"
+              />
+            )}
+            {isAuthenticated ? (
+              <button
+                onClick={handleSave}
+                disabled={saving || savedOk}
+                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400 disabled:bg-emerald-700"
+              >
+                {savedOk ? (
+                  <>
+                    <Check size={12} /> Salvo
+                  </>
+                ) : saving ? (
+                  'Salvando...'
+                ) : (
+                  'Salvar análise'
+                )}
+              </button>
+            ) : (
+              <a
+                href="/auth"
+                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400"
+              >
+                Criar conta <ArrowUpRight size={12} />
+              </a>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default async function MeusNegociosPage() {
 
   return (
     <SidebarLayout userEmail={user.email}>
-      <div className="mx-auto max-w-3xl">
+      <div>
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">Meus Negócios</h1>

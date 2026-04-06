@@ -4,6 +4,8 @@ import { SavedDeal, deleteDeal } from '@/lib/supabase/deals';
 import { Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
+import Link from 'next/link';
+import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 
 const fmt = (v: number) =>
   new Intl.NumberFormat('pt-BR', {
@@ -34,11 +36,21 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-5 transition-shadow hover:shadow-md">
+    <div className="group relative flex flex-col gap-3 rounded-2xl border border-[#e5e5e3] bg-white p-5 transition-shadow hover:shadow-md">
+      <Link
+        href={`/imoveis/${deal.id}`}
+        className="absolute inset-0 z-10 rounded-2xl"
+        aria-label={`Ver análise: ${deal.name}`}
+      />
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-black text-slate-900">{deal.name}</p>
+          {deal.property_type && (
+            <span className="mt-0.5 inline-block rounded-full bg-[#f5f5f3] px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#737373] uppercase">
+              {PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type}
+            </span>
+          )}
           <p className="mt-0.5 text-xs text-slate-400">
             {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
               day: '2-digit',
@@ -48,11 +60,15 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <ShareButton dealId={deal.id} dealName={deal.name} compact />
+          <div className="relative z-20">
+            <ShareButton dealId={deal.id} dealName={deal.name} compact />
+          </div>
           <button
+            type="button"
             onClick={handleDelete}
             disabled={deleting}
-            className="text-slate-300 transition-colors hover:text-red-500 disabled:opacity-50"
+            aria-label="Excluir análise"
+            className="relative z-20 text-slate-300 transition-colors hover:text-red-500 disabled:opacity-50"
           >
             <Trash2 size={14} />
           </button>

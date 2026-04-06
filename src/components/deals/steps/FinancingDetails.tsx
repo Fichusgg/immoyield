@@ -1,9 +1,10 @@
 'use client';
 
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDealStore } from '@/store/useDealStore';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 const stepSchema = z.object({
   acquisitionCosts: z.object({
@@ -78,18 +79,32 @@ export function FinancingDetails() {
           </div>
           <div>
             <label className={labelClass}>Cartório (R$)</label>
-            <input
-              type="number"
-              {...register('acquisitionCosts.cartorio', { valueAsNumber: true })}
-              className={fieldClass}
+            <Controller
+              control={control}
+              name="acquisitionCosts.cartorio"
+              render={({ field }) => (
+                <CurrencyInput
+                  className={fieldClass}
+                  placeholder="0"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
           </div>
           <div>
             <label className={labelClass}>Reformas (R$)</label>
-            <input
-              type="number"
-              {...register('acquisitionCosts.reforms', { valueAsNumber: true })}
-              className={fieldClass}
+            <Controller
+              control={control}
+              name="acquisitionCosts.reforms"
+              render={({ field }) => (
+                <CurrencyInput
+                  className={fieldClass}
+                  placeholder="0"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
           </div>
         </div>
@@ -129,10 +144,17 @@ export function FinancingDetails() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Entrada (R$)</label>
-              <input
-                type="number"
-                {...register('financing.downPayment', { valueAsNumber: true })}
-                className={fieldClass}
+              <Controller
+                control={control}
+                name="financing.downPayment"
+                render={({ field }) => (
+                  <CurrencyInput
+                    className={fieldClass}
+                    placeholder="0"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                )}
               />
             </div>
             <div>

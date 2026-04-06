@@ -5,70 +5,17 @@ import { SavedDeal } from '@/lib/supabase/deals';
 import DealCard from './DealCard';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_TYPES } from '@/lib/validations/deal';
+import { Plus } from 'lucide-react';
 
-function logSupabaseError(context: string, error: unknown) {
-  const anyError = error as {
-    message?: unknown;
-    code?: unknown;
-    details?: unknown;
-    hint?: unknown;
-    status?: unknown;
-  };
-
-  const message =
-    typeof anyError?.message === 'string'
-      ? anyError.message
-      : error instanceof Error
-        ? error.message
-        : String(anyError?.message ?? error);
-
-  const code = typeof anyError?.code === 'string' ? anyError.code : undefined;
-  const details = typeof anyError?.details === 'string' ? anyError.details : undefined;
-  const hint = typeof anyError?.hint === 'string' ? anyError.hint : undefined;
-  const status = typeof anyError?.status === 'number' ? anyError.status : undefined;
-
-  console.error(`[supabase] ${context}`, { message, code, details, hint, status, raw: error });
-}
-
-function toErrorSummary(error: unknown) {
-  if (!error) return null;
-
-  if (error instanceof Error) {
-    return { message: error.message };
-  }
-
-  if (typeof error === 'object') {
-    const obj = error as Record<string, unknown>;
-    return {
-      message: typeof obj.message === 'string' ? obj.message : undefined,
-      code: typeof obj.code === 'string' ? obj.code : undefined,
-      details: typeof obj.details === 'string' ? obj.details : undefined,
-    };
-  }
-
-  if (typeof error === 'string') {
-    return { message: error };
-  }
-
-  return { message: String(error) };
-}
-
-function looksLikeRlsError(error: unknown) {
-  const anyError = error as { message?: unknown; code?: unknown };
-  const message = typeof anyError?.message === 'string' ? anyError.message : '';
-  const code = typeof anyError?.code === 'string' ? anyError.code : '';
-  return (
-    code === '42501' ||
-    message.toLowerCase().includes('row-level security') ||
-    message.toLowerCase().includes('violates row-level security') ||
-    message.toLowerCase().includes('permission denied')
-  );
-}
+const CATEGORY_ALL = 'all';
+type Category = PropertyType | typeof CATEGORY_ALL;
 
 export default function DealList() {
   const [deals, setDeals] = useState<SavedDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<Category>(CATEGORY_ALL);
 
   const load = async () => {
     setLoading(true);
@@ -79,20 +26,7 @@ export default function DealList() {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
-
-      console.debug('[deals.load] auth.getUser', {
-        userId: user?.id,
-        email: user?.email,
-        error: toErrorSummary(userError),
-      });
-
-      if (userError) {
-        logSupabaseError('auth.getUser', userError);
-        throw new Error('Erro ao validar sessão. Faça login novamente.');
-      }
-      if (!user) {
-        throw new Error('Você precisa estar logado para ver seu dashboard.');
-      }
+      if (userError || !user) throw new Error('Você precisa estar logado.');
 
       const { data, error } = await supabase
         .from('deals')
@@ -100,32 +34,10 @@ export default function DealList() {
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
-      console.debug('[deals.load] select response', {
-        ok: !error,
-        rows: data?.length ?? 0,
-        error: toErrorSummary(error),
-        data,
-      });
-
-      if (error) {
-        logSupabaseError('deals.select', error);
-        if (looksLikeRlsError(error)) {
-          throw new Error(
-            'Carregamento bloqueado por permissões (RLS). Verifique políticas na tabela `deals` para SELECT.'
-          );
-        }
-        throw new Error(`Erro ao carregar: ${error.message}`);
-      }
-
+      if (error) throw new Error(`Erro ao carregar: ${error.message}`);
       setDeals((data ?? []) as SavedDeal[]);
     } catch (e) {
-      if (e instanceof Error) {
-        console.error('[deals.load] failed', { message: e.message, name: e.name, stack: e.stack });
-        setError(e.message);
-      } else {
-        logSupabaseError('deals.load (unknown error)', e);
-        setError('Erro ao carregar análises.');
-      }
+      setError(e instanceof Error ? e.message : 'Erro ao carregar análises.');
     } finally {
       setLoading(false);
     }
@@ -135,15 +47,31 @@ export default function DealList() {
     load();
   }, []);
 
+  const countByType = (type: PropertyType) => deals.filter((d) => d.property_type === type).length;
+
+  const filtered =
+    activeCategory === CATEGORY_ALL
+      ? deals
+      : deals.filter((d) => d.property_type === activeCategory);
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="h-36 animate-pulse rounded-2xl border border-slate-100 bg-white p-5"
-          />
-        ))}
+      <div className="flex gap-6">
+        <aside className="w-52 shrink-0">
+          <div className="space-y-1">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-12 animate-pulse rounded-lg bg-[#e5e5e3]" />
+            ))}
+          </div>
+        </aside>
+        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-36 animate-pulse rounded-2xl border border-[#e5e5e3] bg-white"
+            />
+          ))}
+        </div>
       </div>
     );
   }
@@ -154,7 +82,7 @@ export default function DealList() {
         <p className="text-sm text-red-500">{error}</p>
         <button
           onClick={load}
-          className="mt-4 text-xs text-slate-500 underline hover:text-slate-800"
+          className="mt-4 text-xs text-[#737373] underline hover:text-[#1a1a1a]"
         >
           Tentar novamente
         </button>
@@ -162,28 +90,102 @@ export default function DealList() {
     );
   }
 
-  if (deals.length === 0) {
-    return (
-      <div className="rounded-2xl border-2 border-dashed border-slate-200 py-20 text-center">
-        <p className="mb-1 text-sm text-slate-400">Nenhuma análise salva ainda.</p>
-        <p className="mb-6 text-xs text-slate-300">
-          Complete uma análise e clique em &ldquo;Salvar&rdquo;.
-        </p>
-        <Link
-          href="/"
-          className="inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition-colors hover:bg-slate-700"
-        >
-          Nova análise →
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {deals.map((d) => (
-        <DealCard key={d.id} deal={d} onDelete={load} />
-      ))}
+    <div className="flex gap-6">
+      {/* ── Category sidebar ─────────────────────────────────────────────────── */}
+      <aside className="w-52 shrink-0">
+        <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
+          {/* All */}
+          <button
+            onClick={() => setActiveCategory(CATEGORY_ALL)}
+            className={`flex w-full items-center justify-between border-b border-[#e5e5e3] px-4 py-3 text-left transition-colors ${
+              activeCategory === CATEGORY_ALL
+                ? 'bg-[#1a1a1a] text-white'
+                : 'text-[#1a1a1a] hover:bg-[#f5f5f3]'
+            }`}
+          >
+            <span className="text-sm font-semibold">Todos</span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                activeCategory === CATEGORY_ALL
+                  ? 'bg-white/20 text-white'
+                  : 'bg-[#f5f5f3] text-[#737373]'
+              }`}
+            >
+              {deals.length}
+            </span>
+          </button>
+
+          {/* Per type */}
+          {PROPERTY_TYPES.map((type, i) => {
+            const count = countByType(type);
+            const active = activeCategory === type;
+            const isLast = i === PROPERTY_TYPES.length - 1;
+            return (
+              <button
+                key={type}
+                onClick={() => setActiveCategory(type)}
+                className={`flex w-full items-center justify-between px-4 py-3 text-left transition-colors ${
+                  !isLast ? 'border-b border-[#e5e5e3]' : ''
+                } ${
+                  active
+                    ? 'bg-[#1a1a1a] text-white'
+                    : 'text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
+                }`}
+              >
+                <div>
+                  <p className="text-xs font-semibold">{PROPERTY_TYPE_LABELS[type]}</p>
+                  <p className={`text-[10px] ${active ? 'text-white/60' : 'text-[#a3a3a1]'}`}>
+                    {count} {count === 1 ? 'análise' : 'análises'}
+                  </p>
+                </div>
+                {count > 0 && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      active ? 'bg-white/20 text-white' : 'bg-[#f5f5f3] text-[#737373]'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <Link
+          href="/analisar"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#e5e5e3] py-3 text-xs font-semibold text-[#737373] transition-colors hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+        >
+          <Plus size={12} />
+          Novo imóvel
+        </Link>
+      </aside>
+
+      {/* ── Deal grid ────────────────────────────────────────────────────────── */}
+      <div className="flex-1">
+        {filtered.length === 0 ? (
+          <div className="rounded-2xl border-2 border-dashed border-[#e5e5e3] py-20 text-center">
+            <p className="mb-1 text-sm text-[#737373]">
+              {activeCategory === CATEGORY_ALL
+                ? 'Nenhuma análise salva ainda.'
+                : `Nenhum imóvel do tipo "${PROPERTY_TYPE_LABELS[activeCategory as PropertyType]}" salvo.`}
+            </p>
+            <Link
+              href="/analisar"
+              className="mt-4 inline-block rounded-lg bg-[#1a1a1a] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+            >
+              + Nova análise
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {filtered.map((d) => (
+              <DealCard key={d.id} deal={d} onDelete={load} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
