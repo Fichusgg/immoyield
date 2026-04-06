@@ -48,22 +48,22 @@ export default function AuthPage() {
   }, [startRedirect, supabase]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#f5f5f3] px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex items-center justify-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1a5c3a]">
             <span className="text-sm font-black text-white">I</span>
           </div>
-          <span className="text-lg font-black tracking-tight text-slate-900">ImmoYield</span>
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+          <span className="text-lg font-black tracking-tight text-[#1a1a1a]">ImmoYield</span>
+          <span className="rounded-full bg-[#e8f5ee] px-2 py-0.5 text-xs font-semibold text-[#1a5c3a]">
             beta
           </span>
         </div>
 
-        <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
-          <h1 className="mb-1 text-lg font-black text-slate-900">Entrar na plataforma</h1>
-          <p className="mb-6 text-sm text-slate-400">
+        <div className="rounded-2xl border border-[#e5e5e3] bg-white p-8 shadow-sm">
+          <h1 className="mb-1 text-lg font-black text-[#1a1a1a]">Entrar na plataforma</h1>
+          <p className="mb-6 text-sm text-[#737373]">
             Salve e gerencie suas análises de investimento.
           </p>
 
@@ -71,7 +71,7 @@ export default function AuthPage() {
             <div
               role="status"
               aria-live="polite"
-              className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"
+              className="mb-5 rounded-xl border border-[#1a5c3a]/20 bg-[#e8f5ee] px-4 py-3 text-sm font-semibold text-[#1a5c3a]"
             >
               Login realizado com sucesso. Redirecionando…
             </div>

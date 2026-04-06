@@ -16,14 +16,7 @@ import {
   ReferenceLine,
   Legend,
 } from 'recharts';
-import {
-  RotateCcw,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  Check,
-  TrendingUp as BeatIcon,
-} from 'lucide-react';
+import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
@@ -315,7 +308,7 @@ const CDIBanner = ({
           }`}
         >
           {beating ? (
-            <BeatIcon size={14} className="mb-1 text-white opacity-80" />
+            <TrendingUp size={14} className="mb-1 text-white opacity-80" />
           ) : (
             <TrendingDown size={14} className="mb-1 text-white opacity-80" />
           )}

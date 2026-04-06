@@ -20,6 +20,12 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
 
   return (
     <div className="flex min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-[#1a1a1a] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:outline-none"
+      >
+        Pular para o conteúdo
+      </a>
       {/* ── Sidebar ───────────────────────────────────────────────────────── */}
       <aside className="flex w-52 shrink-0 flex-col border-r border-[#e5e5e3] bg-white">
         {/* Logo */}
@@ -63,8 +69,7 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
               {userEmail ? userEmail[0].toUpperCase() : 'U'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-[#1a1a1a]">User Profile</p>
-              <p className="truncate text-[10px] text-[#737373]">Premium Plan</p>
+              <p className="truncate text-[10px] text-[#737373]">{userEmail ?? ''}</p>
             </div>
           </div>
         </div>
@@ -98,7 +103,7 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
       </div>
     </div>
   );

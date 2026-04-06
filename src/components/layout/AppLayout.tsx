@@ -38,6 +38,12 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
 
   return (
     <div className="flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-[#1a1a1a] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:outline-none"
+      >
+        Pular para o conteúdo
+      </a>
       {/* ── Top nav bar ──────────────────────────────────────────────────────── */}
       <header className="flex h-12 shrink-0 items-center border-b border-[#e5e5e3] bg-white px-6">
         <Link href="/" className="mr-8 flex items-center gap-2">
@@ -134,7 +140,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
         </aside>
 
         {/* ── Main content ─────────────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
       </div>
     </div>
   );

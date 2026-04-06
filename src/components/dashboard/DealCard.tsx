@@ -45,13 +45,13 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-black text-slate-900">{deal.name}</p>
+          <p className="truncate text-sm font-black text-[#1a1a1a]">{deal.name}</p>
           {deal.property_type && (
             <span className="mt-0.5 inline-block rounded-full bg-[#f5f5f3] px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#737373] uppercase">
               {PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type}
             </span>
           )}
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-[#a3a3a1]">
             {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
               day: '2-digit',
               month: 'short',
@@ -77,18 +77,18 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-xl bg-slate-50 p-3">
-          <p className="mb-1 text-[9px] font-bold tracking-wider text-slate-400 uppercase">
+        <div className="rounded-xl bg-[#f5f5f3] p-3">
+          <p className="mb-1 text-[9px] font-bold tracking-wider text-[#a3a3a1] uppercase">
             Cap Rate
           </p>
-          <p className="font-black text-slate-900">{m?.capRate?.toFixed(2)}%</p>
+          <p className="font-black text-[#1a1a1a]">{m?.capRate?.toFixed(2)}%</p>
         </div>
-        <div className={`rounded-xl p-3 ${positive ? 'bg-emerald-50' : 'bg-red-50'}`}>
-          <p className="mb-1 text-[9px] font-bold tracking-wider text-slate-400 uppercase">
+        <div className={`rounded-xl p-3 ${positive ? 'bg-[#e8f5ee]' : 'bg-red-50'}`}>
+          <p className="mb-1 text-[9px] font-bold tracking-wider text-[#a3a3a1] uppercase">
             Fluxo/mês
           </p>
           <p
-            className={`flex items-center gap-1 font-black ${positive ? 'text-emerald-700' : 'text-red-600'}`}
+            className={`flex items-center gap-1 font-black ${positive ? 'text-[#1a5c3a]' : 'text-red-600'}`}
           >
             {positive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {fmt(m?.monthlyCashFlow ?? 0)}
@@ -97,7 +97,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between border-t border-slate-50 pt-2 text-xs text-slate-400">
+      <div className="flex justify-between border-t border-[#e5e5e3] pt-2 text-xs text-[#a3a3a1]">
         <span>{fmt(deal.inputs?.purchasePrice ?? 0)}</span>
         <span>{deal.inputs?.financing?.enabled ? deal.inputs.financing.system : 'À vista'}</span>
       </div>

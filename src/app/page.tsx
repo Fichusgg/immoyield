@@ -6,6 +6,12 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f3]">
+      <a
+        href="#hero"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-[#1a1a1a] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:outline-none"
+      >
+        Pular para o conteúdo
+      </a>
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <header className="border-b border-[#e5e5e3] bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -13,7 +19,7 @@ export default async function Home() {
           <nav className="flex items-center gap-6">
             <Link
               href="/meus-negocios"
-              className="border-b-2 border-[#1a1a1a] pb-0.5 text-sm font-medium text-[#1a1a1a]"
+              className="border-b-2 border-[#1a1a1a] pb-0.5 text-sm font-medium text-[#1a1a1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2 rounded-sm"
             >
               Meus Negócios
             </Link>
@@ -22,7 +28,7 @@ export default async function Home() {
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
+      <section id="hero" className="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
         <div className="mb-5 inline-flex items-center rounded-full border border-[#e5e5e3] bg-white px-4 py-1.5 text-xs font-medium tracking-widest text-[#737373] uppercase">
           Mercado Brasileiro
         </div>
@@ -37,13 +43,16 @@ export default async function Home() {
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link
             href="/analisar"
-            className="rounded-lg bg-[#1a1a1a] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+            className="rounded-lg bg-[#1a1a1a] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2"
           >
             Analisar um imóvel →
           </Link>
-          <button className="rounded-lg border border-[#e5e5e3] bg-white px-6 py-3 text-sm font-medium text-[#1a1a1a] transition-colors hover:bg-[#f5f5f3]">
+          <Link
+            href="/analisar"
+            className="rounded-lg border border-[#e5e5e3] bg-white px-6 py-3 text-sm font-medium text-[#1a1a1a] transition-colors hover:bg-[#f5f5f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2"
+          >
             Ver Exemplos
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -137,13 +146,13 @@ export default async function Home() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
           <span className="text-sm font-bold text-[#1a1a1a]">ImmoYield</span>
           <div className="flex gap-6 text-xs font-medium text-[#737373]">
-            <Link href="#" className="hover:text-[#1a1a1a]">
+            <Link href="#" className="rounded-sm hover:text-[#1a1a1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2">
               TERMOS
             </Link>
-            <Link href="#" className="hover:text-[#1a1a1a]">
+            <Link href="#" className="rounded-sm hover:text-[#1a1a1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2">
               PRIVACIDADE
             </Link>
-            <Link href="#" className="hover:text-[#1a1a1a]">
+            <Link href="#" className="rounded-sm hover:text-[#1a1a1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-2">
               CONTATO
             </Link>
           </div>
