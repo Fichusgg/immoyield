@@ -48,22 +48,22 @@ export default function AuthPage() {
   }, [startRedirect, supabase]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f5f5f3] px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="mb-8 flex items-center justify-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1a5c3a]">
-            <span className="text-sm font-black text-white">I</span>
+        <div className="mb-8 flex items-center justify-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center bg-[#22c55e]">
+            <span className="font-mono text-sm font-black text-black">I</span>
           </div>
-          <span className="text-lg font-black tracking-tight text-[#1a1a1a]">ImmoYield</span>
-          <span className="rounded-full bg-[#e8f5ee] px-2 py-0.5 text-xs font-semibold text-[#1a5c3a]">
+          <span className="text-lg font-black tracking-tight text-[#f4f4f5]">ImmoYield</span>
+          <span className="border border-[#14532d] bg-[#052e16] px-2 py-0.5 font-mono text-xs font-semibold text-[#22c55e]">
             beta
           </span>
         </div>
 
-        <div className="rounded-2xl border border-[#e5e5e3] bg-white p-8 shadow-sm">
-          <h1 className="mb-1 text-lg font-black text-[#1a1a1a]">Entrar na plataforma</h1>
-          <p className="mb-6 text-sm text-[#737373]">
+        <div className="border border-[#27272a] bg-[#111111] p-8">
+          <h1 className="mb-1 text-lg font-black text-[#f4f4f5]">Entrar na plataforma</h1>
+          <p className="mb-6 text-sm text-[#52525b]">
             Salve e gerencie suas análises de investimento.
           </p>
 
@@ -71,7 +71,7 @@ export default function AuthPage() {
             <div
               role="status"
               aria-live="polite"
-              className="mb-5 rounded-xl border border-[#1a5c3a]/20 bg-[#e8f5ee] px-4 py-3 text-sm font-semibold text-[#1a5c3a]"
+              className="mb-5 border border-[#14532d] bg-[#052e16] px-4 py-3 font-mono text-sm font-semibold text-[#22c55e]"
             >
               Login realizado com sucesso. Redirecionando…
             </div>
@@ -85,12 +85,28 @@ export default function AuthPage() {
                 variables: {
                   default: {
                     colors: {
-                      brand: '#059669',
-                      brandAccent: '#047857',
+                      brand: '#22c55e',
+                      brandAccent: '#16a34a',
+                      brandButtonText: '#000000',
+                      inputBackground: '#1a1a1a',
+                      inputBorder: '#27272a',
+                      inputBorderFocus: '#22c55e',
+                      inputBorderHover: '#3f3f46',
+                      inputText: '#f4f4f5',
+                      inputPlaceholder: '#52525b',
+                      inputLabelText: '#a1a1aa',
+                      messageText: '#a1a1aa',
+                      anchorTextColor: '#22c55e',
+                      dividerBackground: '#27272a',
                     },
                     radii: {
-                      borderRadiusButton: '12px',
-                      inputBorderRadius: '12px',
+                      borderRadiusButton: '0px',
+                      inputBorderRadius: '0px',
+                    },
+                    fonts: {
+                      bodyFontFamily: 'var(--font-dm-sans)',
+                      inputFontFamily: 'var(--font-dm-sans)',
+                      buttonFontFamily: 'var(--font-dm-sans)',
                     },
                   },
                 },

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Sans, DM_Serif_Display } from 'next/font/google';
+import { DM_Sans, DM_Serif_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -15,6 +15,12 @@ const dmSerif = DM_Serif_Display({
   style: ['normal', 'italic'],
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+});
+
 export const metadata: Metadata = {
   title: 'ImmoYield — Calculadora de Investimento Imobiliário',
   description: 'Análise de investimento imobiliário para o mercado brasileiro.',
@@ -26,8 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${dmSans.variable} ${dmSerif.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html
+      lang="pt-BR"
+      className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="flex min-h-full flex-col bg-[#0a0a0a] text-[#f4f4f5]">{children}</body>
     </html>
   );
 }

@@ -27,14 +27,14 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
   return (
     <div className="space-y-7">
       <div>
-        <h2 className="text-base font-bold text-[#1a1a1a]">Revisar & Calcular</h2>
-        <p className="mt-0.5 text-sm text-[#737373]">
+        <h2 className="text-base font-bold text-[#f4f4f5]">Revisar & Calcular</h2>
+        <p className="mt-0.5 text-sm text-[#52525b]">
           Confirme os dados antes de rodar a análise completa.
         </p>
       </div>
 
       {/* Summary table */}
-      <div className="divide-y divide-[#f5f5f3] rounded-xl border border-[#e5e5e3] text-sm">
+      <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
         {/* Dados do imóvel */}
         <SectionHeader label="Dados do Imóvel" />
         {[
@@ -127,7 +127,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
       </div>
 
       {apiError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="border border-[#7f1d1d] bg-[#450a0a] px-4 py-3 font-mono text-sm text-[#f87171]">
           {apiError}
         </p>
       )}
@@ -136,14 +136,14 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-[#e5e5e3] px-5 py-2.5 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3]"
+          className="border border-[#27272a] px-5 py-2.5 text-sm font-medium text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
         >
           ← Voltar
         </button>
         <button
           onClick={onCalculate}
           disabled={loading}
-          className="rounded-lg bg-[#1a5c3a] px-8 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#154d30] disabled:opacity-60"
+          className="bg-[#22c55e] px-8 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a] disabled:opacity-50"
         >
           {loading ? 'Calculando...' : 'Rodar Análise →'}
         </button>
@@ -154,8 +154,8 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="bg-[#f5f5f3] px-4 py-2.5">
-      <span className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+    <div className="bg-[#0a0a0a] px-4 py-2.5">
+      <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
         {label}
       </span>
     </div>
@@ -164,9 +164,9 @@ function SectionHeader({ label }: { label: string }) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between px-4 py-3">
-      <span className="text-[#737373]">{label}</span>
-      <span className="font-semibold text-[#1a1a1a]">{value}</span>
+    <div className="flex justify-between bg-[#111111] px-4 py-3">
+      <span className="text-[#52525b]">{label}</span>
+      <span className="font-mono font-semibold text-[#f4f4f5]">{value}</span>
     </div>
   );
 }

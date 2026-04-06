@@ -16,7 +16,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-1.5 rounded-lg border border-[#e5e5e3] px-2.5 py-1.5 text-xs text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a] focus-visible:ring-offset-1"
+      className="flex items-center gap-1.5 border border-[#27272a] px-2.5 py-1.5 text-xs text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#22c55e]"
     >
       <LogOut size={12} />
       Sair

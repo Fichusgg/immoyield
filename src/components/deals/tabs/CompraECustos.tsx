@@ -25,9 +25,9 @@ const stepSchema = z.object({
 type StepData = z.infer<typeof stepSchema>;
 
 const fieldClass =
-  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#1a1a1a] focus:bg-white';
+  'w-full border border-[#27272a] bg-[#1a1a1a] px-3.5 py-2.5 text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none transition-colors focus:border-[#22c55e] focus:shadow-[0_0_0_2px_rgba(34,197,94,0.15)]';
 const labelClass =
-  'mb-1.5 block text-[10px] font-semibold tracking-widest text-[#737373] uppercase';
+  'mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52525b] uppercase';
 
 interface Props {
   onBack: () => void;
@@ -97,8 +97,8 @@ export function CompraECustos({ onBack, onNext }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
       <div>
-        <h2 className="text-base font-bold text-[#1a1a1a]">Compra & Custos de Aquisição</h2>
-        <p className="mt-0.5 text-sm text-[#737373]">
+        <h2 className="text-base font-bold text-[#f4f4f5]">Compra & Custos de Aquisição</h2>
+        <p className="mt-0.5 text-sm text-[#52525b]">
           ITBI, cartório, reformas e estrutura de financiamento.
         </p>
       </div>
@@ -107,7 +107,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
       <div>
         <label className={labelClass}>Valor de Compra</label>
         <div className="relative">
-          <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-sm font-medium text-[#a3a3a1]">
+          <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#52525b]">
             R$
           </span>
           <Controller
@@ -123,34 +123,36 @@ export function CompraECustos({ onBack, onNext }: Props) {
             )}
           />
         </div>
-        {errors.purchasePrice && <p className="mt-1 text-xs text-red-500">{errors.purchasePrice.message}</p>}
+        {errors.purchasePrice && (
+          <p className="mt-1 font-mono text-xs text-[#f87171]">{errors.purchasePrice.message}</p>
+        )}
       </div>
 
       {/* Live summary strip */}
-      <div className="grid grid-cols-3 gap-3 rounded-xl border border-[#e5e5e3] bg-[#f5f5f3] p-4 text-center">
-        <div>
-          <p className="text-[9px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+      <div className="grid grid-cols-3 gap-px border border-[#27272a] bg-[#27272a] text-center">
+        <div className="bg-[#1a1a1a] p-4">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
             ITBI estimado
           </p>
-          <p className="mt-1 text-sm font-bold text-[#1a1a1a]">{fmt(itbiValue)}</p>
+          <p className="mt-1 font-mono text-sm font-bold text-[#f4f4f5]">{fmt(itbiValue)}</p>
         </div>
-        <div>
-          <p className="text-[9px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+        <div className="bg-[#1a1a1a] p-4">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
             Financiamento
           </p>
-          <p className="mt-1 text-sm font-bold text-[#1a1a1a]">{fmt(loanAmount)}</p>
+          <p className="mt-1 font-mono text-sm font-bold text-[#f4f4f5]">{fmt(loanAmount)}</p>
         </div>
-        <div>
-          <p className="text-[9px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+        <div className="bg-[#1a1a1a] p-4">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
             Capital próprio
           </p>
-          <p className="mt-1 text-sm font-bold text-[#1a5c3a]">{fmt(cashNeeded)}</p>
+          <p className="mt-1 font-mono text-sm font-bold text-[#22c55e]">{fmt(cashNeeded)}</p>
         </div>
       </div>
 
       {/* Custos de aquisição */}
       <div>
-        <p className="mb-3 text-sm font-semibold text-[#1a1a1a]">Custos de Aquisição</p>
+        <p className="mb-3 text-sm font-semibold text-[#f4f4f5]">Custos de Aquisição</p>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>ITBI (%)</label>
@@ -161,7 +163,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
                 {...register('acquisitionCosts.itbiPercent', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[#a3a3a1]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
                 %
               </span>
             </div>
@@ -199,27 +201,27 @@ export function CompraECustos({ onBack, onNext }: Props) {
         </div>
       </div>
 
-      <div className="border-t border-[#e5e5e3]" />
+      <div className="border-t border-[#27272a]" />
 
       {/* Financiamento */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#1a1a1a]">Financiamento Bancário</p>
+          <p className="text-sm font-semibold text-[#f4f4f5]">Financiamento Bancário</p>
           <label className="flex cursor-pointer items-center gap-2.5">
             <input type="checkbox" {...register('financing.enabled')} className="sr-only" />
             <div
               onClick={() => setValue('financing.enabled', !isEnabled)}
-              className={`relative h-5 w-9 cursor-pointer rounded-full transition-colors ${
-                isEnabled ? 'bg-[#1a5c3a]' : 'bg-[#e5e5e3]'
+              className={`relative h-5 w-9 cursor-pointer transition-colors ${
+                isEnabled ? 'bg-[#16a34a]' : 'bg-[#27272a]'
               }`}
             >
               <div
-                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                className={`absolute top-0.5 h-4 w-4 bg-[#f4f4f5] transition-transform ${
                   isEnabled ? 'translate-x-4' : 'translate-x-0.5'
                 }`}
               />
             </div>
-            <span className="text-xs text-[#737373]">
+            <span className="font-mono text-xs text-[#52525b]">
               {isEnabled ? 'Com financiamento' : 'À vista'}
             </span>
           </label>
@@ -251,7 +253,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
                   {...register('financing.interestRateYear', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[#a3a3a1]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
                   %
                 </span>
               </div>
@@ -279,13 +281,13 @@ export function CompraECustos({ onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-[#e5e5e3] px-5 py-2.5 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3]"
+          className="border border-[#27272a] px-5 py-2.5 text-sm font-medium text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
         >
           ← Voltar
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-[#1a1a1a] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+          className="bg-[#22c55e] px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
         >
           Próximo: Receitas & Despesas →
         </button>

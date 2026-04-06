@@ -58,18 +58,15 @@ export default function DealList() {
     return (
       <div className="flex gap-6">
         <aside className="w-52 shrink-0">
-          <div className="space-y-1">
+          <div className="space-y-px border border-[#27272a]">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-12 animate-pulse rounded-lg bg-[#e5e5e3]" />
+              <div key={i} className="h-12 animate-pulse bg-[#1a1a1a]" />
             ))}
           </div>
         </aside>
-        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid flex-1 grid-cols-1 gap-px border border-[#27272a] bg-[#27272a] sm:grid-cols-2">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-36 animate-pulse rounded-2xl border border-[#e5e5e3] bg-white"
-            />
+            <div key={i} className="h-36 animate-pulse bg-[#111111]" />
           ))}
         </div>
       </div>
@@ -79,10 +76,10 @@ export default function DealList() {
   if (error) {
     return (
       <div className="py-16 text-center">
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="font-mono text-sm text-[#f87171]">{error}</p>
         <button
           onClick={load}
-          className="mt-4 text-xs text-[#737373] underline hover:text-[#1a1a1a]"
+          className="mt-4 border border-[#27272a] px-4 py-2 font-mono text-xs text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
         >
           Tentar novamente
         </button>
@@ -94,24 +91,22 @@ export default function DealList() {
     <div className="flex gap-6">
       {/* ── Category sidebar ─────────────────────────────────────────────────── */}
       <aside className="w-52 shrink-0">
-        <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
+        <div className="border border-[#27272a] bg-[#111111]">
           {/* All */}
           <button
             onClick={() => setActiveCategory(CATEGORY_ALL)}
-            className={`flex w-full items-center justify-between border-b border-[#e5e5e3] px-4 py-3 text-left transition-colors ${
+            className={`flex w-full items-center justify-between border-b border-[#27272a] px-4 py-3 text-left transition-colors ${
               activeCategory === CATEGORY_ALL
-                ? 'bg-[#1a1a1a] text-white'
-                : 'text-[#1a1a1a] hover:bg-[#f5f5f3]'
+                ? 'border-l-2 border-l-[#22c55e] bg-[#052e16] text-[#22c55e]'
+                : 'border-l-2 border-l-transparent text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-[#f4f4f5]'
             }`}
           >
             <span className="text-sm font-semibold">Todos</span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                activeCategory === CATEGORY_ALL
-                  ? 'bg-white/20 text-white'
-                  : 'bg-[#f5f5f3] text-[#737373]'
-              }`}
-            >
+            <span className={`font-mono px-2 py-0.5 text-[10px] font-bold ${
+              activeCategory === CATEGORY_ALL
+                ? 'bg-[#14532d] text-[#22c55e]'
+                : 'bg-[#1a1a1a] text-[#52525b]'
+            }`}>
               {deals.length}
             </span>
           </button>
@@ -126,25 +121,25 @@ export default function DealList() {
                 key={type}
                 onClick={() => setActiveCategory(type)}
                 className={`flex w-full items-center justify-between px-4 py-3 text-left transition-colors ${
-                  !isLast ? 'border-b border-[#e5e5e3]' : ''
+                  !isLast ? 'border-b border-[#27272a]' : ''
                 } ${
                   active
-                    ? 'bg-[#1a1a1a] text-white'
-                    : 'text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
+                    ? 'border-l-2 border-l-[#22c55e] bg-[#052e16]'
+                    : 'border-l-2 border-l-transparent hover:bg-[#1a1a1a]'
                 }`}
               >
                 <div>
-                  <p className="text-xs font-semibold">{PROPERTY_TYPE_LABELS[type]}</p>
-                  <p className={`text-[10px] ${active ? 'text-white/60' : 'text-[#a3a3a1]'}`}>
+                  <p className={`text-xs font-semibold ${active ? 'text-[#22c55e]' : 'text-[#a1a1aa]'}`}>
+                    {PROPERTY_TYPE_LABELS[type]}
+                  </p>
+                  <p className={`font-mono text-[10px] ${active ? 'text-[#16a34a]' : 'text-[#52525b]'}`}>
                     {count} {count === 1 ? 'análise' : 'análises'}
                   </p>
                 </div>
                 {count > 0 && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      active ? 'bg-white/20 text-white' : 'bg-[#f5f5f3] text-[#737373]'
-                    }`}
-                  >
+                  <span className={`font-mono px-2 py-0.5 text-[10px] font-bold ${
+                    active ? 'bg-[#14532d] text-[#22c55e]' : 'bg-[#1a1a1a] text-[#52525b]'
+                  }`}>
                     {count}
                   </span>
                 )}
@@ -155,7 +150,7 @@ export default function DealList() {
 
         <Link
           href="/analisar"
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#e5e5e3] py-3 text-xs font-semibold text-[#737373] transition-colors hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+          className="mt-3 flex w-full items-center justify-center gap-2 border border-dashed border-[#27272a] py-3 font-mono text-xs font-semibold text-[#52525b] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
         >
           <Plus size={12} />
           Novo imóvel
@@ -165,21 +160,21 @@ export default function DealList() {
       {/* ── Deal grid ────────────────────────────────────────────────────────── */}
       <div className="flex-1">
         {filtered.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-[#e5e5e3] py-20 text-center">
-            <p className="mb-1 text-sm text-[#737373]">
+          <div className="border border-dashed border-[#27272a] py-20 text-center">
+            <p className="mb-1 text-sm text-[#52525b]">
               {activeCategory === CATEGORY_ALL
                 ? 'Nenhuma análise salva ainda.'
                 : `Nenhum imóvel do tipo "${PROPERTY_TYPE_LABELS[activeCategory as PropertyType]}" salvo.`}
             </p>
             <Link
               href="/analisar"
-              className="mt-4 inline-block rounded-lg bg-[#1a1a1a] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+              className="mt-4 inline-block bg-[#22c55e] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
             >
               + Nova análise
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-px border border-[#27272a] bg-[#27272a] sm:grid-cols-2">
             {filtered.map((d) => (
               <DealCard key={d.id} deal={d} onDelete={load} />
             ))}

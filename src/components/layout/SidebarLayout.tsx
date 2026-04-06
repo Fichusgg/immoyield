@@ -22,37 +22,38 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
     <div className="flex min-h-screen">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-[#1a1a1a] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-[#22c55e] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-black focus:outline-none"
       >
         Pular para o conteúdo
       </a>
+
       {/* ── Sidebar ───────────────────────────────────────────────────────── */}
-      <aside className="flex w-52 shrink-0 flex-col border-r border-[#e5e5e3] bg-white">
+      <aside className="flex w-52 shrink-0 flex-col border-r border-[#27272a] bg-[#111111]">
         {/* Logo */}
-        <div className="border-b border-[#e5e5e3] px-5 py-5">
+        <div className="border-b border-[#27272a] px-5 py-5">
           <Link
             href="/"
-            className="block rounded-sm focus-visible:ring-2 focus-visible:ring-[#1a5c3a] focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#22c55e]"
           >
-            <p className="text-base font-bold tracking-tight text-[#1a1a1a]">ImmoYield</p>
-            <p className="mt-0.5 text-[9px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
+            <p className="text-base font-bold tracking-tight text-[#f4f4f5]">ImmoYield</p>
+            <p className="mt-0.5 text-[9px] font-semibold tracking-[0.12em] text-[#52525b] uppercase">
               Rentabilidade Imobiliária
             </p>
           </Link>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
+        <nav className="flex-1 space-y-px px-2 py-3">
           {nav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + '/');
             return (
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
                   active
-                    ? 'bg-[#f5f5f3] font-semibold text-[#1a1a1a]'
-                    : 'font-normal text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
+                    ? 'border-[#22c55e] bg-[#052e16] font-semibold text-[#22c55e]'
+                    : 'border-transparent font-normal text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-[#f4f4f5]'
                 }`}
               >
                 <Icon size={15} strokeWidth={1.8} />
@@ -63,13 +64,13 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
         </nav>
 
         {/* User */}
-        <div className="border-t border-[#e5e5e3] px-4 py-4">
+        <div className="border-t border-[#27272a] px-4 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1a5c3a] text-xs font-bold text-white">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center bg-[#22c55e] text-xs font-bold text-black">
               {userEmail ? userEmail[0].toUpperCase() : 'U'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[10px] text-[#737373]">{userEmail ?? ''}</p>
+              <p className="truncate text-[10px] font-mono text-[#52525b]">{userEmail ?? ''}</p>
             </div>
           </div>
         </div>
@@ -78,7 +79,7 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
       {/* ── Main ────────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex items-center justify-between border-b border-[#e5e5e3] bg-white px-8 py-3.5">
+        <header className="flex items-center justify-between border-b border-[#27272a] bg-[#111111] px-8 py-3.5">
           <nav className="flex gap-6">
             {nav.slice(0, 2).map(({ href, label }) => {
               const active = pathname === href || pathname.startsWith(href + '/');
@@ -86,10 +87,10 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
                 <Link
                   key={href}
                   href={href}
-                  className={`text-sm transition-colors ${
+                  className={`text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#22c55e] ${
                     active
-                      ? 'font-semibold text-[#1a1a1a]'
-                      : 'font-normal text-[#737373] hover:text-[#1a1a1a]'
+                      ? 'font-semibold text-[#f4f4f5]'
+                      : 'font-normal text-[#52525b] hover:text-[#a1a1aa]'
                   }`}
                 >
                   {label}
@@ -103,7 +104,9 @@ export default function SidebarLayout({ children, userEmail }: SidebarLayoutProp
         </header>
 
         {/* Content */}
-        <main id="main-content" className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto bg-[#0a0a0a] p-8">
+          {children}
+        </main>
       </div>
     </div>
   );
