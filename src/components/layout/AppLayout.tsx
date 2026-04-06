@@ -1,11 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Plus, LogOut, Building2 } from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Plus, LogOut, Home, CalendarDays, Wrench, Building2, Store } from 'lucide-react';
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+
+const TYPE_ICONS: Record<PropertyType, React.ElementType> = {
+  residential: Home,
+  airbnb: CalendarDays,
+  flip: Wrench,
+  multifamily: Building2,
+  commercial: Store,
+};
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,17 +21,11 @@ interface AppLayoutProps {
   dealCounts?: Record<PropertyType, number>;
 }
 
-const TYPE_ICONS: Record<PropertyType, string> = {
-  residential: '🏠',
-  airbnb: '🏖️',
-  flip: '🔨',
-  multifamily: '🏘️',
-  commercial: '🏢',
-};
-
 export default function AppLayout({ children, userEmail, dealCounts }: AppLayoutProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const activeType = searchParams.get('tipo') as PropertyType | null;
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -45,23 +47,28 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
         Pular para o conteúdo
       </a>
 
-      {/* ── Top nav bar ──────────────────────────────────────────────────────── */}
+      {/* ── Top nav bar ───────────────────────────────────────────────────────── */}
       <header className="flex h-12 shrink-0 items-center border-b border-[#27272a] bg-[#111111] px-6">
+        {/* Logo */}
         <Link href="/" className="mr-8 flex items-center gap-2">
-          <Building2 size={16} className="text-[#22c55e]" />
+          <div className="flex h-6 w-6 items-center justify-center bg-[#22c55e] font-mono text-xs font-black text-black">
+            I
+          </div>
           <span className="text-sm font-bold tracking-tight text-[#f4f4f5]">ImmoYield</span>
         </Link>
-        <nav className="flex items-center gap-1">
+
+        {/* Nav links with bottom-border active indicator */}
+        <nav className="flex h-full items-center">
           {navLinks.map(({ href, label }) => {
             const active = pathname === href || pathname.startsWith(href + '/');
             return (
               <Link
                 key={href}
                 href={href}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`flex h-full items-center border-b-2 px-4 text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-[#1a1a1a] text-[#f4f4f5]'
-                    : 'text-[#52525b] hover:bg-[#1a1a1a] hover:text-[#a1a1aa]'
+                    ? 'border-[#22c55e] text-[#f4f4f5]'
+                    : 'border-transparent text-[#52525b] hover:text-[#a1a1aa]'
                 }`}
               >
                 {label}
@@ -69,15 +76,20 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
             );
           })}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+
+        {/* Right — avatar + logout */}
+        <div className="ml-auto flex items-center gap-4">
           {userEmail && (
-            <div className="flex h-7 w-7 items-center justify-center bg-[#22c55e] text-xs font-bold text-black">
+            <span className="font-mono text-xs text-[#52525b]">{userEmail}</span>
+          )}
+          {userEmail && (
+            <div className="flex h-7 w-7 items-center justify-center bg-[#22c55e] font-mono text-xs font-bold text-black">
               {userEmail[0].toUpperCase()}
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs text-[#52525b] transition-colors hover:text-[#a1a1aa]"
+            className="flex items-center gap-1.5 font-mono text-xs text-[#52525b] transition-colors hover:text-[#a1a1aa]"
           >
             <LogOut size={13} />
             Sair
@@ -87,47 +99,53 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
 
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ── Left sidebar ─────────────────────────────────────────────────── */}
-        <aside className="flex w-56 shrink-0 flex-col border-r border-[#27272a] bg-[#111111]">
-          <div className="flex-1 overflow-y-auto py-3">
+        {/* ── Left sidebar — DealCheck-style property groups ───────────────── */}
+        <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-r border-[#27272a] bg-[#111111]">
+          <nav className="flex-1">
             {PROPERTY_TYPES.map((type) => {
               const count = dealCounts?.[type] ?? 0;
+              const Icon = TYPE_ICONS[type];
+              const isActiveSubItem =
+                activeType === type && pathname === '/meus-negocios';
+
               return (
-                <div key={type} className="mb-1">
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-[#f4f4f5]">
-                      <span>{TYPE_ICONS[type]}</span>
+                <div key={type} className="border-b border-[#1a1a1a]">
+                  {/* Group header row */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-xs font-semibold text-[#a1a1aa]">
                       {PROPERTY_TYPE_LABELS[type]}
                     </span>
                     <Link
-                      href={`/analisar?tipo=${type}`}
-                      className="flex h-5 w-5 items-center justify-center text-[#52525b] transition-colors hover:bg-[#1a1a1a] hover:text-[#a1a1aa]"
-                      title={`Novo imóvel — ${PROPERTY_TYPE_LABELS[type]}`}
+                      href="/analisar"
+                      title={`Nova análise — ${PROPERTY_TYPE_LABELS[type]}`}
+                      className="flex h-5 w-5 items-center justify-center text-[#3f3f46] transition-colors hover:text-[#22c55e]"
                     >
-                      <Plus size={12} />
+                      <Plus size={13} />
                     </Link>
                   </div>
-                  <div className="ml-3 space-y-px border-l border-[#27272a] pl-3">
-                    <Link
-                      href={`/meus-negocios?tipo=${type}`}
-                      className={`flex items-center justify-between py-1.5 pr-2 text-xs transition-colors ${
-                        pathname === '/meus-negocios'
-                          ? 'text-[#a1a1aa] hover:bg-[#1a1a1a]'
-                          : 'text-[#52525b] hover:bg-[#1a1a1a] hover:text-[#a1a1aa]'
-                      }`}
-                    >
-                      <span>Imóveis</span>
-                      {count > 0 && (
-                        <span className="bg-[#1a1a1a] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#52525b]">
-                          {count}
-                        </span>
-                      )}
-                    </Link>
-                  </div>
+
+                  {/* Imóveis sub-item — count | icon | label */}
+                  <Link
+                    href={`/meus-negocios?tipo=${type}`}
+                    className={`flex items-center gap-2 border-l-2 py-2 pl-4 pr-3 text-xs transition-colors ${
+                      isActiveSubItem
+                        ? 'border-[#22c55e] bg-[#052e16] text-[#22c55e]'
+                        : 'border-transparent text-[#52525b] hover:bg-[#1a1a1a] hover:text-[#a1a1aa]'
+                    }`}
+                  >
+                    <span className="w-3 shrink-0 text-right font-mono text-[10px] font-bold">
+                      {count > 0 ? count : ''}
+                    </span>
+                    <Icon size={11} className="shrink-0" />
+                    <span>Imóveis</span>
+                  </Link>
+
+                  {/* Spacer below sub-item */}
+                  <div className="h-2" />
                 </div>
               );
             })}
-          </div>
+          </nav>
 
           {/* User footer */}
           <div className="border-t border-[#27272a] px-3 py-3">

@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DealList from '@/components/dashboard/DealList';
-import Link from 'next/link';
-import SidebarLayout from '@/components/layout/SidebarLayout';
+import AppLayout from '@/components/layout/AppLayout';
+import { PROPERTY_TYPES, PropertyType } from '@/lib/validations/deal';
 
 export default async function MeusNegociosPage() {
   const supabase = await createClient();
@@ -12,23 +12,23 @@ export default async function MeusNegociosPage() {
 
   if (!user) redirect('/auth?next=/meus-negocios');
 
+  // Query deal counts per property type for the sidebar
+  const { data: dealData } = await supabase
+    .from('deals')
+    .select('property_type')
+    .eq('user_id', user.id);
+
+  const dealCounts = PROPERTY_TYPES.reduce(
+    (acc, type) => {
+      acc[type] = (dealData ?? []).filter((d) => d.property_type === type).length;
+      return acc;
+    },
+    {} as Record<PropertyType, number>
+  );
+
   return (
-    <SidebarLayout userEmail={user.email}>
-      <div>
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">Meus Negócios</h1>
-            <p className="mt-1 text-sm text-[#737373]">Todos os deals salvos na sua conta.</p>
-          </div>
-          <Link
-            href="/analisar"
-            className="rounded-lg bg-[#1a1a1a] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
-          >
-            + Nova análise
-          </Link>
-        </div>
-        <DealList />
-      </div>
-    </SidebarLayout>
+    <AppLayout userEmail={user.email} dealCounts={dealCounts}>
+      <DealList />
+    </AppLayout>
   );
 }
