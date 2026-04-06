@@ -10,7 +10,7 @@ import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/valida
 const stepSchema = z.object({
   name: z.string().min(3, 'Mínimo 3 caracteres'),
   purchasePrice: z.number().positive('Informe um valor positivo'),
-  propertyType: z.enum(PROPERTY_TYPES).default(PROPERTY_TYPES[0]),
+  propertyType: z.enum(PROPERTY_TYPES),
   appreciationRate: z.number().optional(),
 });
 

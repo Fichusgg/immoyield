@@ -46,7 +46,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
     holdingMonths: number;
   } | null = null;
 
-  if (inputs.propertyType === 'reforma') {
+  if (inputs.propertyType === 'flip') {
     const arv = inputs.revenue.afterRepairValue ?? 0;
     const holdingMonths = inputs.revenue.holdingMonths ?? 6;
     const sellingCostPct = inputs.expenses.sellingCostPercent ?? 0.06;

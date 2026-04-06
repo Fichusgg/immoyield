@@ -325,7 +325,7 @@ function PlanilhaSection({ deal }: { deal: SavedDeal }) {
             <Row label="Diária Média" value={fmt(inp.revenue?.dailyRate ?? 0)} />
             <Row label="Taxa de Ocupação" value={pct(inp.revenue?.occupancyRate ?? 0.65)} />
           </>
-        ) : inp.propertyType === 'reforma' ? (
+        ) : inp.propertyType === 'flip' ? (
           <>
             <Row label="Valor Pós-Reforma (ARV)" value={fmt(inp.revenue?.afterRepairValue ?? 0)} />
             <Row label="Prazo de Reforma" value={`${inp.revenue?.holdingMonths ?? 6} meses`} />

@@ -46,7 +46,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
   const { formData, updateFormData } = useDealStore();
   const propertyType = formData.propertyType ?? 'aluguel';
   const isAirbnb = propertyType === 'airbnb';
-  const isReforma = propertyType === 'reforma';
+  const isReforma = propertyType === 'flip';
 
   const { register, handleSubmit, control } = useForm<StepData>({
     resolver: zodResolver(stepSchema),

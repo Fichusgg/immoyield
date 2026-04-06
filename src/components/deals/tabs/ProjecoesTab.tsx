@@ -20,7 +20,7 @@ const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 
 export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) {
   const { formData } = useDealStore();
-  const isReforma = formData.propertyType === 'reforma';
+  const isReforma = formData.propertyType === 'flip';
   const isAirbnb = formData.propertyType === 'airbnb';
   const proj = formData.projections;
 

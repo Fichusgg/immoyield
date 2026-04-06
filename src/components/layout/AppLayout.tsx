@@ -14,10 +14,11 @@ interface AppLayoutProps {
 }
 
 const TYPE_ICONS: Record<PropertyType, string> = {
-  aluguel: '🏠',
+  residential: "🏠",
   airbnb: '🏖️',
-  reforma: '🔨',
-  comercial: '🏢',
+  flip: "🔨",
+  multifamily: "🏘️",
+  commercial: "🏢",
 };
 
 export default function AppLayout({ children, userEmail, dealCounts }: AppLayoutProps) {
