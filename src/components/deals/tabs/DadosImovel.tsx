@@ -34,15 +34,15 @@ const stepSchema = z.object({
 
 type StepData = z.infer<typeof stepSchema>;
 
-const cardClass = 'overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm';
-const sectionTitleClass = 'text-sm font-bold text-blue-600';
-const rowClass = 'grid grid-cols-1 gap-2 px-5 py-4 sm:grid-cols-[220px_1fr] sm:gap-6';
-const labelClass = 'text-sm font-medium text-slate-700';
-const helperClass = 'mt-1 text-xs text-slate-500';
 const fieldClass =
-  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20';
+  'w-full border border-[#27272a] bg-[#1a1a1a] px-3 py-2 text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none transition-colors focus:border-[#22c55e] focus:shadow-[0_0_0_2px_rgba(34,197,94,0.15)]';
 const selectClass = `${fieldClass} appearance-none pr-9`;
-const errorClass = 'mt-1 text-xs text-red-500';
+const labelClass = 'mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52525b] uppercase';
+const helperClass = 'mt-1 font-mono text-[10px] text-[#52525b]';
+const errorClass = 'mt-1 font-mono text-xs text-[#f87171]';
+const cardClass = 'border border-[#27272a] bg-[#0a0a0a]';
+const rowClass = 'grid grid-cols-1 gap-2 px-5 py-4 sm:grid-cols-[220px_1fr] sm:gap-6';
+const sectionTitleClass = 'font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52525b] uppercase';
 
 interface Props {
   onNext: () => void;
@@ -95,10 +95,10 @@ export function DadosImovel({ onNext }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className={cardClass}>
-        <div className="border-b border-slate-200 px-5 py-4">
+        <div className="border-b border-[#27272a] px-5 py-4">
           <h3 className={sectionTitleClass}>Descrição do Imóvel</h3>
         </div>
-        <div className="divide-y divide-slate-200">
+        <div className="divide-y divide-[#27272a]">
           <div className={rowClass}>
             <label htmlFor="property-name" className={labelClass}>
               Nome do Imóvel
@@ -122,7 +122,7 @@ export function DadosImovel({ onNext }: Props) {
                 className={`${fieldClass} resize-y py-2.5`}
               />
               <p className={helperClass}>
-                Adicione uma breve descrição do imóvel para exibir nos relatórios.
+                Breve descrição para exibir nos relatórios.
               </p>
             </div>
           </div>
@@ -134,7 +134,7 @@ export function DadosImovel({ onNext }: Props) {
             <div>
               <input id="tags-and-labels" {...register('property.tagsAndLabels')} className={fieldClass} />
               <p className={helperClass}>
-                Adicione tags para categorizar o imóvel e encontrá-lo facilmente depois.
+                Separe por vírgula para categorizar o imóvel.
               </p>
             </div>
           </div>
@@ -142,10 +142,10 @@ export function DadosImovel({ onNext }: Props) {
       </div>
 
       <div className={cardClass}>
-        <div className="border-b border-slate-200 px-5 py-4">
-          <h3 className={sectionTitleClass}>DETALHES</h3>
+        <div className="border-b border-[#27272a] px-5 py-4">
+          <h3 className={sectionTitleClass}>Detalhes</h3>
         </div>
-        <div className="divide-y divide-slate-200">
+        <div className="divide-y divide-[#27272a]">
           <div className={rowClass}>
             <label htmlFor="property-type" className={labelClass}>
               Tipo de Imóvel
@@ -159,10 +159,10 @@ export function DadosImovel({ onNext }: Props) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#52525b]" />
               </div>
               <p className={helperClass}>
-                Selecione o tipo de imóvel para habilitar ferramentas de análise específicas.
+                Selecione o tipo para habilitar ferramentas específicas de análise.
               </p>
             </div>
           </div>
@@ -187,7 +187,7 @@ export function DadosImovel({ onNext }: Props) {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#52525b]" />
                 </div>
               </div>
 
@@ -209,7 +209,7 @@ export function DadosImovel({ onNext }: Props) {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#52525b]" />
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@ export function DadosImovel({ onNext }: Props) {
                 <option value="carport">Cobertura</option>
                 <option value="assigned">Vaga demarcada</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#52525b]" />
             </div>
           </div>
 
@@ -273,7 +273,7 @@ export function DadosImovel({ onNext }: Props) {
                 })}
                 className={`${fieldClass} pr-12`}
               />
-              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-slate-400">
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
                 m²
               </span>
             </div>
@@ -296,10 +296,10 @@ export function DadosImovel({ onNext }: Props) {
       </div>
 
       <div className={cardClass}>
-        <div className="border-b border-slate-200 px-5 py-4">
-          <h3 className={sectionTitleClass}>ENDEREÇO</h3>
+        <div className="border-b border-[#27272a] px-5 py-4">
+          <h3 className={sectionTitleClass}>Endereço</h3>
         </div>
-        <div className="divide-y divide-slate-200">
+        <div className="divide-y divide-[#27272a]">
           <div className="px-5 py-4">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="flex flex-col gap-1.5">
@@ -361,7 +361,7 @@ export function DadosImovel({ onNext }: Props) {
       <div className="flex justify-end pt-1">
         <button
           type="submit"
-          className="rounded-lg bg-[#1a1a1a] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+          className="bg-[#22c55e] px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
         >
           Próximo: Compra & Custos →
         </button>

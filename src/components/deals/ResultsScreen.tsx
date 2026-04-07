@@ -16,14 +16,7 @@ import {
   ReferenceLine,
   Legend,
 } from 'recharts';
-import {
-  RotateCcw,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  Check,
-  TrendingUp as BeatIcon,
-} from 'lucide-react';
+import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
@@ -185,13 +178,13 @@ const ChartTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white shadow-2xl">
-      <p className="mb-1 text-slate-400">
+    <div className="border border-[#27272a] bg-[#0a0a0a] px-3 py-2 text-xs text-[#f4f4f5]">
+      <p className="mb-1 font-mono text-[#52525b]">
         {prefix}
         {label}
       </p>
       {payload.map((p, i) => (
-        <p key={i} className="font-semibold" style={{ color: p.color }}>
+        <p key={i} className="font-mono font-semibold" style={{ color: p.color }}>
           {p.name}: {fmtK(p.value)}
         </p>
       ))}
@@ -217,17 +210,17 @@ const KPICard = ({
   negative?: boolean;
 }) => (
   <div
-    className={`flex flex-col gap-1.5 rounded-2xl p-5 ${
+    className={`flex flex-col gap-1.5 p-5 ${
       highlight
-        ? 'bg-emerald-500 text-white'
+        ? 'border border-[#14532d] bg-[#052e16]'
         : negative
-          ? 'border border-red-100 bg-red-50'
-          : 'border border-slate-100 bg-white'
+          ? 'border border-[#7f1d1d] bg-[#450a0a]'
+          : 'border border-[#27272a] bg-[#111111]'
     }`}
   >
     <span
-      className={`text-[10px] font-bold tracking-widest uppercase ${
-        highlight ? 'text-emerald-100' : 'text-slate-400'
+      className={`font-mono text-[10px] font-bold tracking-[0.1em] uppercase ${
+        highlight ? 'text-[#16a34a]' : 'text-[#52525b]'
       }`}
     >
       {label}
@@ -235,18 +228,18 @@ const KPICard = ({
     <span
       className={`text-2xl font-black tracking-tight tabular-nums ${
         highlight
-          ? 'text-white'
+          ? 'text-[#22c55e]'
           : positive
-            ? 'text-emerald-600'
+            ? 'text-[#22c55e]'
             : negative
-              ? 'text-red-500'
-              : 'text-slate-900'
+              ? 'text-[#f87171]'
+              : 'text-[#f4f4f5]'
       }`}
     >
       {value}
     </span>
     {sub && (
-      <span className={`text-xs ${highlight ? 'text-emerald-200' : 'text-slate-400'}`}>{sub}</span>
+      <span className={`font-mono text-xs ${highlight ? 'text-[#16a34a]' : 'text-[#52525b]'}`}>{sub}</span>
     )}
   </div>
 );
@@ -254,7 +247,7 @@ const KPICard = ({
 // ─── Section Header ───────────────────────────────────────────────────────────
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="mb-4 text-xs font-black tracking-widest text-slate-400 uppercase">{children}</h3>
+  <h3 className="mb-4 font-mono text-xs font-black tracking-[0.1em] text-[#52525b] uppercase">{children}</h3>
 );
 
 // ─── CDI Comparison Banner ────────────────────────────────────────────────────
@@ -274,13 +267,13 @@ const CDIBanner = ({
 
   return (
     <div
-      className={`rounded-2xl p-5 ${
-        beating ? 'border border-emerald-200 bg-emerald-50' : 'border border-amber-200 bg-amber-50'
+      className={`p-5 ${
+        beating ? 'border border-[#14532d] bg-[#052e16]' : 'border border-[#713f12] bg-[#1c1005]'
       }`}
     >
       <p
-        className={`mb-3 text-[10px] font-black tracking-widest uppercase ${
-          beating ? 'text-emerald-500' : 'text-amber-500'
+        className={`mb-3 font-mono text-[10px] font-black tracking-[0.1em] uppercase ${
+          beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'
         }`}
       >
         Seu retorno vs CDI
@@ -290,18 +283,18 @@ const CDIBanner = ({
         {/* Left: your return + CDI reference */}
         <div className="flex-1 space-y-2">
           <div>
-            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-slate-400 uppercase">
+            <p className="mb-0.5 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#52525b] uppercase">
               {label}
             </p>
-            <p className="text-3xl font-black tracking-tight text-slate-900 tabular-nums">
+            <p className="font-mono text-3xl font-black tracking-tight text-[#f4f4f5] tabular-nums">
               {fmtPct(yourReturn)}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-slate-500">vs CDI:</span>
-            <span className="text-sm font-bold text-slate-700">{fmtPct(cdiRate)}</span>
+            <span className="font-mono text-xs text-[#52525b]">vs CDI:</span>
+            <span className="font-mono text-sm font-bold text-[#a1a1aa]">{fmtPct(cdiRate)}</span>
             {benchmarks?.updatedAt && (
-              <span className="text-[9px] text-slate-400">
+              <span className="font-mono text-[9px] text-[#52525b]">
                 (atualizado {new Date(benchmarks.updatedAt).toLocaleDateString('pt-BR')})
               </span>
             )}
@@ -310,27 +303,27 @@ const CDIBanner = ({
 
         {/* Right: delta badge */}
         <div
-          className={`flex min-w-[90px] flex-col items-center justify-center rounded-2xl px-5 py-4 ${
-            beating ? 'bg-emerald-500' : 'bg-amber-400'
+          className={`flex min-w-[90px] flex-col items-center justify-center px-5 py-4 ${
+            beating ? 'bg-[#14532d]' : 'bg-[#713f12]'
           }`}
         >
           {beating ? (
-            <BeatIcon size={14} className="mb-1 text-white opacity-80" />
+            <TrendingUp size={14} className={`mb-1 opacity-80 ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`} />
           ) : (
-            <TrendingDown size={14} className="mb-1 text-white opacity-80" />
+            <TrendingDown size={14} className="mb-1 text-[#f59e0b] opacity-80" />
           )}
-          <p className="text-xl leading-none font-black text-white tabular-nums">
+          <p className={`font-mono text-xl leading-none font-black tabular-nums ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`}>
             {beating ? '+' : ''}
             {fmtPct(delta)}
           </p>
-          <p className="mt-1 text-center text-[9px] leading-tight font-semibold text-white opacity-80">
+          <p className={`mt-1 text-center font-mono text-[9px] leading-tight font-semibold opacity-80 ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`}>
             {beating ? 'acima do CDI' : 'abaixo do CDI'}
           </p>
         </div>
       </div>
 
       {/* Context note */}
-      <p className={`mt-3 text-[10px] ${beating ? 'text-emerald-600' : 'text-amber-600'}`}>
+      <p className={`mt-3 font-mono text-[10px] ${beating ? 'text-[#16a34a]' : 'text-[#d97706]'}`}>
         {beating
           ? `Seu imóvel supera o CDI em ${fmtPct(delta)}. Excelente retorno ajustado ao risco.`
           : `O CDI supera seu retorno em ${fmtPct(Math.abs(delta))}. Considere renegociar o financiamento ou reduzir custos.`}
@@ -474,14 +467,14 @@ export default function ResultsScreen({
 
   // ── Benchmark comparison ────────────────────────────────────────────────────
   const benchmarkData = [
-    { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#0ea5e9' },
+    { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#22c55e' },
     {
       name: 'Cash-on-Cash',
       value: +metrics.cashOnCash.toFixed(2),
-      fill: metrics.cashOnCash >= 0 ? '#10b981' : '#ef4444',
+      fill: metrics.cashOnCash >= 0 ? '#16a34a' : '#ef4444',
     },
-    { name: 'CDI (ref.)', value: CDI_RATE, fill: '#94a3b8' },
-    { name: 'FII (ref.)', value: FII_RATE, fill: '#94a3b8' },
+    { name: 'CDI (ref.)', value: CDI_RATE, fill: '#3f3f46' },
+    { name: 'FII (ref.)', value: FII_RATE, fill: '#3f3f46' },
   ];
 
   return (
@@ -490,16 +483,18 @@ export default function ResultsScreen({
       {!hideHeader && (
         <div className="flex items-start justify-between">
           <div>
-            <p className="mb-1 text-xs font-semibold tracking-widest text-slate-400 uppercase">
+            <p className="mb-1 font-mono text-xs font-semibold tracking-[0.1em] text-[#52525b] uppercase">
               Análise Concluída
             </p>
-            <h2 className="text-xl font-black tracking-tight text-slate-900">
+            <h2 className="text-xl font-black tracking-tight text-[#f4f4f5]">
               {dealName ?? 'Resultado do Deal'}
             </h2>
             <div className="mt-2 flex items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                  cashFlowPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                className={`inline-flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-bold ${
+                  cashFlowPositive
+                    ? 'border-[#14532d] bg-[#052e16] text-[#22c55e]'
+                    : 'border-[#7f1d1d] bg-[#450a0a] text-[#f87171]'
                 }`}
               >
                 {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
@@ -509,7 +504,7 @@ export default function ResultsScreen({
           </div>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
+            className="flex items-center gap-1.5 border border-[#27272a] px-3 py-2 text-xs text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
           >
             <RotateCcw size={12} />
             Nova análise
@@ -557,7 +552,7 @@ export default function ResultsScreen({
       {metrics.grossMonthlyRent != null && metrics.grossMonthlyRent > 0 && (
         <div>
           <SectionTitle>Fluxo de Caixa — Ano 1 (Mensal)</SectionTitle>
-          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+          <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
             {[
               { label: 'Aluguel bruto', value: fmt(metrics.grossMonthlyRent), sign: '' },
               { label: 'Perda por vacância', value: fmt(-(metrics.vacancyLoss ?? 0)), sign: 'neg' },
@@ -597,18 +592,18 @@ export default function ResultsScreen({
             ].map((row) => (
               <div
                 key={row.label}
-                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-slate-50' : ''}`}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#0a0a0a]' : 'bg-[#111111]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-slate-700' : 'text-slate-500'}>
+                <span className={row.bold ? 'font-semibold text-[#a1a1aa]' : 'text-[#52525b]'}>
                   {row.label}
                 </span>
                 <span
-                  className={`font-bold ${
+                  className={`font-mono font-bold ${
                     row.sign === 'pos'
-                      ? 'text-emerald-600'
+                      ? 'text-[#22c55e]'
                       : row.sign === 'neg'
-                        ? 'text-red-500'
-                        : 'text-slate-800'
+                        ? 'text-[#f87171]'
+                        : 'text-[#f4f4f5]'
                   }`}
                 >
                   {row.value}
@@ -623,7 +618,7 @@ export default function ResultsScreen({
       {result.flipMetrics && (
         <div>
           <SectionTitle>Reforma e Venda — Resultado</SectionTitle>
-          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+          <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
             {[
               { label: 'Preço de venda (ARV)', value: fmt(result.flipMetrics.salePrice) },
               { label: 'Custos de venda', value: fmt(-result.flipMetrics.sellingCosts), neg: true },
@@ -654,13 +649,13 @@ export default function ResultsScreen({
             ].map((row) => (
               <div
                 key={row.label}
-                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-slate-50' : ''}`}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#0a0a0a]' : 'bg-[#111111]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-slate-700' : 'text-slate-500'}>
+                <span className={row.bold ? 'font-semibold text-[#a1a1aa]' : 'text-[#52525b]'}>
                   {row.label}
                 </span>
                 <span
-                  className={`font-bold ${row.green ? 'text-emerald-600' : row.neg ? 'text-red-500' : 'text-slate-800'}`}
+                  className={`font-mono font-bold ${row.green ? 'text-[#22c55e]' : row.neg ? 'text-[#f87171]' : 'text-[#f4f4f5]'}`}
                 >
                   {row.value}
                 </span>
@@ -673,7 +668,7 @@ export default function ResultsScreen({
       {/* ── Capital Breakdown ────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Estrutura de Capital</SectionTitle>
-        <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+        <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
           {[
             { label: 'Investimento total', value: fmt(metrics.totalInvestment) },
             { label: 'Capital próprio (entrada)', value: fmt(metrics.cashOutlay) },
@@ -691,9 +686,9 @@ export default function ResultsScreen({
                 ]
               : []),
           ].map((row) => (
-            <div key={row.label} className="flex justify-between px-4 py-3">
-              <span className="text-slate-500">{row.label}</span>
-              <span className="font-bold text-slate-800">{row.value}</span>
+            <div key={row.label} className="flex justify-between bg-[#111111] px-4 py-3">
+              <span className="text-[#52525b]">{row.label}</span>
+              <span className="font-mono font-bold text-[#f4f4f5]">{row.value}</span>
             </div>
           ))}
         </div>
@@ -703,33 +698,33 @@ export default function ResultsScreen({
       {cashflowMonthlyData.length > 0 && (
         <div>
           <SectionTitle>Fluxo de Caixa Mensal — 24 Meses</SectionTitle>
-          <div className="rounded-2xl border border-slate-100 bg-white p-5">
+          <div className="border border-[#27272a] bg-[#111111] p-5">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart
                 data={cashflowMonthlyData}
                 barSize={8}
                 margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                 <XAxis
                   dataKey="mes"
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                   interval={5}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
                   width={48}
                 />
                 <Tooltip content={<ChartTooltip prefix="Mês " />} />
-                <ReferenceLine y={0} stroke="#e2e8f0" strokeWidth={1.5} />
-                <Bar dataKey="fluxo" name="Fluxo líquido" radius={[3, 3, 0, 0]}>
+                <ReferenceLine y={0} stroke="#3f3f46" strokeWidth={1.5} />
+                <Bar dataKey="fluxo" name="Fluxo líquido">
                   {cashflowMonthlyData.map((entry, index) => (
-                    <Cell key={`cf-${index}`} fill={entry.fluxo >= 0 ? '#10b981' : '#ef4444'} />
+                    <Cell key={`cf-${index}`} fill={entry.fluxo >= 0 ? '#22c55e' : '#ef4444'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -741,7 +736,7 @@ export default function ResultsScreen({
       {/* ── Benchmarks ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Benchmarks — % a.a.</SectionTitle>
-        <div className="rounded-2xl border border-slate-100 bg-white p-5">
+        <div className="border border-[#27272a] bg-[#111111] p-5">
           <ResponsiveContainer width="100%" height={160}>
             <BarChart
               data={benchmarkData}
@@ -751,7 +746,7 @@ export default function ResultsScreen({
             >
               <XAxis
                 type="number"
-                tick={{ fontSize: 9, fill: '#94a3b8' }}
+                tick={{ fontSize: 9, fill: '#52525b' }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v) => `${v}%`}
@@ -759,7 +754,7 @@ export default function ResultsScreen({
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#a1a1aa' }}
                 tickLine={false}
                 axisLine={false}
                 width={80}
@@ -770,21 +765,21 @@ export default function ResultsScreen({
                   return [`${num.toFixed(2)}%`, ''];
                 }}
                 contentStyle={{
-                  background: '#0f172a',
-                  border: '1px solid #334155',
-                  borderRadius: 12,
-                  color: '#fff',
+                  background: '#0a0a0a',
+                  border: '1px solid #27272a',
+                  borderRadius: 0,
+                  color: '#f4f4f5',
                   fontSize: 11,
                 }}
               />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="value">
                 {benchmarkData.map((entry, i) => (
                   <Cell key={`bm-${i}`} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-right text-[10px] text-slate-400">
+          <p className="mt-2 text-right font-mono text-[10px] text-[#52525b]">
             CDI atualizado semanalmente via Banco Central. FII é referência de mercado.
           </p>
         </div>
@@ -794,28 +789,28 @@ export default function ResultsScreen({
       {projectionData.length > 0 && (
         <div>
           <SectionTitle>Projeção 10 Anos — Valorização e Equity</SectionTitle>
-          <div className="rounded-2xl border border-slate-100 bg-white p-5">
+          <div className="border border-[#27272a] bg-[#111111] p-5">
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={projectionData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="valGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                 <XAxis
                   dataKey="ano"
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
@@ -823,15 +818,15 @@ export default function ResultsScreen({
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend
-                  iconType="circle"
+                  iconType="square"
                   iconSize={7}
-                  wrapperStyle={{ fontSize: 10, color: '#64748b', paddingTop: 8 }}
+                  wrapperStyle={{ fontSize: 10, color: '#52525b', paddingTop: 8 }}
                 />
                 <Area
                   type="monotone"
                   dataKey="valor"
                   name="Valor do imóvel"
-                  stroke="#0ea5e9"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   fill="url(#valGrad)"
                   dot={false}
@@ -840,14 +835,14 @@ export default function ResultsScreen({
                   type="monotone"
                   dataKey="equity"
                   name="Equity acumulado"
-                  stroke="#10b981"
+                  stroke="#22c55e"
                   strokeWidth={2}
                   fill="url(#eqGrad)"
                   dot={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
-            <p className="mt-2 text-[10px] text-slate-400">
+            <p className="mt-2 font-mono text-[10px] text-[#52525b]">
               Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
             </p>
           </div>
@@ -858,18 +853,18 @@ export default function ResultsScreen({
       {amortData.length > 0 && (
         <div>
           <SectionTitle>Amortização — Saldo Devedor Anual</SectionTitle>
-          <div className="rounded-2xl border border-slate-100 bg-white p-5">
+          <div className="border border-[#27272a] bg-[#111111] p-5">
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={amortData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                 <XAxis
                   dataKey="ano"
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tick={{ fontSize: 9, fill: '#52525b' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
@@ -877,9 +872,9 @@ export default function ResultsScreen({
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend
-                  iconType="circle"
+                  iconType="square"
                   iconSize={7}
-                  wrapperStyle={{ fontSize: 10, color: '#64748b', paddingTop: 8 }}
+                  wrapperStyle={{ fontSize: 10, color: '#52525b', paddingTop: 8 }}
                 />
                 <Line
                   type="monotone"
@@ -906,39 +901,39 @@ export default function ResultsScreen({
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       {!hideSaveButton && (
-        <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-900 p-5">
+        <div className="flex items-center justify-between gap-4 border border-[#27272a] bg-[#111111] p-5">
           <div>
-            <p className="text-sm font-black text-white">
+            <p className="text-sm font-black text-[#f4f4f5]">
               {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
             </p>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 font-mono text-xs text-[#52525b]">
               {savedOk
                 ? 'Disponível no seu dashboard.'
                 : isAuthenticated
                   ? 'Guarde este deal na sua conta.'
                   : 'Crie uma conta gratuita para guardar e compartilhar.'}
             </p>
-            {saveError && <p className="mt-1 text-xs text-red-400">{saveError}</p>}
+            {saveError && <p className="mt-1 font-mono text-xs text-[#f87171]">{saveError}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <DownloadPDFButton
               result={result}
               inputs={inputs}
               dealName={dealName ?? 'Deal'}
-              className="flex items-center gap-1.5 rounded-xl bg-slate-700 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-slate-600"
+              className="flex items-center gap-1.5 border border-[#3f3f46] bg-[#1a1a1a] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#a1a1aa] transition-colors hover:border-[#52525b] hover:text-[#f4f4f5]"
             />
             {savedOk && savedDealId && (
               <ShareButton
                 dealId={savedDealId}
                 dealName={dealName ?? 'Deal'}
-                className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-sky-500"
+                className="flex items-center gap-1.5 border border-[#1d4ed8] bg-[#1e3a8a] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#93c5fd] transition-colors hover:bg-[#1d4ed8] hover:text-white"
               />
             )}
             {isAuthenticated ? (
               <button
                 onClick={handleSave}
                 disabled={saving || savedOk}
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400 disabled:bg-emerald-700"
+                className="flex items-center gap-1.5 bg-[#22c55e] px-4 py-2.5 text-xs font-black whitespace-nowrap text-black transition-colors hover:bg-[#16a34a] disabled:bg-[#14532d] disabled:text-[#22c55e]"
               >
                 {savedOk ? (
                   <>
@@ -953,7 +948,7 @@ export default function ResultsScreen({
             ) : (
               <a
                 href="/auth"
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-400"
+                className="flex items-center gap-1.5 bg-[#22c55e] px-4 py-2.5 text-xs font-black whitespace-nowrap text-black transition-colors hover:bg-[#16a34a]"
               >
                 Criar conta <ArrowUpRight size={12} />
               </a>

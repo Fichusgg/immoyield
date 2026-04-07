@@ -1,11 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Plus, LogOut, Building2 } from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Plus, LogOut, Home, CalendarDays, Wrench, Building2, Store } from 'lucide-react';
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+
+const TYPE_ICONS: Record<PropertyType, React.ElementType> = {
+  residential: Home,
+  airbnb: CalendarDays,
+  flip: Wrench,
+  multifamily: Building2,
+  commercial: Store,
+};
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,17 +21,11 @@ interface AppLayoutProps {
   dealCounts?: Record<PropertyType, number>;
 }
 
-const TYPE_ICONS: Record<PropertyType, string> = {
-  residential: "🏠",
-  airbnb: '🏖️',
-  flip: "🔨",
-  multifamily: "🏘️",
-  commercial: "🏢",
-};
-
 export default function AppLayout({ children, userEmail, dealCounts }: AppLayoutProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const activeType = searchParams.get('tipo') as PropertyType | null;
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -38,23 +40,35 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* ── Top nav bar ──────────────────────────────────────────────────────── */}
-      <header className="flex h-12 shrink-0 items-center border-b border-[#e5e5e3] bg-white px-6">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-[#22c55e] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-black focus:outline-none"
+      >
+        Pular para o conteúdo
+      </a>
+
+      {/* ── Top nav bar ───────────────────────────────────────────────────────── */}
+      <header className="flex h-12 shrink-0 items-center border-b border-[#27272a] bg-[#111111] px-6">
+        {/* Logo */}
         <Link href="/" className="mr-8 flex items-center gap-2">
-          <Building2 size={16} className="text-[#1a5c3a]" />
-          <span className="text-sm font-bold tracking-tight text-[#1a1a1a]">ImmoYield</span>
+          <div className="flex h-6 w-6 items-center justify-center bg-[#22c55e] font-mono text-xs font-black text-black">
+            I
+          </div>
+          <span className="text-sm font-bold tracking-tight text-[#f4f4f5]">ImmoYield</span>
         </Link>
-        <nav className="flex items-center gap-1">
+
+        {/* Nav links with bottom-border active indicator */}
+        <nav className="flex h-full items-center">
           {navLinks.map(({ href, label }) => {
             const active = pathname === href || pathname.startsWith(href + '/');
             return (
               <Link
                 key={href}
                 href={href}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`flex h-full items-center border-b-2 px-4 text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-[#f5f5f3] text-[#1a1a1a]'
-                    : 'text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
+                    ? 'border-[#22c55e] text-[#f4f4f5]'
+                    : 'border-transparent text-[#52525b] hover:text-[#a1a1aa]'
                 }`}
               >
                 {label}
@@ -62,15 +76,20 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
             );
           })}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+
+        {/* Right — avatar + logout */}
+        <div className="ml-auto flex items-center gap-4">
           {userEmail && (
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a5c3a] text-xs font-bold text-white">
+            <span className="font-mono text-xs text-[#52525b]">{userEmail}</span>
+          )}
+          {userEmail && (
+            <div className="flex h-7 w-7 items-center justify-center bg-[#22c55e] font-mono text-xs font-bold text-black">
               {userEmail[0].toUpperCase()}
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs text-[#737373] hover:text-[#1a1a1a]"
+            className="flex items-center gap-1.5 font-mono text-xs text-[#52525b] transition-colors hover:text-[#a1a1aa]"
           >
             <LogOut size={13} />
             Sair
@@ -80,61 +99,69 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
 
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ── Left sidebar ─────────────────────────────────────────────────── */}
-        <aside className="flex w-56 shrink-0 flex-col border-r border-[#e5e5e3] bg-white">
-          <div className="flex-1 overflow-y-auto py-3">
+        {/* ── Left sidebar — DealCheck-style property groups ───────────────── */}
+        <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-r border-[#27272a] bg-[#111111]">
+          <nav className="flex-1">
             {PROPERTY_TYPES.map((type) => {
               const count = dealCounts?.[type] ?? 0;
+              const Icon = TYPE_ICONS[type];
+              const isActiveSubItem =
+                activeType === type && pathname === '/meus-negocios';
+
               return (
-                <div key={type} className="mb-1">
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-[#1a1a1a]">
-                      <span>{TYPE_ICONS[type]}</span>
+                <div key={type} className="border-b border-[#1a1a1a]">
+                  {/* Group header row */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-xs font-semibold text-[#a1a1aa]">
                       {PROPERTY_TYPE_LABELS[type]}
                     </span>
                     <Link
-                      href={`/analisar?tipo=${type}`}
-                      className="flex h-5 w-5 items-center justify-center rounded text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a]"
-                      title={`Novo imóvel — ${PROPERTY_TYPE_LABELS[type]}`}
+                      href="/analisar"
+                      title={`Nova análise — ${PROPERTY_TYPE_LABELS[type]}`}
+                      className="flex h-5 w-5 items-center justify-center text-[#3f3f46] transition-colors hover:text-[#22c55e]"
                     >
-                      <Plus size={12} />
+                      <Plus size={13} />
                     </Link>
                   </div>
-                  <div className="ml-3 space-y-0.5 border-l border-[#e5e5e3] pl-3">
-                    <Link
-                      href={`/meus-negocios?tipo=${type}`}
-                      className={`flex items-center justify-between rounded-r-md py-1.5 pr-2 text-xs transition-colors ${
-                        pathname === '/meus-negocios'
-                          ? 'text-[#1a1a1a] hover:bg-[#f5f5f3]'
-                          : 'text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
-                      }`}
-                    >
-                      <span>Imóveis</span>
-                      {count > 0 && (
-                        <span className="rounded-full bg-[#f5f5f3] px-1.5 py-0.5 text-[9px] font-bold text-[#737373]">
-                          {count}
-                        </span>
-                      )}
-                    </Link>
-                  </div>
+
+                  {/* Imóveis sub-item — count | icon | label */}
+                  <Link
+                    href={`/meus-negocios?tipo=${type}`}
+                    className={`flex items-center gap-2 border-l-2 py-2 pl-4 pr-3 text-xs transition-colors ${
+                      isActiveSubItem
+                        ? 'border-[#22c55e] bg-[#052e16] text-[#22c55e]'
+                        : 'border-transparent text-[#52525b] hover:bg-[#1a1a1a] hover:text-[#a1a1aa]'
+                    }`}
+                  >
+                    <span className="w-3 shrink-0 text-right font-mono text-[10px] font-bold">
+                      {count > 0 ? count : ''}
+                    </span>
+                    <Icon size={11} className="shrink-0" />
+                    <span>Imóveis</span>
+                  </Link>
+
+                  {/* Spacer below sub-item */}
+                  <div className="h-2" />
                 </div>
               );
             })}
-          </div>
+          </nav>
 
           {/* User footer */}
-          <div className="border-t border-[#e5e5e3] px-3 py-3">
+          <div className="border-t border-[#27272a] px-3 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1a5c3a] text-[10px] font-bold text-white">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center bg-[#22c55e] font-mono text-[10px] font-bold text-black">
                 {userEmail ? userEmail[0].toUpperCase() : 'U'}
               </div>
-              <p className="min-w-0 truncate text-[10px] text-[#737373]">{userEmail}</p>
+              <p className="min-w-0 truncate font-mono text-[10px] text-[#52525b]">{userEmail}</p>
             </div>
           </div>
         </aside>
 
         {/* ── Main content ─────────────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto bg-[#f5f5f3] p-8">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto bg-[#0a0a0a] p-8">
+          {children}
+        </main>
       </div>
     </div>
   );
