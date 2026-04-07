@@ -85,6 +85,7 @@ interface ResultsScreenProps {
   hideSaveButton?: boolean;
   isAuthenticated?: boolean;
   benchmarks?: Benchmarks;
+  onSaved?: () => void;
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -343,6 +344,7 @@ export default function ResultsScreen({
   benchmarks,
   hideHeader = false,
   hideSaveButton = false,
+  onSaved,
 }: ResultsScreenProps) {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
@@ -421,6 +423,7 @@ export default function ResultsScreen({
       const savedId = typeof insertedId === 'string' ? insertedId : null;
       setSavedDealId(savedId);
       setSavedOk(true);
+      onSaved?.();
     } catch (e) {
       if (e instanceof Error) {
         console.error('[deals.save] failed', { message: e.message, name: e.name, stack: e.stack });

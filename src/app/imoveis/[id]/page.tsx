@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
-import AppLayout from '@/components/layout/AppLayout';
+import TopNav from '@/components/layout/TopNav';
 import DealDetailView from '@/components/deals/DealDetailView';
 
 interface Props {
@@ -26,8 +26,11 @@ export default async function DealDetailPage({ params }: Props) {
   if (error || !deal) notFound();
 
   return (
-    <AppLayout userEmail={user.email}>
-      <DealDetailView deal={deal} />
-    </AppLayout>
+    <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
+      <TopNav userEmail={user.email} />
+      <main className="flex-1 overflow-y-auto p-8">
+        <DealDetailView deal={deal} />
+      </main>
+    </div>
   );
 }

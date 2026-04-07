@@ -12,7 +12,7 @@ export default function AuthPage() {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const redirectingRef = useRef(false);
-  const nextPathRef = useRef('/meus-negocios');
+  const nextPathRef = useRef('/propriedades');
 
   const startRedirect = useCallback(
     (to: string) => {
@@ -29,7 +29,7 @@ export default function AuthPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nextParam = params.get('next');
-    const nextPath = nextParam?.startsWith('/') ? nextParam : '/meus-negocios';
+    const nextPath = nextParam?.startsWith('/') ? nextParam : '/propriedades';
     nextPathRef.current = nextPath;
     const redirectToUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     queueMicrotask(() => setRedirectTo(redirectToUrl));

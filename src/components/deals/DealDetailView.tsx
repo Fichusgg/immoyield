@@ -58,7 +58,7 @@ export default function DealDetailView({ deal }: Props) {
       <aside className="w-64 shrink-0">
         {/* Back link */}
         <Link
-          href="/meus-negocios"
+          href="/propriedades"
           className="mb-4 flex items-center gap-1.5 text-xs font-medium text-[#1a5c3a] hover:underline"
         >
           <ArrowLeft size={12} />
@@ -128,7 +128,7 @@ export default function DealDetailView({ deal }: Props) {
 
           {/* Delete */}
           <div className="border-t border-[#e5e5e3] p-4">
-            <Link href="/meus-negocios" className="text-xs text-[#a3a3a1] hover:text-red-500">
+            <Link href="/propriedades" className="text-xs text-[#a3a3a1] hover:text-red-500">
               ← Voltar ao dashboard
             </Link>
           </div>
@@ -148,7 +148,7 @@ export default function DealDetailView({ deal }: Props) {
                   : 'Análise do Imóvel'}
             </h1>
             <nav className="mt-1 flex items-center gap-1 text-xs text-[#737373]">
-              <Link href="/meus-negocios" className="text-[#1a5c3a] hover:underline">
+              <Link href="/propriedades" className="text-[#1a5c3a] hover:underline">
                 {label}
               </Link>
               <span>/</span>

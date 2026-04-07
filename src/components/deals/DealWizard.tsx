@@ -28,18 +28,16 @@ interface Benchmarks {
 
 interface DealWizardProps {
   benchmarks?: Benchmarks;
+  /** Called after user saves a deal from the results screen — used for inline mode */
+  onSaved?: () => void;
 }
 
-export default function DealWizard({ benchmarks }: DealWizardProps) {
+export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
   const { activeTab, setActiveTab, formData, reset } = useDealStore();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    reset();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const supabase = createClient();
@@ -83,6 +81,7 @@ export default function DealWizard({ benchmarks }: DealWizardProps) {
         onReset={handleReset}
         isAuthenticated={isAuthenticated}
         benchmarks={benchmarks}
+        onSaved={onSaved}
       />
     );
   }

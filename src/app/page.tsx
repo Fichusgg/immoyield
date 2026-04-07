@@ -19,7 +19,7 @@ export default async function Home() {
           <span className="text-lg font-bold tracking-tight text-[#f4f4f5]">ImmoYield</span>
           <nav className="flex items-center gap-6">
             <Link
-              href="/meus-negocios"
+              href="/propriedades"
               className="border-b-2 border-[#22c55e] pb-0.5 text-sm font-medium text-[#22c55e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#22c55e]"
             >
               Meus Negócios
@@ -43,13 +43,13 @@ export default async function Home() {
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link
-            href="/analisar"
+            href="/propriedades"
             className="bg-[#22c55e] px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
           >
             Analisar um imóvel →
           </Link>
           <Link
-            href="/analisar"
+            href="/propriedades"
             className="border border-[#3f3f46] bg-transparent px-6 py-3 text-sm font-medium text-[#a1a1aa] transition-colors hover:border-[#22c55e] hover:text-[#22c55e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
           >
             Ver Exemplos
