@@ -36,7 +36,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[#0a0a0a] text-[#f4f4f5]">{children}</body>
+      <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">{children}</body>
     </html>
   );
 }

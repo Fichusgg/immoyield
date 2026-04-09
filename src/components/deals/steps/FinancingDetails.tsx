@@ -24,7 +24,7 @@ const stepSchema = z.object({
 type StepData = z.infer<typeof stepSchema>;
 
 const fieldClass =
-  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#1a1a1a] focus:bg-white';
+  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#F0EFEB] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#F0EFEB] focus:bg-white';
 
 const labelClass =
   'mb-1.5 block text-[10px] font-semibold tracking-widest text-[#737373] uppercase';
@@ -66,7 +66,7 @@ export function FinancingDetails() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Acquisition costs */}
       <div>
-        <p className="mb-4 text-sm font-semibold text-[#1a1a1a]">Custos de Aquisição</p>
+        <p className="mb-4 text-sm font-semibold text-[#F0EFEB]">Custos de Aquisição</p>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>ITBI (%)</label>
@@ -115,7 +115,7 @@ export function FinancingDetails() {
       {/* Financing toggle */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#1a1a1a]">Financiamento</p>
+          <p className="text-sm font-semibold text-[#F0EFEB]">Financiamento</p>
           <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
@@ -189,13 +189,13 @@ export function FinancingDetails() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="rounded-lg border border-[#e5e5e3] px-5 py-2.5 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#1a1a1a]"
+          className="rounded-lg border border-[#e5e5e3] px-5 py-2.5 text-sm font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3] hover:text-[#F0EFEB]"
         >
           Voltar
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-[#1a1a1a] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+          className="rounded-lg bg-[#F0EFEB] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
         >
           Próximo →
         </button>

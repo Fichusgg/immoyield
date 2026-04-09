@@ -89,14 +89,14 @@ const KPICard = ({
   <div
     className={`flex flex-col gap-1.5 rounded-2xl p-5 ${
       highlight
-        ? 'bg-emerald-500 text-white'
+        ? 'bg-[#EBF3EE]0 text-white'
         : negative
           ? 'border border-red-100 bg-red-50'
-          : 'border border-slate-100 bg-white'
+          : 'border border-[#E2E0DA] bg-white'
     }`}
   >
     <span
-      className={`text-[10px] font-bold tracking-widest uppercase ${highlight ? 'text-emerald-100' : 'text-slate-400'}`}
+      className={`text-[10px] font-bold tracking-widest uppercase ${highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'}`}
     >
       {label}
     </span>
@@ -105,22 +105,22 @@ const KPICard = ({
         highlight
           ? 'text-white'
           : positive
-            ? 'text-emerald-600'
+            ? 'text-[#4A7C59]'
             : negative
               ? 'text-red-500'
-              : 'text-slate-900'
+              : 'text-[#1C2B20]'
       }`}
     >
       {value}
     </span>
     {sub && (
-      <span className={`text-xs ${highlight ? 'text-emerald-200' : 'text-slate-400'}`}>{sub}</span>
+      <span className={`text-xs ${highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'}`}>{sub}</span>
     )}
   </div>
 );
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="mb-4 text-xs font-black tracking-widest text-slate-400 uppercase">{children}</h3>
+  <h3 className="mb-4 text-xs font-black tracking-widest text-[#9CA3AF] uppercase">{children}</h3>
 );
 
 const ChartTooltip = ({
@@ -136,8 +136,8 @@ const ChartTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white shadow-2xl">
-      <p className="mb-1 text-slate-400">
+    <div className="rounded-xl border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2 text-xs text-[#1C2B20] shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+      <p className="mb-1 text-[#9CA3AF]">
         {prefix}
         {label}
       </p>
@@ -189,7 +189,7 @@ export default function PublicReportView({
     {
       name: 'Cash-on-Cash',
       value: +metrics.cashOnCash.toFixed(2),
-      fill: metrics.cashOnCash >= 0 ? '#10b981' : '#ef4444',
+      fill: metrics.cashOnCash >= 0 ? '#10b981' : '#DC2626',
     },
     { name: 'CDI (ref.)', value: CDI_RATE, fill: '#94a3b8' },
     { name: 'FII (ref.)', value: FII_RATE, fill: '#94a3b8' },
@@ -202,20 +202,20 @@ export default function PublicReportView({
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F8F7F4]">
       {/* ── Branded header (the watermark / growth driver) ────────────────── */}
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-20 border-b border-[#E2E0DA] bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           {/* Brand */}
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#4A7C59]">
               <span className="text-xs font-black text-white">I</span>
             </div>
-            <span className="font-black tracking-tight text-slate-900">ImmoYield</span>
+            <span className="font-black tracking-tight text-[#1C2B20]">ImmoYield</span>
           </Link>
 
           {/* Meta pill */}
-          <div className="hidden items-center gap-3 text-xs text-slate-400 sm:flex">
+          <div className="hidden items-center gap-3 text-xs text-[#9CA3AF] sm:flex">
             <span className="flex items-center gap-1">
               <Eye size={11} />
               {viewCount} {viewCount === 1 ? 'visualização' : 'visualizações'}
@@ -229,7 +229,7 @@ export default function PublicReportView({
           {/* CTA */}
           <Link
             href="/"
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-emerald-500"
+            className="hover:bg-[#EBF3EE]0 flex items-center gap-1.5 rounded-lg bg-[#4A7C59] px-3 py-1.5 text-xs font-black whitespace-nowrap text-white transition-colors"
           >
             Analisar meu imóvel <ArrowUpRight size={11} />
           </Link>
@@ -240,20 +240,20 @@ export default function PublicReportView({
       <main className="mx-auto max-w-3xl space-y-8 px-6 py-10 pb-32">
         {/* Title block */}
         <div>
-          <p className="mb-1 text-xs font-semibold tracking-widest text-slate-400 uppercase">
+          <p className="mb-1 text-xs font-semibold tracking-widest text-[#9CA3AF] uppercase">
             Análise de Investimento · Compartilhado via ImmoYield
           </p>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">{dealName}</h1>
+          <h1 className="text-2xl font-black tracking-tight text-[#1C2B20]">{dealName}</h1>
           <div className="mt-2 flex items-center gap-2">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                cashFlowPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
+                cashFlowPositive ? 'bg-[#EBF3EE] text-[#3D6B4F]' : 'bg-red-50 text-red-600'
               }`}
             >
               {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
               Fluxo de caixa {cashFlowPositive ? 'positivo' : 'negativo'}
             </span>
-            <span className="flex items-center gap-1 text-xs text-slate-400 sm:hidden">
+            <span className="flex items-center gap-1 text-xs text-[#9CA3AF] sm:hidden">
               <Eye size={10} />
               {viewCount}
             </span>
@@ -292,7 +292,7 @@ export default function PublicReportView({
         {/* Capital Breakdown */}
         <div>
           <SectionTitle>Estrutura de Capital</SectionTitle>
-          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+          <div className="divide-y divide-[#E2E0DA] rounded-2xl border border-[#E2E0DA] bg-white text-sm">
             {[
               { label: 'Investimento total', value: fmt(metrics.totalInvestment) },
               { label: 'Capital próprio (entrada)', value: fmt(metrics.cashOutlay) },
@@ -308,8 +308,8 @@ export default function PublicReportView({
                 : []),
             ].map((row) => (
               <div key={row.label} className="flex justify-between px-4 py-3">
-                <span className="text-slate-500">{row.label}</span>
-                <span className="font-bold text-slate-800">{row.value}</span>
+                <span className="text-[#6B7280]">{row.label}</span>
+                <span className="font-bold text-[#1C2B20]">{row.value}</span>
               </div>
             ))}
           </div>
@@ -318,7 +318,7 @@ export default function PublicReportView({
         {/* Deal inputs summary */}
         <div>
           <SectionTitle>Dados do Imóvel</SectionTitle>
-          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white text-sm">
+          <div className="divide-y divide-[#E2E0DA] rounded-2xl border border-[#E2E0DA] bg-white text-sm">
             {[
               { label: 'Preço de compra', value: fmt(inputs.purchasePrice) },
               { label: 'ITBI', value: fmtPct(inputs.acquisitionCosts.itbiPercent * 100) },
@@ -338,8 +338,8 @@ export default function PublicReportView({
                 : [{ label: 'Financiamento', value: 'À vista' }]),
             ].map((row) => (
               <div key={row.label} className="flex justify-between px-4 py-3">
-                <span className="text-slate-500">{row.label}</span>
-                <span className="font-bold text-slate-800">{row.value}</span>
+                <span className="text-[#6B7280]">{row.label}</span>
+                <span className="font-bold text-[#1C2B20]">{row.value}</span>
               </div>
             ))}
           </div>
@@ -349,7 +349,7 @@ export default function PublicReportView({
         {cashflowMonthlyData.length > 0 && (
           <div>
             <SectionTitle>Fluxo de Caixa Mensal — 24 Meses</SectionTitle>
-            <div className="rounded-2xl border border-slate-100 bg-white p-5">
+            <div className="rounded-2xl border border-[#E2E0DA] bg-white p-5">
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart
                   data={cashflowMonthlyData}
@@ -375,7 +375,7 @@ export default function PublicReportView({
                   <ReferenceLine y={0} stroke="#e2e8f0" strokeWidth={1.5} />
                   <Bar dataKey="fluxo" name="Fluxo líquido" radius={[3, 3, 0, 0]}>
                     {cashflowMonthlyData.map((entry, i) => (
-                      <Cell key={`cf-${i}`} fill={entry.fluxo >= 0 ? '#10b981' : '#ef4444'} />
+                      <Cell key={`cf-${i}`} fill={entry.fluxo >= 0 ? '#10b981' : '#DC2626'} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -387,7 +387,7 @@ export default function PublicReportView({
         {/* Benchmarks */}
         <div>
           <SectionTitle>Benchmarks — % a.a.</SectionTitle>
-          <div className="rounded-2xl border border-slate-100 bg-white p-5">
+          <div className="rounded-2xl border border-[#E2E0DA] bg-white p-5">
             <ResponsiveContainer width="100%" height={160}>
               <BarChart
                 data={benchmarkData}
@@ -430,7 +430,7 @@ export default function PublicReportView({
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <p className="mt-2 text-right text-[10px] text-slate-400">
+            <p className="mt-2 text-right text-[10px] text-[#9CA3AF]">
               CDI e FII são referências de mercado, não garantidas.
             </p>
           </div>
@@ -440,7 +440,7 @@ export default function PublicReportView({
         {projectionData.length > 0 && (
           <div>
             <SectionTitle>Projeção 10 Anos — Valorização e Equity</SectionTitle>
-            <div className="rounded-2xl border border-slate-100 bg-white p-5">
+            <div className="rounded-2xl border border-[#E2E0DA] bg-white p-5">
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={projectionData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
@@ -493,7 +493,7 @@ export default function PublicReportView({
                   />
                 </AreaChart>
               </ResponsiveContainer>
-              <p className="mt-2 text-[10px] text-slate-400">
+              <p className="mt-2 text-[10px] text-[#9CA3AF]">
                 Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
               </p>
             </div>
@@ -504,7 +504,7 @@ export default function PublicReportView({
         {amortData.length > 0 && (
           <div>
             <SectionTitle>Amortização — Saldo Devedor Anual</SectionTitle>
-            <div className="rounded-2xl border border-slate-100 bg-white p-5">
+            <div className="rounded-2xl border border-[#E2E0DA] bg-white p-5">
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={amortData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -531,7 +531,7 @@ export default function PublicReportView({
                     type="monotone"
                     dataKey="saldo"
                     name="Saldo devedor"
-                    stroke="#ef4444"
+                    stroke="#DC2626"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -551,7 +551,7 @@ export default function PublicReportView({
         )}
 
         {/* Legal disclaimer */}
-        <p className="text-center text-[10px] leading-relaxed text-slate-300">
+        <p className="text-center text-[10px] leading-relaxed text-[#9CA3AF]">
           Esta análise foi gerada automaticamente pelo ImmoYield para fins informativos. Projeções
           são estimativas sem garantia. Consulte um profissional de investimentos.
         </p>
@@ -562,24 +562,24 @@ export default function PublicReportView({
         {/* Gradient fade */}
         <div className="h-12 bg-gradient-to-t from-slate-50 to-transparent" />
 
-        <div className="pointer-events-auto border-t border-slate-200 bg-white">
+        <div className="pointer-events-auto border-t border-[#E2E0DA] bg-white">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#4A7C59]">
                 <BarChart2 size={16} className="text-white" />
               </div>
               <div>
-                <p className="text-sm leading-tight font-black text-slate-900">
+                <p className="text-sm leading-tight font-black text-[#1C2B20]">
                   Analise seus próprios imóveis
                 </p>
-                <p className="hidden text-xs text-slate-400 sm:block">
+                <p className="hidden text-xs text-[#9CA3AF] sm:block">
                   Gratuito · Sem cadastro de cartão
                 </p>
               </div>
             </div>
             <Link
               href="/"
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black whitespace-nowrap text-white shadow-lg shadow-emerald-500/25 transition-colors hover:bg-emerald-500"
+              className="hover:bg-[#EBF3EE]0 flex items-center gap-1.5 rounded-xl bg-[#4A7C59] px-5 py-2.5 text-sm font-black whitespace-nowrap text-white shadow-lg shadow-emerald-500/25 transition-colors"
             >
               Começar grátis <ExternalLink size={13} />
             </Link>

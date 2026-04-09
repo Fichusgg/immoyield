@@ -15,7 +15,7 @@ export default async function PropriedadesPage() {
   const benchmarks = await getBenchmarks();
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
+    <div className="flex min-h-screen flex-col bg-[#F8F7F4]">
       <TopNav userEmail={user.email} />
       <PropertiesPage benchmarks={benchmarks} />
     </div>

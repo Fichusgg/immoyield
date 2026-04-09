@@ -29,9 +29,9 @@ const stepSchema = z.object({
 type StepData = z.infer<typeof stepSchema>;
 
 const fieldClass =
-  'w-full border border-[#27272a] bg-[#1a1a1a] px-3.5 py-2.5 text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none transition-colors focus:border-[#22c55e] focus:shadow-[0_0_0_2px_rgba(34,197,94,0.15)]';
+  'w-full border border-[#E2E0DA] bg-white px-3.5 py-2.5 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
 const labelClass =
-  'mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52525b] uppercase';
+  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase';
 
 interface Props {
   onBack: () => void;
@@ -116,8 +116,8 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
       <div>
-        <h2 className="text-base font-bold text-[#f4f4f5]">Receitas & Despesas</h2>
-        <p className="mt-0.5 text-sm text-[#52525b]">
+        <h2 className="text-base font-bold text-[#1C2B20]">Receitas & Despesas</h2>
+        <p className="mt-0.5 text-sm text-[#9CA3AF]">
           {isAirbnb
             ? 'Diária e taxa de ocupação para locação por temporada.'
             : isReforma
@@ -132,7 +132,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           <div>
             <label className={labelClass}>Valor Pós-Reforma — ARV (R$)</label>
             <div className="relative">
-              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#52525b]">
+              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
                 R$
               </span>
               <Controller
@@ -167,14 +167,16 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   {...register('expenses.sellingCostPercent', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                   %
                 </span>
               </div>
-              <p className="mt-1 font-mono text-[10px] text-[#52525b]">Corretor + ITBI vendedor ≈ 6%</p>
+              <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+                Corretor + ITBI vendedor ≈ 6%
+              </p>
             </div>
           </div>
-          <div className="border border-[#27272a] bg-[#1a1a1a] px-4 py-3 font-mono text-xs text-[#52525b]">
+          <div className="border border-[#E2E0DA] bg-[#F0EFEB] px-4 py-3 font-mono text-xs text-[#9CA3AF]">
             Ganho de capital calculado automaticamente com alíquota de 15% (até R$ 5M).
           </div>
         </div>
@@ -186,7 +188,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           <div>
             <label className={labelClass}>Diária Média (R$)</label>
             <div className="relative">
-              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#52525b]">
+              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
                 R$
               </span>
               <Controller
@@ -212,7 +214,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                 {...register('revenue.occupancyRate', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 %
               </span>
             </div>
@@ -223,12 +225,12 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
       {/* Aluguel / Comercial */}
       {!isReforma && !isAirbnb && (
         <div>
-          <p className="mb-3 text-sm font-semibold text-[#f4f4f5]">Receita de Aluguel</p>
+          <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Receita de Aluguel</p>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Aluguel Mensal (R$)</label>
               <div className="relative">
-                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#52525b]">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
                   R$
                 </span>
                 <Controller
@@ -254,7 +256,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   {...register('revenue.vacancyRate', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                   %
                 </span>
               </div>
@@ -262,11 +264,11 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           </div>
 
           {/* IPCA indexation */}
-          <div className="mt-4 border border-[#27272a] bg-[#0a0a0a] p-4">
+          <div className="mt-4 border border-[#E2E0DA] bg-[#F8F7F4] p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-[#f4f4f5]">Reajuste pelo IPCA</p>
-                <p className="font-mono text-[10px] text-[#52525b]">
+                <p className="text-xs font-semibold text-[#1C2B20]">Reajuste pelo IPCA</p>
+                <p className="font-mono text-[10px] text-[#9CA3AF]">
                   Projeta crescimento do aluguel corrigido pela inflação
                 </p>
               </div>
@@ -274,11 +276,11 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                 <input type="checkbox" {...register('revenue.ipcaIndexed')} className="sr-only" />
                 <div
                   className={`relative h-5 w-9 transition-colors ${
-                    ipcaIndexed ? 'bg-[#16a34a]' : 'bg-[#27272a]'
+                    ipcaIndexed ? 'bg-[#3D6B4F]' : 'bg-[#E2E0DA]'
                   }`}
                 >
                   <div
-                    className={`absolute top-0.5 h-4 w-4 bg-[#f4f4f5] transition-transform ${
+                    className={`absolute top-0.5 h-4 w-4 bg-[#1C2B20] transition-transform ${
                       ipcaIndexed ? 'translate-x-4' : 'translate-x-0.5'
                     }`}
                   />
@@ -295,7 +297,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('revenue.annualIpcaRate', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                     %
                   </span>
                 </div>
@@ -308,9 +310,9 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
       {/* Despesas operacionais (não reforma) */}
       {!isReforma && (
         <>
-          <div className="border-t border-[#27272a]" />
+          <div className="border-t border-[#E2E0DA]" />
           <div>
-            <p className="mb-3 text-sm font-semibold text-[#f4f4f5]">Despesas Operacionais</p>
+            <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Despesas Operacionais</p>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Condomínio (R$/mês)</label>
@@ -351,7 +353,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('expenses.managementPercent', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                     %
                   </span>
                 </div>
@@ -365,7 +367,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('expenses.maintenancePercent', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                     %
                   </span>
                 </div>
@@ -375,22 +377,22 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
 
           {/* Live NOI waterfall */}
           {!isReforma && (monthlyRent > 0 || dailyRate > 0) && (
-            <div className="border border-[#27272a] bg-[#0a0a0a] p-4 text-sm">
-              <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+            <div className="border border-[#E2E0DA] bg-[#F8F7F4] p-4 text-sm">
+              <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
                 Resultado Operacional — prévia
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-[#52525b]">Aluguel bruto</span>
-                  <span className="font-mono font-semibold text-[#f4f4f5]">
+                  <span className="text-[#9CA3AF]">Aluguel bruto</span>
+                  <span className="font-mono font-semibold text-[#1C2B20]">
                     {fmt(isAirbnb ? dailyRate * 30 : monthlyRent)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#52525b]">
+                  <span className="text-[#9CA3AF]">
                     {isAirbnb ? `Ocupação (${occupancy}%)` : `Vacância (${vacancyRate}%)`}
                   </span>
-                  <span className="font-mono text-[#f87171]">
+                  <span className="font-mono text-[#DC2626]">
                     −{' '}
                     {fmt(
                       isAirbnb
@@ -399,17 +401,21 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-[#27272a] pt-2">
-                  <span className="text-[#a1a1aa]">Receita efetiva</span>
-                  <span className="font-mono font-semibold text-[#f4f4f5]">{fmt(effectiveRent)}</span>
+                <div className="flex justify-between border-t border-[#E2E0DA] pt-2">
+                  <span className="text-[#6B7280]">Receita efetiva</span>
+                  <span className="font-mono font-semibold text-[#1C2B20]">
+                    {fmt(effectiveRent)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#52525b]">Despesas operacionais</span>
-                  <span className="font-mono text-[#f87171]">− {fmt(expenses)}</span>
+                  <span className="text-[#9CA3AF]">Despesas operacionais</span>
+                  <span className="font-mono text-[#DC2626]">− {fmt(expenses)}</span>
                 </div>
-                <div className="flex justify-between border-t border-[#3f3f46] pt-2">
-                  <span className="font-bold text-[#f4f4f5]">NOI Mensal</span>
-                  <span className={`font-mono font-bold ${noi >= 0 ? 'text-[#22c55e]' : 'text-[#f87171]'}`}>
+                <div className="flex justify-between border-t border-[#D0CEC8] pt-2">
+                  <span className="font-bold text-[#1C2B20]">NOI Mensal</span>
+                  <span
+                    className={`font-mono font-bold ${noi >= 0 ? 'text-[#4A7C59]' : 'text-[#DC2626]'}`}
+                  >
                     {fmt(noi)}
                   </span>
                 </div>
@@ -423,13 +429,13 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#27272a] px-5 py-2.5 text-sm font-medium text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>
         <button
           type="submit"
-          className="bg-[#22c55e] px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
+          className="bg-[#4A7C59] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F]"
         >
           Próximo: Projeções →
         </button>

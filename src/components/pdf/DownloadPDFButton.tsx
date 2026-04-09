@@ -65,7 +65,7 @@ export function DownloadPDFButton({
 // ─── Inner async component ────────────────────────────────────────────────────
 
 const defaultClass =
-  'flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed';
+  'flex items-center gap-2 bg-[#4A7C59] hover:bg-[#3D6B4F] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed';
 
 function AsyncPDFLink({
   result,

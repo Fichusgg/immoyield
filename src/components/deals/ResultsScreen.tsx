@@ -179,8 +179,8 @@ const ChartTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="border border-[#27272a] bg-[#0a0a0a] px-3 py-2 text-xs text-[#f4f4f5]">
-      <p className="mb-1 font-mono text-[#52525b]">
+    <div className="border border-[#E2E0DA] bg-[#F8F7F4] px-3 py-2 text-xs text-[#1C2B20]">
+      <p className="mb-1 font-mono text-[#9CA3AF]">
         {prefix}
         {label}
       </p>
@@ -213,34 +213,34 @@ const KPICard = ({
   <div
     className={`flex flex-col gap-1.5 p-5 ${
       highlight
-        ? 'border border-[#14532d] bg-[#052e16]'
+        ? 'border border-[#A8C5B2] bg-[#EBF3EE]'
         : negative
-          ? 'border border-[#7f1d1d] bg-[#450a0a]'
-          : 'border border-[#27272a] bg-[#111111]'
+          ? 'border border-[#FECACA] bg-[#FEF2F2]'
+          : 'border border-[#E2E0DA] bg-[#FAFAF8]'
     }`}
   >
     <span
-      className={`font-mono text-[10px] font-bold tracking-[0.1em] uppercase ${
-        highlight ? 'text-[#16a34a]' : 'text-[#52525b]'
+      className={`text-[10px] font-semibold tracking-[0.06em] uppercase ${
+        highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'
       }`}
     >
       {label}
     </span>
     <span
-      className={`text-2xl font-black tracking-tight tabular-nums ${
+      className={`font-mono text-2xl font-black tracking-tight tabular-nums ${
         highlight
-          ? 'text-[#22c55e]'
+          ? 'text-[#4A7C59]'
           : positive
-            ? 'text-[#22c55e]'
+            ? 'text-[#4A7C59]'
             : negative
-              ? 'text-[#f87171]'
-              : 'text-[#f4f4f5]'
+              ? 'text-[#DC2626]'
+              : 'text-[#1C2B20]'
       }`}
     >
       {value}
     </span>
     {sub && (
-      <span className={`font-mono text-xs ${highlight ? 'text-[#16a34a]' : 'text-[#52525b]'}`}>{sub}</span>
+      <span className={`text-xs ${highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'}`}>{sub}</span>
     )}
   </div>
 );
@@ -248,7 +248,9 @@ const KPICard = ({
 // ─── Section Header ───────────────────────────────────────────────────────────
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="mb-4 font-mono text-xs font-black tracking-[0.1em] text-[#52525b] uppercase">{children}</h3>
+  <h3 className="mb-4 text-xs font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+    {children}
+  </h3>
 );
 
 // ─── CDI Comparison Banner ────────────────────────────────────────────────────
@@ -269,12 +271,12 @@ const CDIBanner = ({
   return (
     <div
       className={`p-5 ${
-        beating ? 'border border-[#14532d] bg-[#052e16]' : 'border border-[#713f12] bg-[#1c1005]'
+        beating ? 'border border-[#A8C5B2] bg-[#EBF3EE]' : 'border border-[#FED7AA] bg-[#FFFBEB]'
       }`}
     >
       <p
-        className={`mb-3 font-mono text-[10px] font-black tracking-[0.1em] uppercase ${
-          beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'
+        className={`mb-3 text-[10px] font-semibold tracking-[0.07em] uppercase ${
+          beating ? 'text-[#4A7C59]' : 'text-[#B45309]'
         }`}
       >
         Seu retorno vs CDI
@@ -284,18 +286,18 @@ const CDIBanner = ({
         {/* Left: your return + CDI reference */}
         <div className="flex-1 space-y-2">
           <div>
-            <p className="mb-0.5 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#52525b] uppercase">
+            <p className="mb-0.5 text-[10px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase">
               {label}
             </p>
-            <p className="font-mono text-3xl font-black tracking-tight text-[#f4f4f5] tabular-nums">
+            <p className="font-mono text-3xl font-black tracking-tight text-[#1C2B20] tabular-nums">
               {fmtPct(yourReturn)}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="font-mono text-xs text-[#52525b]">vs CDI:</span>
-            <span className="font-mono text-sm font-bold text-[#a1a1aa]">{fmtPct(cdiRate)}</span>
+            <span className="font-mono text-xs text-[#9CA3AF]">vs CDI:</span>
+            <span className="font-mono text-sm font-bold text-[#6B7280]">{fmtPct(cdiRate)}</span>
             {benchmarks?.updatedAt && (
-              <span className="font-mono text-[9px] text-[#52525b]">
+              <span className="font-mono text-[9px] text-[#9CA3AF]">
                 (atualizado {new Date(benchmarks.updatedAt).toLocaleDateString('pt-BR')})
               </span>
             )}
@@ -305,26 +307,26 @@ const CDIBanner = ({
         {/* Right: delta badge */}
         <div
           className={`flex min-w-[90px] flex-col items-center justify-center px-5 py-4 ${
-            beating ? 'bg-[#14532d]' : 'bg-[#713f12]'
+            beating ? 'bg-[#4A7C59]' : 'bg-[#B45309]'
           }`}
         >
           {beating ? (
-            <TrendingUp size={14} className={`mb-1 opacity-80 ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`} />
+            <TrendingUp size={14} className="mb-1 text-white opacity-90" />
           ) : (
-            <TrendingDown size={14} className="mb-1 text-[#f59e0b] opacity-80" />
+            <TrendingDown size={14} className="mb-1 text-white opacity-90" />
           )}
-          <p className={`font-mono text-xl leading-none font-black tabular-nums ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`}>
+          <p className="font-mono text-xl leading-none font-black text-white tabular-nums">
             {beating ? '+' : ''}
             {fmtPct(delta)}
           </p>
-          <p className={`mt-1 text-center font-mono text-[9px] leading-tight font-semibold opacity-80 ${beating ? 'text-[#22c55e]' : 'text-[#f59e0b]'}`}>
+          <p className="mt-1 text-center text-[9px] leading-tight font-semibold text-white opacity-80">
             {beating ? 'acima do CDI' : 'abaixo do CDI'}
           </p>
         </div>
       </div>
 
       {/* Context note */}
-      <p className={`mt-3 font-mono text-[10px] ${beating ? 'text-[#16a34a]' : 'text-[#d97706]'}`}>
+      <p className={`mt-3 font-mono text-[10px] ${beating ? 'text-[#3D6B4F]' : 'text-[#B45309]'}`}>
         {beating
           ? `Seu imóvel supera o CDI em ${fmtPct(delta)}. Excelente retorno ajustado ao risco.`
           : `O CDI supera seu retorno em ${fmtPct(Math.abs(delta))}. Considere renegociar o financiamento ou reduzir custos.`}
@@ -470,14 +472,14 @@ export default function ResultsScreen({
 
   // ── Benchmark comparison ────────────────────────────────────────────────────
   const benchmarkData = [
-    { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#22c55e' },
+    { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#4A7C59' },
     {
       name: 'Cash-on-Cash',
       value: +metrics.cashOnCash.toFixed(2),
-      fill: metrics.cashOnCash >= 0 ? '#16a34a' : '#ef4444',
+      fill: metrics.cashOnCash >= 0 ? '#3D6B4F' : '#DC2626',
     },
-    { name: 'CDI (ref.)', value: CDI_RATE, fill: '#3f3f46' },
-    { name: 'FII (ref.)', value: FII_RATE, fill: '#3f3f46' },
+    { name: 'CDI (ref.)', value: CDI_RATE, fill: '#D0CEC8' },
+    { name: 'FII (ref.)', value: FII_RATE, fill: '#D0CEC8' },
   ];
 
   return (
@@ -486,18 +488,18 @@ export default function ResultsScreen({
       {!hideHeader && (
         <div className="flex items-start justify-between">
           <div>
-            <p className="mb-1 font-mono text-xs font-semibold tracking-[0.1em] text-[#52525b] uppercase">
+            <p className="mb-1 text-xs font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
               Análise Concluída
             </p>
-            <h2 className="text-xl font-black tracking-tight text-[#f4f4f5]">
+            <h2 className="text-xl font-bold tracking-tight text-[#1C2B20]">
               {dealName ?? 'Resultado do Deal'}
             </h2>
             <div className="mt-2 flex items-center gap-2">
               <span
                 className={`inline-flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-bold ${
                   cashFlowPositive
-                    ? 'border-[#14532d] bg-[#052e16] text-[#22c55e]'
-                    : 'border-[#7f1d1d] bg-[#450a0a] text-[#f87171]'
+                    ? 'border-[#A8C5B2] bg-[#EBF3EE] text-[#4A7C59]'
+                    : 'border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]'
                 }`}
               >
                 {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
@@ -507,7 +509,7 @@ export default function ResultsScreen({
           </div>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 border border-[#27272a] px-3 py-2 text-xs text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+            className="flex items-center gap-1.5 border border-[#E2E0DA] px-3 py-2 text-xs text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
           >
             <RotateCcw size={12} />
             Nova análise
@@ -555,7 +557,7 @@ export default function ResultsScreen({
       {metrics.grossMonthlyRent != null && metrics.grossMonthlyRent > 0 && (
         <div>
           <SectionTitle>Fluxo de Caixa — Ano 1 (Mensal)</SectionTitle>
-          <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
+          <div className="divide-y divide-[#E2E0DA] border border-[#E2E0DA] text-sm">
             {[
               { label: 'Aluguel bruto', value: fmt(metrics.grossMonthlyRent), sign: '' },
               { label: 'Perda por vacância', value: fmt(-(metrics.vacancyLoss ?? 0)), sign: 'neg' },
@@ -595,18 +597,18 @@ export default function ResultsScreen({
             ].map((row) => (
               <div
                 key={row.label}
-                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#0a0a0a]' : 'bg-[#111111]'}`}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#F8F7F4]' : 'bg-[#FAFAF8]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-[#a1a1aa]' : 'text-[#52525b]'}>
+                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#9CA3AF]'}>
                   {row.label}
                 </span>
                 <span
                   className={`font-mono font-bold ${
                     row.sign === 'pos'
-                      ? 'text-[#22c55e]'
+                      ? 'text-[#4A7C59]'
                       : row.sign === 'neg'
-                        ? 'text-[#f87171]'
-                        : 'text-[#f4f4f5]'
+                        ? 'text-[#DC2626]'
+                        : 'text-[#1C2B20]'
                   }`}
                 >
                   {row.value}
@@ -621,7 +623,7 @@ export default function ResultsScreen({
       {result.flipMetrics && (
         <div>
           <SectionTitle>Reforma e Venda — Resultado</SectionTitle>
-          <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
+          <div className="divide-y divide-[#E2E0DA] border border-[#E2E0DA] text-sm">
             {[
               { label: 'Preço de venda (ARV)', value: fmt(result.flipMetrics.salePrice) },
               { label: 'Custos de venda', value: fmt(-result.flipMetrics.sellingCosts), neg: true },
@@ -652,13 +654,13 @@ export default function ResultsScreen({
             ].map((row) => (
               <div
                 key={row.label}
-                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#0a0a0a]' : 'bg-[#111111]'}`}
+                className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#F8F7F4]' : 'bg-[#FAFAF8]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-[#a1a1aa]' : 'text-[#52525b]'}>
+                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#9CA3AF]'}>
                   {row.label}
                 </span>
                 <span
-                  className={`font-mono font-bold ${row.green ? 'text-[#22c55e]' : row.neg ? 'text-[#f87171]' : 'text-[#f4f4f5]'}`}
+                  className={`font-mono font-bold ${row.green ? 'text-[#4A7C59]' : row.neg ? 'text-[#DC2626]' : 'text-[#1C2B20]'}`}
                 >
                   {row.value}
                 </span>
@@ -671,7 +673,7 @@ export default function ResultsScreen({
       {/* ── Capital Breakdown ────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Estrutura de Capital</SectionTitle>
-        <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
+        <div className="divide-y divide-[#E2E0DA] border border-[#E2E0DA] text-sm">
           {[
             { label: 'Investimento total', value: fmt(metrics.totalInvestment) },
             { label: 'Capital próprio (entrada)', value: fmt(metrics.cashOutlay) },
@@ -689,9 +691,9 @@ export default function ResultsScreen({
                 ]
               : []),
           ].map((row) => (
-            <div key={row.label} className="flex justify-between bg-[#111111] px-4 py-3">
-              <span className="text-[#52525b]">{row.label}</span>
-              <span className="font-mono font-bold text-[#f4f4f5]">{row.value}</span>
+            <div key={row.label} className="flex justify-between bg-[#FAFAF8] px-4 py-3">
+              <span className="text-[#9CA3AF]">{row.label}</span>
+              <span className="font-mono font-bold text-[#1C2B20]">{row.value}</span>
             </div>
           ))}
         </div>
@@ -701,33 +703,33 @@ export default function ResultsScreen({
       {cashflowMonthlyData.length > 0 && (
         <div>
           <SectionTitle>Fluxo de Caixa Mensal — 24 Meses</SectionTitle>
-          <div className="border border-[#27272a] bg-[#111111] p-5">
+          <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart
                 data={cashflowMonthlyData}
                 barSize={8}
                 margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E0DA" vertical={false} />
                 <XAxis
                   dataKey="mes"
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                   interval={5}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
                   width={48}
                 />
                 <Tooltip content={<ChartTooltip prefix="Mês " />} />
-                <ReferenceLine y={0} stroke="#3f3f46" strokeWidth={1.5} />
+                <ReferenceLine y={0} stroke="#D0CEC8" strokeWidth={1.5} />
                 <Bar dataKey="fluxo" name="Fluxo líquido">
                   {cashflowMonthlyData.map((entry, index) => (
-                    <Cell key={`cf-${index}`} fill={entry.fluxo >= 0 ? '#22c55e' : '#ef4444'} />
+                    <Cell key={`cf-${index}`} fill={entry.fluxo >= 0 ? '#4A7C59' : '#DC2626'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -739,7 +741,7 @@ export default function ResultsScreen({
       {/* ── Benchmarks ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Benchmarks — % a.a.</SectionTitle>
-        <div className="border border-[#27272a] bg-[#111111] p-5">
+        <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
           <ResponsiveContainer width="100%" height={160}>
             <BarChart
               data={benchmarkData}
@@ -749,7 +751,7 @@ export default function ResultsScreen({
             >
               <XAxis
                 type="number"
-                tick={{ fontSize: 9, fill: '#52525b' }}
+                tick={{ fontSize: 9, fill: '#9CA3AF' }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v) => `${v}%`}
@@ -757,7 +759,7 @@ export default function ResultsScreen({
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{ fontSize: 10, fill: '#a1a1aa' }}
+                tick={{ fontSize: 10, fill: '#6B7280' }}
                 tickLine={false}
                 axisLine={false}
                 width={80}
@@ -768,10 +770,10 @@ export default function ResultsScreen({
                   return [`${num.toFixed(2)}%`, ''];
                 }}
                 contentStyle={{
-                  background: '#0a0a0a',
-                  border: '1px solid #27272a',
+                  background: '#F8F7F4',
+                  border: '1px solid #E2E0DA',
                   borderRadius: 0,
-                  color: '#f4f4f5',
+                  color: '#1C2B20',
                   fontSize: 11,
                 }}
               />
@@ -782,7 +784,7 @@ export default function ResultsScreen({
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-right font-mono text-[10px] text-[#52525b]">
+          <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
             CDI atualizado semanalmente via Banco Central. FII é referência de mercado.
           </p>
         </div>
@@ -792,7 +794,7 @@ export default function ResultsScreen({
       {projectionData.length > 0 && (
         <div>
           <SectionTitle>Projeção 10 Anos — Valorização e Equity</SectionTitle>
-          <div className="border border-[#27272a] bg-[#111111] p-5">
+          <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={projectionData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
@@ -801,19 +803,19 @@ export default function ResultsScreen({
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#4A7C59" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#4A7C59" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E0DA" vertical={false} />
                 <XAxis
                   dataKey="ano"
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
@@ -823,7 +825,7 @@ export default function ResultsScreen({
                 <Legend
                   iconType="square"
                   iconSize={7}
-                  wrapperStyle={{ fontSize: 10, color: '#52525b', paddingTop: 8 }}
+                  wrapperStyle={{ fontSize: 10, color: '#9CA3AF', paddingTop: 8 }}
                 />
                 <Area
                   type="monotone"
@@ -838,14 +840,14 @@ export default function ResultsScreen({
                   type="monotone"
                   dataKey="equity"
                   name="Equity acumulado"
-                  stroke="#22c55e"
+                  stroke="#4A7C59"
                   strokeWidth={2}
                   fill="url(#eqGrad)"
                   dot={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
-            <p className="mt-2 font-mono text-[10px] text-[#52525b]">
+            <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
               Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
             </p>
           </div>
@@ -856,18 +858,18 @@ export default function ResultsScreen({
       {amortData.length > 0 && (
         <div>
           <SectionTitle>Amortização — Saldo Devedor Anual</SectionTitle>
-          <div className="border border-[#27272a] bg-[#111111] p-5">
+          <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={amortData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E0DA" vertical={false} />
                 <XAxis
                   dataKey="ano"
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 9, fill: '#52525b' }}
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={fmtK}
@@ -877,13 +879,13 @@ export default function ResultsScreen({
                 <Legend
                   iconType="square"
                   iconSize={7}
-                  wrapperStyle={{ fontSize: 10, color: '#52525b', paddingTop: 8 }}
+                  wrapperStyle={{ fontSize: 10, color: '#9CA3AF', paddingTop: 8 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="saldo"
                   name="Saldo devedor"
-                  stroke="#ef4444"
+                  stroke="#DC2626"
                   strokeWidth={2}
                   dot={false}
                 />
@@ -904,26 +906,26 @@ export default function ResultsScreen({
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       {!hideSaveButton && (
-        <div className="flex items-center justify-between gap-4 border border-[#27272a] bg-[#111111] p-5">
+        <div className="flex items-center justify-between gap-4 border border-[#E2E0DA] bg-[#FAFAF8] p-5">
           <div>
-            <p className="text-sm font-black text-[#f4f4f5]">
+            <p className="text-sm font-black text-[#1C2B20]">
               {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
             </p>
-            <p className="mt-0.5 font-mono text-xs text-[#52525b]">
+            <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
               {savedOk
                 ? 'Disponível no seu dashboard.'
                 : isAuthenticated
                   ? 'Guarde este deal na sua conta.'
                   : 'Crie uma conta gratuita para guardar e compartilhar.'}
             </p>
-            {saveError && <p className="mt-1 font-mono text-xs text-[#f87171]">{saveError}</p>}
+            {saveError && <p className="mt-1 font-mono text-xs text-[#DC2626]">{saveError}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <DownloadPDFButton
               result={result}
               inputs={inputs}
               dealName={dealName ?? 'Deal'}
-              className="flex items-center gap-1.5 border border-[#3f3f46] bg-[#1a1a1a] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#a1a1aa] transition-colors hover:border-[#52525b] hover:text-[#f4f4f5]"
+              className="flex items-center gap-1.5 border border-[#D0CEC8] bg-[#F0EFEB] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#6B7280] transition-colors hover:border-[#9CA3AF] hover:text-[#1C2B20]"
             />
             {savedOk && savedDealId && (
               <ShareButton
@@ -936,7 +938,7 @@ export default function ResultsScreen({
               <button
                 onClick={handleSave}
                 disabled={saving || savedOk}
-                className="flex items-center gap-1.5 bg-[#22c55e] px-4 py-2.5 text-xs font-black whitespace-nowrap text-black transition-colors hover:bg-[#16a34a] disabled:bg-[#14532d] disabled:text-[#22c55e]"
+                className="flex items-center gap-1.5 bg-[#4A7C59] px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-[#3D6B4F] disabled:bg-[#A8C5B2] disabled:text-[#4A7C59]"
               >
                 {savedOk ? (
                   <>
@@ -951,7 +953,7 @@ export default function ResultsScreen({
             ) : (
               <a
                 href="/auth"
-                className="flex items-center gap-1.5 bg-[#22c55e] px-4 py-2.5 text-xs font-black whitespace-nowrap text-black transition-colors hover:bg-[#16a34a]"
+                className="flex items-center gap-1.5 bg-[#4A7C59] px-4 py-2.5 text-xs font-black whitespace-nowrap text-white transition-colors hover:bg-[#3D6B4F]"
               >
                 Criar conta <ArrowUpRight size={12} />
               </a>

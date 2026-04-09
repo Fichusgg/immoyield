@@ -217,7 +217,7 @@ export function AddDealWizard({
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-[#737373]">{headerMeta.breadcrumb}</p>
-            <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight text-[#1a1a1a]">
+            <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight text-[#F0EFEB]">
               {headerMeta.title}
             </h1>
           </div>
@@ -226,7 +226,7 @@ export function AddDealWizard({
             <button
               type="button"
               onClick={startOver}
-              className="h-10 rounded-xl border border-[#d4d4d2] bg-white px-4 text-sm font-semibold text-[#1a1a1a] shadow-sm transition-colors hover:bg-[#f5f5f3]"
+              className="h-10 rounded-xl border border-[#d4d4d2] bg-white px-4 text-sm font-semibold text-[#F0EFEB] shadow-sm transition-colors hover:bg-[#f5f5f3]"
             >
               Recomeçar
             </button>
@@ -247,7 +247,7 @@ export function AddDealWizard({
               'rounded-2xl border px-4 py-3 text-sm',
               saveError
                 ? 'border-red-200 bg-red-50 text-red-900'
-                : 'border-emerald-200 bg-emerald-50 text-emerald-900',
+                : 'border-[#A8C5B2] bg-[#EBF3EE] text-[#1C2B20]',
             ].join(' ')}
           >
             {saveError ?? saveSuccess}
@@ -275,7 +275,7 @@ export function AddDealWizard({
                 </p>
                 <div className="mt-5 grid grid-cols-2 gap-6">
                   <div>
-                    <label className="text-sm font-semibold text-[#1a1a1a]">Preço de Compra</label>
+                    <label className="text-sm font-semibold text-[#F0EFEB]">Preço de Compra</label>
                     <Controller
                       control={form.control}
                       name="purchase.purchasePrice"
@@ -290,7 +290,7 @@ export function AddDealWizard({
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-[#1a1a1a]">
+                    <label className="text-sm font-semibold text-[#F0EFEB]">
                       Valor Após Reforma (ARV)
                     </label>
                     <Controller
@@ -314,7 +314,7 @@ export function AddDealWizard({
                   <p className="text-[11px] font-bold tracking-widest text-blue-700 uppercase">
                     FINANCIAMENTO
                   </p>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-[#1a1a1a]">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-[#F0EFEB]">
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-[#d4d4d2] text-blue-600"
@@ -327,18 +327,20 @@ export function AddDealWizard({
                 {form.watch('purchase.financing.enabled') && (
                   <div className="mt-5 grid grid-cols-3 gap-6 rounded-2xl border border-[#e5e5e3] bg-[#f5f5f3] p-6">
                     <div>
-                      <label className="text-sm font-semibold text-[#1a1a1a]">
+                      <label className="text-sm font-semibold text-[#F0EFEB]">
                         Taxa de Juros (%)
                       </label>
                       <input
                         type="number"
                         inputMode="decimal"
                         className="mt-2 h-11 w-full rounded-xl border border-[#e5e5e3] bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                        {...form.register('purchase.financing.interestRate', { valueAsNumber: true })}
+                        {...form.register('purchase.financing.interestRate', {
+                          valueAsNumber: true,
+                        })}
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-[#1a1a1a]">Entrada</label>
+                      <label className="text-sm font-semibold text-[#F0EFEB]">Entrada</label>
                       <Controller
                         control={form.control}
                         name="purchase.financing.downPayment"
@@ -353,7 +355,7 @@ export function AddDealWizard({
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-[#1a1a1a]">Prazo (meses)</label>
+                      <label className="text-sm font-semibold text-[#F0EFEB]">Prazo (meses)</label>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -376,7 +378,7 @@ export function AddDealWizard({
                   </p>
                   <div className="flex items-center gap-2">
                     <select
-                      className="h-10 rounded-xl border border-[#e5e5e3] bg-white px-3 text-sm font-semibold text-[#1a1a1a] outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-10 rounded-xl border border-[#e5e5e3] bg-white px-3 text-sm font-semibold text-[#F0EFEB] outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                       {...form.register('income.cadence')}
                     >
                       <option value="per_month">Por mês</option>
@@ -386,7 +388,7 @@ export function AddDealWizard({
 
                 <div className="mt-5 grid grid-cols-3 gap-6">
                   <div>
-                    <label className="text-sm font-semibold text-[#1a1a1a]">Aluguel Bruto</label>
+                    <label className="text-sm font-semibold text-[#F0EFEB]">Aluguel Bruto</label>
                     <Controller
                       control={form.control}
                       name="income.grossRent"
@@ -404,7 +406,9 @@ export function AddDealWizard({
                     </button>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-[#1a1a1a]">Taxa de Vacância (%)</label>
+                    <label className="text-sm font-semibold text-[#F0EFEB]">
+                      Taxa de Vacância (%)
+                    </label>
                     <input
                       type="number"
                       inputMode="decimal"
@@ -413,7 +417,7 @@ export function AddDealWizard({
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-[#1a1a1a]">Outras Receitas</label>
+                    <label className="text-sm font-semibold text-[#F0EFEB]">Outras Receitas</label>
                     <Controller
                       control={form.control}
                       name="income.otherIncome"
@@ -446,13 +450,12 @@ export function AddDealWizard({
                       { key: 'expenseIncrease', label: 'Crescimento das Despesas' },
                     ] as const
                   ).map((row) => (
-                    <div
-                      key={row.key}
-                      className="grid grid-cols-[220px_1fr] items-center gap-8"
-                    >
+                    <div key={row.key} className="grid grid-cols-[220px_1fr] items-center gap-8">
                       <div>
-                        <p className="text-sm font-semibold text-[#1a1a1a]">{row.label}</p>
-                        <p className="mt-1 text-xs text-[#737373]">Defina sua taxa de crescimento anual.</p>
+                        <p className="text-sm font-semibold text-[#F0EFEB]">{row.label}</p>
+                        <p className="mt-1 text-xs text-[#737373]">
+                          Defina sua taxa de crescimento anual.
+                        </p>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="relative w-full max-w-[320px]">
@@ -462,7 +465,7 @@ export function AddDealWizard({
                             className="h-11 w-full rounded-xl border border-[#e5e5e3] bg-white px-3 pr-12 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                             {...form.register(`projections.${row.key}`, { valueAsNumber: true })}
                           />
-                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#737373]">
+                          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-semibold text-[#737373]">
                             %
                           </span>
                         </div>
@@ -481,7 +484,7 @@ export function AddDealWizard({
             type="button"
             onClick={back}
             disabled={activeStep === 0}
-            className="h-10 rounded-xl border border-[#d4d4d2] bg-white px-4 text-sm font-semibold text-[#1a1a1a] shadow-sm transition-colors hover:bg-[#f5f5f3] disabled:opacity-50"
+            className="h-10 rounded-xl border border-[#d4d4d2] bg-white px-4 text-sm font-semibold text-[#F0EFEB] shadow-sm transition-colors hover:bg-[#f5f5f3] disabled:opacity-50"
           >
             Voltar
           </button>
@@ -489,7 +492,7 @@ export function AddDealWizard({
             type="button"
             onClick={next}
             disabled={activeStep === STEPS.length - 1}
-            className="h-10 rounded-xl bg-[#1a1a1a] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-black disabled:opacity-50"
+            className="h-10 rounded-xl bg-[#4A7C59] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3D6B4F] disabled:opacity-50"
           >
             Próximo
           </button>

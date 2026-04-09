@@ -41,9 +41,9 @@ export function AddDealSidebar({
                 onClick={() => onTypeChange(t.id)}
                 className="min-w-0 text-left"
               >
-                <p className="truncate text-sm font-semibold text-[#1a1a1a]">{t.title}</p>
+                <p className="truncate text-sm font-semibold text-[#F0EFEB]">{t.title}</p>
                 <p className="mt-0.5 text-[11px] font-medium text-[#737373]">
-                  <span className="font-semibold text-[#1a1a1a]">{t.count}</span> Negócios
+                  <span className="font-semibold text-[#F0EFEB]">{t.count}</span> Negócios
                 </p>
               </button>
 
@@ -54,7 +54,7 @@ export function AddDealSidebar({
                   'flex h-9 w-9 items-center justify-center rounded-xl border transition-colors',
                   active
                     ? 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    : 'border-[#e5e5e3] bg-white text-[#1a1a1a] hover:bg-[#f5f5f3]',
+                    : 'border-[#e5e5e3] bg-white text-[#F0EFEB] hover:bg-[#f5f5f3]',
                 ].join(' ')}
                 aria-label={`Adicionar negócio: ${t.title}`}
               >
@@ -64,11 +64,8 @@ export function AddDealSidebar({
 
             <div className="mt-4 grid grid-cols-2 gap-2">
               {t.meta.map((m) => (
-                <div
-                  key={m}
-                  className="rounded-xl border border-[#e5e5e3] bg-[#f5f5f3] px-3 py-2"
-                >
-                  <p className="text-[11px] font-semibold text-[#1a1a1a]">{m}</p>
+                <div key={m} className="rounded-xl border border-[#e5e5e3] bg-[#f5f5f3] px-3 py-2">
+                  <p className="text-[11px] font-semibold text-[#F0EFEB]">{m}</p>
                   <p className="mt-0.5 text-[10px] text-[#737373]">Ver</p>
                 </div>
               ))}
@@ -79,4 +76,3 @@ export function AddDealSidebar({
     </div>
   );
 }
-

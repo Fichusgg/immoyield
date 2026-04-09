@@ -27,7 +27,7 @@ const C = {
   emerald400: '#34d399',
   emerald50: '#ecfdf5',
   sky500: '#0ea5e9',
-  red500: '#ef4444',
+  red500: '#DC2626',
   red50: '#fef2f2',
   amber400: '#fbbf24',
   white: '#ffffff',
@@ -360,8 +360,7 @@ const KPI = ({
   );
 };
 
-const clampPercent = (pct: number) =>
-  Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : 0;
+const clampPercent = (pct: number) => (Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : 0);
 
 const InlineBar = ({ ratio, color }: { ratio: number; color: string }) => (
   <View

@@ -1,63 +1,65 @@
 /**
- * ImmoYield Design System — Dark Token File
+ * ImmoYield Design System — Light Token File
  *
  * Single source of truth for all design tokens.
  * Import this from globals.css. Never hardcode values elsewhere.
  *
- * Aesthetic: Bloomberg Terminal × Linear.app
- * Zero rounded corners. One green accent. Layered dark surfaces.
+ * Aesthetic: Compass Real Estate × Premium Mortgage Broker
+ * Warm off-white. Sage green accent. Clean editorial typography.
  */
 
 :root {
-  /* ── Backgrounds — layered dark surfaces ────────────────────────────────── */
-  --bg-base:     #0a0a0a;   /* page background */
-  --bg-surface:  #111111;   /* cards, sidebar, panels */
-  --bg-elevated: #1a1a1a;   /* inputs, table headers, raised elements */
-  --bg-overlay:  #222222;   /* tooltips, dropdowns */
+  /* ── Backgrounds — warm off-white surfaces ───────────────────────────────── */
+  --bg-base: #f8f7f4; /* page background */
+  --bg-surface: #fafaf8; /* cards, sidebar, panels */
+  --bg-elevated: #f0efeb; /* inputs, table headers, raised elements */
+  --bg-overlay: #e8e7e3; /* tooltips, dropdowns */
 
-  /* ── Green accent — one hue, full scale ─────────────────────────────────── */
-  --accent:       #22c55e;                  /* primary CTA, active nav, key metrics */
-  --accent-dim:   #16a34a;                  /* hover on accent elements */
-  --accent-muted: #14532d;                  /* success badge bg, selected row bg */
-  --accent-ghost: #052e16;                  /* active nav background, hover rows */
-  --accent-glow:  rgba(34, 197, 94, 0.15);  /* focus ring shadow */
+  /* ── Sage green accent — one hue, full scale ────────────────────────────── */
+  --accent: #4a7c59; /* primary CTA, active nav, key metrics */
+  --accent-dim: #3d6b4f; /* hover on accent elements */
+  --accent-muted: #a8c5b2; /* success badge border */
+  --accent-ghost: #ebf3ee; /* active nav background, hover rows */
+  --accent-glow: rgba(74, 124, 89, 0.12); /* focus ring shadow */
 
   /* ── Text ───────────────────────────────────────────────────────────────── */
-  --text-primary:   #f4f4f5;  /* headings, values, prominent content */
-  --text-secondary: #a1a1aa;  /* body text, labels, descriptions */
-  --text-muted:     #52525b;  /* table headers, metadata, helper text */
-  --text-accent:    #22c55e;  /* positive metrics, active state text */
+  --text-primary: #1c2b20; /* headings, values, prominent content */
+  --text-secondary: #6b7280; /* body text, labels, descriptions */
+  --text-muted: #9ca3af; /* table headers, metadata, helper text */
+  --text-accent: #4a7c59; /* positive metrics, active state text */
 
-  /* ── Borders — always 1px, always sharp ─────────────────────────────────── */
-  --border:        #27272a;  /* default divider */
-  --border-strong: #3f3f46;  /* emphasized divider, focused states */
-  --border-accent: #22c55e;  /* active nav indicator, success border */
+  /* ── Borders — always 1px ────────────────────────────────────────────────── */
+  --border: #e2e0da; /* default divider */
+  --border-strong: #d0cec8; /* emphasized divider, focused states */
+  --border-accent: #4a7c59; /* active nav indicator, success border */
 
-  /* ── Geometry — ZERO everywhere ─────────────────────────────────────────── */
-  --radius: 0;
+  /* ── Geometry ────────────────────────────────────────────────────────────── */
+  --radius: 4px;
 
   /* ── Spacing scale (8px grid) ────────────────────────────────────────────  */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-3:  12px;
-  --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
 
   /* ── Typography ─────────────────────────────────────────────────────────── */
   --font-mono: var(--font-jetbrains-mono), 'Fira Code', 'Courier New', monospace;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-serif: var(--font-dm-serif), Georgia, serif;
 
-  /* ── Shadows — directional offset, not diffuse ───────────────────────────  */
-  --shadow-sm:     2px 2px 0px var(--border);
-  --shadow-md:     4px 4px 0px var(--border);
-  --shadow-accent: 4px 4px 0px var(--accent-muted);
+  /* ── Shadows — neutral diffuse, no color tints ───────────────────────────  */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-accent: 0 2px 8px rgba(74, 124, 89, 0.15);
 }
 
-/* ── Enforce zero border-radius globally ─────────────────────────────────── */
-*, *::before, *::after {
-  border-radius: 0 !important;
+/* ── Base box-sizing ──────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }

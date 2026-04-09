@@ -8,8 +8,11 @@ type DeepPartial<T> = {
 interface DealState {
   activeTab: number; // 0=Dados, 1=Compra, 2=Receitas, 3=Projeções, 4=Revisão
   formData: DeepPartial<DealInput>;
+  /** Field keys (dot-notation) that were pre-filled from a scraped URL import */
+  prefilledFields: string[];
   setActiveTab: (tab: number) => void;
   updateFormData: (data: DeepPartial<DealInput>) => void;
+  setPrefilledFields: (fields: string[]) => void;
   reset: () => void;
   // legacy compat
   step: number;
@@ -57,6 +60,7 @@ export const useDealStore = create<DealState>((set) => ({
   activeTab: 0,
   step: 1, // legacy
   formData: { ...defaultFormData },
+  prefilledFields: [],
 
   setActiveTab: (tab) => set({ activeTab: tab, step: tab + 1 }),
   setStep: (step) => set({ step, activeTab: step - 1 }),
@@ -66,6 +70,15 @@ export const useDealStore = create<DealState>((set) => ({
       formData: {
         ...state.formData,
         ...data,
+        property: data.property
+          ? {
+              ...state.formData.property,
+              ...data.property,
+              address: data.property.address
+                ? { ...state.formData.property?.address, ...data.property.address }
+                : state.formData.property?.address,
+            }
+          : state.formData.property,
         acquisitionCosts: data.acquisitionCosts
           ? { ...state.formData.acquisitionCosts, ...data.acquisitionCosts }
           : state.formData.acquisitionCosts,
@@ -84,5 +97,8 @@ export const useDealStore = create<DealState>((set) => ({
       },
     })),
 
-  reset: () => set({ activeTab: 0, step: 1, formData: { ...defaultFormData } }),
+  setPrefilledFields: (fields) => set({ prefilledFields: fields }),
+
+  reset: () =>
+    set({ activeTab: 0, step: 1, formData: { ...defaultFormData }, prefilledFields: [] }),
 }));

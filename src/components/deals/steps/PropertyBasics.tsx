@@ -17,7 +17,7 @@ const stepSchema = z.object({
 type StepData = z.infer<typeof stepSchema>;
 
 const fieldClass =
-  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#1a1a1a] focus:bg-white';
+  'w-full rounded-lg border border-[#e5e5e3] bg-[#f5f5f3] px-3.5 py-2.5 text-sm text-[#F0EFEB] placeholder:text-[#a3a3a1] outline-none transition-colors focus:border-[#F0EFEB] focus:bg-white';
 
 const labelClass =
   'mb-1.5 block text-[10px] font-semibold tracking-widest text-[#737373] uppercase';
@@ -43,7 +43,11 @@ export function PropertyBasics() {
   });
 
   const onSubmit = (data: StepData) => {
-    updateFormData({ name: data.name, purchasePrice: data.purchasePrice, propertyType: data.propertyType });
+    updateFormData({
+      name: data.name,
+      purchasePrice: data.purchasePrice,
+      propertyType: data.propertyType,
+    });
     setStep(2);
   };
 
@@ -114,7 +118,7 @@ export function PropertyBasics() {
         <span className="text-sm text-[#a3a3a1]">Voltar</span>
         <button
           type="submit"
-          className="rounded-lg bg-[#1a1a1a] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
+          className="rounded-lg bg-[#F0EFEB] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#333]"
         >
           Próximo →
         </button>

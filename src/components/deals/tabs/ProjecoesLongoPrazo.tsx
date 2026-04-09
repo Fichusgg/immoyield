@@ -17,9 +17,9 @@ const stepSchema = z.object({
 type StepData = z.infer<typeof stepSchema>;
 
 const fieldClass =
-  'w-full border border-[#27272a] bg-[#1a1a1a] px-3.5 py-2.5 text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none transition-colors focus:border-[#22c55e] focus:shadow-[0_0_0_2px_rgba(34,197,94,0.15)]';
+  'w-full border border-[#E2E0DA] bg-white px-3.5 py-2.5 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
 const labelClass =
-  'mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52525b] uppercase';
+  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase';
 
 interface Props {
   onBack: () => void;
@@ -78,15 +78,15 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
       <div>
-        <h2 className="text-base font-bold text-[#f4f4f5]">Projeções de Longo Prazo</h2>
-        <p className="mt-0.5 text-sm text-[#52525b]">
+        <h2 className="text-base font-bold text-[#1C2B20]">Projeções de Longo Prazo</h2>
+        <p className="mt-0.5 text-sm text-[#9CA3AF]">
           Valorização, crescimento de receitas e horizonte de investimento.
         </p>
       </div>
 
       {/* Valorização e crescimento */}
       <div>
-        <p className="mb-3 text-sm font-semibold text-[#f4f4f5]">Taxas de Crescimento</p>
+        <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Taxas de Crescimento</p>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Valorização do imóvel (% a.a.)</label>
@@ -97,11 +97,11 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 {...register('appreciationRate', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 %
               </span>
             </div>
-            <p className="mt-1 font-mono text-[10px] text-[#52525b]">Histórico SP ≈ 5–7% a.a.</p>
+            <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">Histórico SP ≈ 5–7% a.a.</p>
           </div>
           <div>
             <label className={labelClass}>Crescimento da receita (% a.a.)</label>
@@ -112,11 +112,13 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 {...register('incomeGrowthRate', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 %
               </span>
             </div>
-            <p className="mt-1 font-mono text-[10px] text-[#52525b]">Reajuste do aluguel (IGPM / IPCA)</p>
+            <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+              Reajuste do aluguel (IGPM / IPCA)
+            </p>
           </div>
           <div>
             <label className={labelClass}>Crescimento das despesas (% a.a.)</label>
@@ -127,7 +129,7 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 {...register('expenseGrowthRate', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 %
               </span>
             </div>
@@ -135,11 +137,11 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
         </div>
       </div>
 
-      <div className="border-t border-[#27272a]" />
+      <div className="border-t border-[#E2E0DA]" />
 
       {/* Horizonte e saída */}
       <div>
-        <p className="mb-3 text-sm font-semibold text-[#f4f4f5]">Horizonte & Saída</p>
+        <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Horizonte & Saída</p>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Período de retenção (anos)</label>
@@ -151,7 +153,7 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 min={1}
                 max={30}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 anos
               </span>
             </div>
@@ -165,11 +167,11 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 {...register('sellingCostPercent', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 %
               </span>
             </div>
-            <p className="mt-1 font-mono text-[10px] text-[#52525b]">Corretor + impostos ≈ 8%</p>
+            <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">Corretor + impostos ≈ 8%</p>
           </div>
           <div>
             <label className={labelClass}>Vida útil do imóvel (anos)</label>
@@ -180,11 +182,13 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
                 {...register('depreciationPeriodYears', { valueAsNumber: true })}
                 className={`${fieldClass} pr-12`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#52525b]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
                 anos
               </span>
             </div>
-            <p className="mt-1 font-mono text-[10px] text-[#52525b]">Padrão Receita Federal: 25 anos</p>
+            <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+              Padrão Receita Federal: 25 anos
+            </p>
           </div>
         </div>
       </div>
@@ -192,29 +196,33 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
       {/* Live projection preview — only show if purchase price is set */}
       {purchasePrice > 0 && (
         <>
-          <div className="border-t border-[#27272a]" />
+          <div className="border-t border-[#E2E0DA]" />
           <div>
-            <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+            <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
               Projeção em {holdYears} {holdYears === 1 ? 'ano' : 'anos'} — prévia
             </p>
-            <div className="grid grid-cols-3 gap-px border border-[#27272a] bg-[#27272a] text-center">
-              <div className="bg-[#1a1a1a] p-4">
-                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+            <div className="grid grid-cols-3 gap-px border border-[#E2E0DA] bg-[#E2E0DA] text-center">
+              <div className="bg-[#F0EFEB] p-4">
+                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
                   Valor projetado
                 </p>
-                <p className="mt-1.5 font-mono text-sm font-bold text-[#f4f4f5]">{fmt(projectedValue)}</p>
+                <p className="mt-1.5 font-mono text-sm font-bold text-[#1C2B20]">
+                  {fmt(projectedValue)}
+                </p>
               </div>
-              <div className="bg-[#1a1a1a] p-4">
-                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+              <div className="bg-[#F0EFEB] p-4">
+                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
                   Receita líquida venda
                 </p>
-                <p className="mt-1.5 font-mono text-sm font-bold text-[#22c55e]">{fmt(netSaleProceeds)}</p>
+                <p className="mt-1.5 font-mono text-sm font-bold text-[#4A7C59]">
+                  {fmt(netSaleProceeds)}
+                </p>
               </div>
-              <div className="bg-[#1a1a1a] p-4">
-                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+              <div className="bg-[#F0EFEB] p-4">
+                <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
                   Aluguel no ano {holdYears}
                 </p>
-                <p className="mt-1.5 font-mono text-sm font-bold text-[#f4f4f5]">
+                <p className="mt-1.5 font-mono text-sm font-bold text-[#1C2B20]">
                   {fmt(projectedRentYear10)}/mês
                 </p>
               </div>
@@ -227,13 +235,13 @@ export function ProjecoesLongoPrazo({ onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#27272a] px-5 py-2.5 text-sm font-medium text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>
         <button
           type="submit"
-          className="bg-[#22c55e] px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
+          className="bg-[#4A7C59] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F]"
         >
           Próximo: Revisar →
         </button>

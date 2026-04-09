@@ -32,8 +32,31 @@ interface DealWizardProps {
   onSaved?: () => void;
 }
 
+/** Maps a prefilled-field key to its input's DOM id (for CSS tinting). */
+const PREFILLED_FIELD_TO_ID: Record<string, string> = {
+  name: 'property-name',
+  'property.shortDescription': 'short-description',
+  'property.bedrooms': 'bedrooms',
+  'property.bathrooms': 'bathrooms',
+  'property.squareFootage': 'square-footage',
+  'property.address.streetAddress': 'street-address',
+  'property.address.city': 'city',
+  'property.address.region': 'region',
+  'property.address.postalCode': 'postal-code',
+};
+
+function buildPrefillCss(prefilledFields: string[]): string {
+  const selectors = prefilledFields
+    .map((f) => PREFILLED_FIELD_TO_ID[f])
+    .filter(Boolean)
+    .map((id) => `#${id}`)
+    .join(', ');
+  if (!selectors) return '';
+  return `${selectors} { background-color: #EBF3EE !important; border-color: #A8C5B2 !important; }`;
+}
+
 export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
-  const { activeTab, setActiveTab, formData, reset } = useDealStore();
+  const { activeTab, setActiveTab, formData, reset, prefilledFields } = useDealStore();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -89,16 +112,48 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
   const propertyType = formData.propertyType ?? 'residential';
   const propertyLabel = PROPERTY_TYPE_LABELS[propertyType];
 
+  const prefillCss = buildPrefillCss(prefilledFields);
+
   return (
     <div className="mx-auto max-w-3xl">
+      {/* ── Pre-fill CSS injection ───────────────────────────────────────────── */}
+      {prefillCss && <style>{prefillCss}</style>}
+
+      {/* ── Pre-fill banner ──────────────────────────────────────────────────── */}
+      {prefilledFields.length > 0 && (
+        <div className="mb-5 flex items-center gap-2.5 border border-[#A8C5B2] bg-[#EBF3EE] px-4 py-2.5">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#4A7C59"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          <p className="text-xs text-[#3D6B4F]">
+            <span className="font-semibold">
+              {prefilledFields.length} campo{prefilledFields.length !== 1 ? 's' : ''} pré-preenchido{prefilledFields.length !== 1 ? 's' : ''}
+            </span>{' '}
+            a partir da URL importada — campos com fundo verde foram preenchidos automaticamente.
+            Revise e ajuste conforme necessário.
+          </p>
+        </div>
+      )}
+
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
+          <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20]">
             {formData.name ? formData.name : 'Nova Análise'}
           </h1>
           {formData.name && (
-            <p className="mt-0.5 font-mono text-sm text-[#52525b]">{propertyLabel}</p>
+            <p className="mt-0.5 font-mono text-sm text-[#9CA3AF]">{propertyLabel}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -106,14 +161,14 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
             <button
               onClick={calculateDeal}
               disabled={loading}
-              className="bg-[#22c55e] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a] disabled:opacity-50"
+              className="bg-[#4A7C59] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F] disabled:opacity-50"
             >
               {loading ? 'Calculando...' : 'Calcular →'}
             </button>
           )}
           <button
             onClick={handleReset}
-            className="border border-[#27272a] px-4 py-2.5 text-sm text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+            className="border border-[#E2E0DA] px-4 py-2.5 text-sm text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
           >
             Recomeçar
           </button>
@@ -121,7 +176,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
       </div>
 
       {/* ── Tab strip ───────────────────────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-5 border border-[#27272a] bg-[#111111]">
+      <div className="mb-6 grid grid-cols-5 border border-[#E2E0DA] bg-[#FAFAF8]">
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
           const completed = activeTab > tab.id;
@@ -129,17 +184,17 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col gap-0.5 border-r border-[#27272a] px-3 py-4 text-left transition-colors last:border-r-0 ${
+              className={`flex flex-col gap-0.5 border-r border-[#E2E0DA] px-3 py-4 text-left transition-colors last:border-r-0 ${
                 active
-                  ? 'border-b-2 border-b-[#22c55e] bg-[#052e16]'
+                  ? 'border-b-2 border-b-[#4A7C59] bg-[#EBF3EE]'
                   : completed
-                    ? 'bg-[#1a1a1a] hover:bg-[#222222]'
-                    : 'hover:bg-[#1a1a1a]'
+                    ? 'bg-[#F0EFEB] hover:bg-[#E8E7E3]'
+                    : 'hover:bg-[#F0EFEB]'
               }`}
             >
               <span
                 className={`text-[11px] font-bold ${
-                  active ? 'text-[#22c55e]' : completed ? 'text-[#22c55e]' : 'text-[#a1a1aa]'
+                  active ? 'text-[#4A7C59]' : completed ? 'text-[#4A7C59]' : 'text-[#6B7280]'
                 }`}
               >
                 {completed && !active ? '✓ ' : ''}
@@ -147,7 +202,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
               </span>
               <span
                 className={`text-[9px] leading-tight ${
-                  active ? 'text-[#16a34a]' : 'text-[#52525b]'
+                  active ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'
                 }`}
               >
                 {tab.sub}
@@ -158,7 +213,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
       </div>
 
       {/* ── Tab content ─────────────────────────────────────────────────────── */}
-      <div className="border border-[#27272a] bg-[#111111] p-8">
+      <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-8">
         {activeTab === 0 && <DadosImovel onNext={() => setActiveTab(1)} />}
         {activeTab === 1 && (
           <CompraECustos onBack={() => setActiveTab(0)} onNext={() => setActiveTab(2)} />

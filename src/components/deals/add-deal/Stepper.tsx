@@ -28,12 +28,17 @@ export function AddDealStepper({
             disabled={!clickable}
             className={[
               'group flex flex-col gap-0.5 border-r border-[#e5e5e3] px-5 py-4 text-left transition-colors last:border-r-0',
-              active ? 'bg-blue-600 text-white' : 'bg-[#f5f5f3] text-[#1a1a1a] hover:bg-white',
+              active ? 'bg-blue-600 text-white' : 'bg-[#f5f5f3] text-[#F0EFEB] hover:bg-white',
               clickable ? 'disabled:opacity-100' : 'cursor-default',
             ].join(' ')}
           >
             <span className="text-xs font-bold">{step.title}</span>
-            <span className={['text-[10px] leading-tight', active ? 'text-white/75' : 'text-[#737373]'].join(' ')}>
+            <span
+              className={[
+                'text-[10px] leading-tight',
+                active ? 'text-white/75' : 'text-[#737373]',
+              ].join(' ')}
+            >
               {step.subtitle}
             </span>
           </button>
@@ -42,4 +47,3 @@ export function AddDealStepper({
     </div>
   );
 }
-

@@ -65,7 +65,7 @@ export function RevenueExpenses() {
             name="revenue.monthlyRent"
             render={({ field }) => (
               <CurrencyInput
-                className="w-full rounded border p-2 text-black"
+                className="w-full rounded border p-2 text-white"
                 placeholder="0"
                 value={field.value}
                 onValueChange={field.onChange}
@@ -79,7 +79,7 @@ export function RevenueExpenses() {
             type="number"
             step="0.1"
             {...register('revenue.vacancyRate', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+            className="w-full rounded border p-2 text-white"
           />
         </div>
       </div>
@@ -92,7 +92,7 @@ export function RevenueExpenses() {
             name="expenses.condo"
             render={({ field }) => (
               <CurrencyInput
-                className="w-full rounded border p-2 text-black"
+                className="w-full rounded border p-2 text-white"
                 placeholder="0"
                 value={field.value}
                 onValueChange={field.onChange}
@@ -107,7 +107,7 @@ export function RevenueExpenses() {
             name="expenses.iptu"
             render={({ field }) => (
               <CurrencyInput
-                className="w-full rounded border p-2 text-black"
+                className="w-full rounded border p-2 text-white"
                 placeholder="0"
                 value={field.value}
                 onValueChange={field.onChange}
@@ -124,7 +124,7 @@ export function RevenueExpenses() {
             type="number"
             step="0.1"
             {...register('expenses.managementPercent', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+            className="w-full rounded border p-2 text-white"
           />
         </div>
         <div>
@@ -133,7 +133,7 @@ export function RevenueExpenses() {
             type="number"
             step="0.1"
             {...register('expenses.maintenancePercent', { valueAsNumber: true })}
-            className="w-full rounded border p-2 text-black"
+            className="w-full rounded border p-2 text-white"
           />
         </div>
       </div>

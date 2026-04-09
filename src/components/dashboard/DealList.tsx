@@ -20,8 +20,7 @@ const PROPERTY_DESCRIPTIONS: Record<PropertyType, string> = {
 export default function DealList() {
   const searchParams = useSearchParams();
   const tipoParam = searchParams.get('tipo') as PropertyType | null;
-  const activeType =
-    tipoParam && PROPERTY_TYPES.includes(tipoParam) ? tipoParam : null;
+  const activeType = tipoParam && PROPERTY_TYPES.includes(tipoParam) ? tipoParam : null;
 
   const [deals, setDeals] = useState<SavedDeal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,9 +60,9 @@ export default function DealList() {
 
   const filtered = deals
     .filter((d) => !activeType || d.property_type === activeType)
-    .filter((d) => !search || d.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((d) => !search || (d.title ?? '').toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'name') return (a.title ?? '').localeCompare(b.title ?? '');
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
 
@@ -75,14 +74,14 @@ export default function DealList() {
   if (loading) {
     return (
       <div>
-        <div className="mb-6 h-8 w-48 animate-pulse bg-[#1a1a1a]" />
-        <div className="mb-6 flex gap-3 border-b border-[#27272a] pb-4">
-          <div className="h-8 w-64 animate-pulse bg-[#1a1a1a]" />
-          <div className="ml-auto h-8 w-32 animate-pulse bg-[#1a1a1a]" />
+        <div className="mb-6 h-8 w-48 animate-pulse bg-[#F0EFEB]" />
+        <div className="mb-6 flex gap-3 border-b border-[#E2E0DA] pb-4">
+          <div className="h-8 w-64 animate-pulse bg-[#F0EFEB]" />
+          <div className="ml-auto h-8 w-32 animate-pulse bg-[#F0EFEB]" />
         </div>
-        <div className="grid grid-cols-1 gap-px border border-[#27272a] bg-[#27272a] sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px border border-[#E2E0DA] bg-[#E2E0DA] sm:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-36 animate-pulse bg-[#111111]" />
+            <div key={i} className="h-36 animate-pulse bg-[#FAFAF8]" />
           ))}
         </div>
       </div>
@@ -92,10 +91,10 @@ export default function DealList() {
   if (error) {
     return (
       <div className="py-16 text-center">
-        <p className="font-mono text-sm text-[#f87171]">{error}</p>
+        <p className="font-mono text-sm text-[#DC2626]">{error}</p>
         <button
           onClick={load}
-          className="mt-4 border border-[#27272a] px-4 py-2 font-mono text-xs text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+          className="mt-4 border border-[#E2E0DA] px-4 py-2 font-mono text-xs text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           Tentar novamente
         </button>
@@ -108,12 +107,12 @@ export default function DealList() {
       {/* ── Page header ───────────────────────────────────────────────────────── */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">{title}</h1>
-          <p className="mt-0.5 text-sm text-[#52525b]">{description}</p>
+          <h1 className="text-xl font-bold tracking-tight text-[#1C2B20]">{title}</h1>
+          <p className="mt-0.5 text-sm text-[#9CA3AF]">{description}</p>
         </div>
         <Link
           href={activeType ? `/analisar?tipo=${activeType}` : '/analisar'}
-          className="flex items-center gap-1.5 bg-[#22c55e] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
+          className="flex items-center gap-1.5 bg-[#4A7C59] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F]"
         >
           <Plus size={14} />
           Novo imóvel
@@ -121,26 +120,23 @@ export default function DealList() {
       </div>
 
       {/* ── Filter toolbar ─────────────────────────────────────────────────────── */}
-      <div className="mb-5 flex items-center gap-3 border-b border-[#27272a] pb-4">
+      <div className="mb-5 flex items-center gap-3 border-b border-[#E2E0DA] pb-4">
         <div className="relative w-64">
-          <Search
-            size={13}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-[#52525b]"
-          />
+          <Search size={13} className="absolute top-1/2 left-3 -translate-y-1/2 text-[#9CA3AF]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar imóveis..."
-            className="w-full border border-[#27272a] bg-[#1a1a1a] py-1.5 pl-8 pr-3 text-sm text-[#f4f4f5] placeholder:text-[#52525b] outline-none focus:border-[#22c55e]"
+            className="w-full border border-[#E2E0DA] bg-[#F0EFEB] py-1.5 pr-3 pl-8 text-sm text-[#1C2B20] outline-none placeholder:text-[#9CA3AF] focus:border-[#4A7C59]"
           />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="font-mono text-xs text-[#52525b]">Ordenar por:</span>
+          <span className="font-mono text-xs text-[#9CA3AF]">Ordenar por:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'name' | 'date')}
-            className="border border-[#27272a] bg-[#1a1a1a] px-2 py-1.5 font-mono text-xs text-[#a1a1aa] outline-none focus:border-[#22c55e]"
+            className="border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-1.5 font-mono text-xs text-[#6B7280] outline-none focus:border-[#4A7C59]"
           >
             <option value="date">Data</option>
             <option value="name">Nome</option>
@@ -150,8 +146,8 @@ export default function DealList() {
 
       {/* ── Deal grid ──────────────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <div className="border border-dashed border-[#27272a] py-20 text-center">
-          <p className="mb-1 text-sm text-[#52525b]">
+        <div className="border border-dashed border-[#E2E0DA] py-20 text-center">
+          <p className="mb-1 text-sm text-[#9CA3AF]">
             {activeType
               ? `Nenhum imóvel do tipo "${PROPERTY_TYPE_LABELS[activeType]}" salvo.`
               : search
@@ -160,14 +156,14 @@ export default function DealList() {
           </p>
           <Link
             href={activeType ? `/analisar?tipo=${activeType}` : '/analisar'}
-            className="mt-4 inline-flex items-center gap-1.5 bg-[#22c55e] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a]"
+            className="mt-4 inline-flex items-center gap-1.5 bg-[#4A7C59] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F]"
           >
             <Plus size={14} />
             Nova análise
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-px border border-[#27272a] bg-[#27272a] sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px border border-[#E2E0DA] bg-[#E2E0DA] sm:grid-cols-2">
           {filtered.map((d) => (
             <DealCard key={d.id} deal={d} onDelete={load} />
           ))}

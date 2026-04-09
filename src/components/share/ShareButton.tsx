@@ -59,14 +59,14 @@ export function ShareButton({ dealId, dealName, compact = false, className }: Sh
               : 'Compartilhar'
         }
         className={
-          className ?? 'text-slate-300 transition-colors hover:text-emerald-500 disabled:opacity-50'
+          className ?? 'text-[#9CA3AF] transition-colors hover:text-[#4A7C59] disabled:opacity-50'
         }
         disabled={state === 'loading'}
       >
         {state === 'loading' ? (
           <Loader2 size={14} className="animate-spin" />
         ) : state === 'copied' ? (
-          <Check size={14} className="text-emerald-500" />
+          <Check size={14} className="text-[#4A7C59]" />
         ) : (
           <Link2 size={14} />
         )}

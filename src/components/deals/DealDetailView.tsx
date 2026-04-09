@@ -78,13 +78,13 @@ export default function DealDetailView({ deal }: Props) {
               </span>
             </div>
             <div className="absolute top-2 right-2">
-              <ShareButton dealId={deal.id} dealName={deal.name} compact />
+              <ShareButton dealId={deal.id} dealName={deal.title} compact />
             </div>
           </div>
 
           {/* Deal info */}
           <div className="p-4">
-            <h2 className="text-sm font-bold text-[#1a1a1a]">{deal.name}</h2>
+            <h2 className="text-sm font-bold text-[#F0EFEB]">{deal.title}</h2>
             <p className="mt-1 text-xs text-[#737373]">
               {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -94,7 +94,7 @@ export default function DealDetailView({ deal }: Props) {
             </p>
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-sm font-bold text-[#1a1a1a]">
+              <span className="text-sm font-bold text-[#F0EFEB]">
                 {fmt(deal.inputs?.purchasePrice ?? 0)}
               </span>
               {m?.capRate != null && (
@@ -116,8 +116,8 @@ export default function DealDetailView({ deal }: Props) {
                 onClick={() => setActiveSection(item.id)}
                 className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition-colors ${
                   activeSection === item.id
-                    ? 'border-l-2 border-[#1a5c3a] bg-[#f5f5f3] text-[#1a1a1a]'
-                    : 'border-l-2 border-transparent text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1a1a1a]'
+                    ? 'border-l-2 border-[#1a5c3a] bg-[#f5f5f3] text-[#F0EFEB]'
+                    : 'border-l-2 border-transparent text-[#737373] hover:bg-[#f5f5f3] hover:text-[#F0EFEB]'
                 }`}
               >
                 {item.icon}
@@ -140,7 +140,7 @@ export default function DealDetailView({ deal }: Props) {
         {/* Page header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-[#1a1a1a]">
+            <h1 className="text-xl font-bold text-[#F0EFEB]">
               {activeSection === 'descricao'
                 ? 'Descrição do Imóvel'
                 : activeSection === 'planilha'
@@ -152,9 +152,9 @@ export default function DealDetailView({ deal }: Props) {
                 {label}
               </Link>
               <span>/</span>
-              <span>{deal.name}</span>
+              <span>{deal.title}</span>
               <span>/</span>
-              <span className="text-[#1a1a1a]">
+              <span className="text-[#F0EFEB]">
                 {activeSection === 'descricao'
                   ? 'Descrição'
                   : activeSection === 'planilha'
@@ -164,12 +164,14 @@ export default function DealDetailView({ deal }: Props) {
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <DownloadPDFButton
-              result={deal.results_cache as AnalysisResult}
-              inputs={deal.inputs as DealInput}
-              dealName={deal.name}
-              className="flex items-center gap-1.5 rounded-lg border border-[#e5e5e3] bg-white px-3 py-2 text-xs font-semibold text-[#737373] transition-colors hover:bg-[#f5f5f3]"
-            />
+            {deal.results_cache && deal.inputs && (
+              <DownloadPDFButton
+                result={deal.results_cache as AnalysisResult}
+                inputs={deal.inputs as DealInput}
+                dealName={deal.title}
+                className="flex items-center gap-1.5 rounded-lg border border-[#e5e5e3] bg-white px-3 py-2 text-xs font-semibold text-[#737373] transition-colors hover:bg-[#f5f5f3]"
+              />
+            )}
             <button
               onClick={() => setActiveSection('planilha')}
               className="flex items-center gap-1.5 rounded-lg border border-[#e5e5e3] bg-white px-3 py-2 text-xs font-semibold text-[#737373] transition-colors hover:bg-[#f5f5f3]"
@@ -204,7 +206,7 @@ export default function DealDetailView({ deal }: Props) {
                       ? kpi.positive
                         ? 'text-[#1a5c3a]'
                         : 'text-red-500'
-                      : 'text-[#1a1a1a]'
+                      : 'text-[#F0EFEB]'
                   }`}
                 >
                   {kpi.value}
@@ -217,18 +219,28 @@ export default function DealDetailView({ deal }: Props) {
         {/* ── Section content ────────────────────────────────────────────────── */}
         {activeSection === 'descricao' && <DescricaoSection deal={deal} label={label} />}
         {activeSection === 'planilha' && <PlanilhaSection deal={deal} />}
-        {activeSection === 'analise' && deal.results_cache && (
-          <div className="rounded-xl border border-[#e5e5e3] bg-white p-6">
-            <ResultsScreen
-              result={deal.results_cache as AnalysisResult}
-              dealName={deal.name}
-              inputs={deal.inputs as DealInput}
-              onReset={() => {}}
-              isAuthenticated={true}
-              hideHeader
-              hideSaveButton
-            />
-          </div>
+        {activeSection === 'analise' && (
+          deal.results_cache && deal.inputs ? (
+            <div className="rounded-xl border border-[#e5e5e3] bg-white p-6">
+              <ResultsScreen
+                result={deal.results_cache as AnalysisResult}
+                dealName={deal.title}
+                inputs={deal.inputs as DealInput}
+                onReset={() => {}}
+                isAuthenticated={true}
+                hideHeader
+                hideSaveButton
+              />
+            </div>
+          ) : (
+            <div className="rounded-xl border border-[#e5e5e3] bg-[#FAFAF8] p-8 text-center">
+              <p className="text-sm font-medium text-[#6B7280]">Análise não disponível</p>
+              <p className="mt-1 text-xs text-[#9CA3AF]">
+                Este imóvel foi importado via URL ou inserido manualmente. Use o formulário de
+                análise completa para calcular Cap Rate, fluxo de caixa e projeções.
+              </p>
+            </div>
+          )
         )}
       </div>
     </div>
@@ -241,7 +253,7 @@ function DescricaoSection({ deal, label }: { deal: SavedDeal; label: string }) {
   return (
     <div className="space-y-4">
       <Section title="Detalhes do Imóvel">
-        <Row label="Nome" value={deal.name} />
+        <Row label="Nome" value={deal.title} />
         <Row label="Tipo" value={label} />
         <Row
           label="Salvo em"
@@ -362,7 +374,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between px-5 py-3">
       <span className="text-sm text-[#737373]">{label}</span>
-      <span className="text-sm font-semibold text-[#1a1a1a]">{value}</span>
+      <span className="text-sm font-semibold text-[#F0EFEB]">{value}</span>
     </div>
   );
 }
@@ -393,7 +405,7 @@ function RowCalc({
       <div className="flex items-center gap-2">
         {sub && <span className="w-4 text-xs text-[#a3a3a1]">−</span>}
         {plus && <span className="w-4 text-xs text-[#a3a3a1]">+</span>}
-        {total && <span className="w-4 text-xs font-bold text-[#1a1a1a]">=</span>}
+        {total && <span className="w-4 text-xs font-bold text-[#F0EFEB]">=</span>}
         {!sub && !plus && !total && <span className="w-4" />}
         <span className={`text-sm ${total ? 'font-bold text-[#1a5c3a]' : 'text-[#737373]'}`}>
           {label2 ?? label}
@@ -405,7 +417,7 @@ function RowCalc({
             ? 'font-bold text-[#1a5c3a]'
             : highlighted
               ? 'font-bold text-[#1a5c3a]'
-              : 'font-semibold text-[#1a1a1a]'
+              : 'font-semibold text-[#F0EFEB]'
         }`}
       >
         {value}

@@ -57,12 +57,12 @@ cp .env.example .env.local
 
 Fill in `.env.local` with your values — see `.env.example` for descriptions.
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous (public) key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes (cron) | Service role key — used by the CDI cron job to bypass RLS |
-| `CRON_SECRET` | Yes (cron) | Secret for authenticating `/api/cron/*` requests |
+| Variable                        | Required   | Description                                               |
+| ------------------------------- | ---------- | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes        | Your Supabase project URL                                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes        | Supabase anonymous (public) key                           |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes (cron) | Service role key — used by the CDI cron job to bypass RLS |
+| `CRON_SECRET`                   | Yes (cron) | Secret for authenticating `/api/cron/*` requests          |
 
 ### 3. Run the development server
 
@@ -74,15 +74,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start dev server with Turbopack |
-| `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format all files with Prettier |
+| Script                 | Description                      |
+| ---------------------- | -------------------------------- |
+| `npm run dev`          | Start dev server with Turbopack  |
+| `npm run build`        | Production build                 |
+| `npm run start`        | Start production server          |
+| `npm run lint`         | Run ESLint                       |
+| `npm run format`       | Format all files with Prettier   |
 | `npm run format:check` | Check formatting without writing |
-| `npm test` | Run unit tests (Vitest) |
+| `npm test`             | Run unit tests (Vitest)          |
 
 ## Auth
 

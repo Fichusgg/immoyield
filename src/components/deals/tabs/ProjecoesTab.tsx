@@ -27,14 +27,14 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
   return (
     <div className="space-y-7">
       <div>
-        <h2 className="text-base font-bold text-[#f4f4f5]">Revisar & Calcular</h2>
-        <p className="mt-0.5 text-sm text-[#52525b]">
+        <h2 className="text-base font-bold text-[#1C2B20]">Revisar & Calcular</h2>
+        <p className="mt-0.5 text-sm text-[#9CA3AF]">
           Confirme os dados antes de rodar a análise completa.
         </p>
       </div>
 
       {/* Summary table */}
-      <div className="divide-y divide-[#27272a] border border-[#27272a] text-sm">
+      <div className="divide-y divide-[#E2E0DA] border border-[#E2E0DA] text-sm">
         {/* Dados do imóvel */}
         <SectionHeader label="Dados do Imóvel" />
         {[
@@ -127,7 +127,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
       </div>
 
       {apiError && (
-        <p className="border border-[#7f1d1d] bg-[#450a0a] px-4 py-3 font-mono text-sm text-[#f87171]">
+        <p className="border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 font-mono text-sm text-[#DC2626]">
           {apiError}
         </p>
       )}
@@ -136,14 +136,14 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#27272a] px-5 py-2.5 text-sm font-medium text-[#52525b] transition-colors hover:border-[#3f3f46] hover:text-[#a1a1aa]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>
         <button
           onClick={onCalculate}
           disabled={loading}
-          className="bg-[#22c55e] px-8 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#16a34a] disabled:opacity-50"
+          className="bg-[#4A7C59] px-8 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F] disabled:opacity-50"
         >
           {loading ? 'Calculando...' : 'Rodar Análise →'}
         </button>
@@ -154,8 +154,8 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="bg-[#0a0a0a] px-4 py-2.5">
-      <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#52525b] uppercase">
+    <div className="bg-[#F8F7F4] px-4 py-2.5">
+      <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
         {label}
       </span>
     </div>
@@ -164,9 +164,9 @@ function SectionHeader({ label }: { label: string }) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between bg-[#111111] px-4 py-3">
-      <span className="text-[#52525b]">{label}</span>
-      <span className="font-mono font-semibold text-[#f4f4f5]">{value}</span>
+    <div className="flex justify-between bg-[#FAFAF8] px-4 py-3">
+      <span className="text-[#9CA3AF]">{label}</span>
+      <span className="font-mono font-semibold text-[#1C2B20]">{value}</span>
     </div>
   );
 }
