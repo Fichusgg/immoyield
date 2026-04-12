@@ -321,6 +321,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   name="expenses.condo"
                   render={({ field }) => (
                     <CurrencyInput
+                      id="condo-monthly"
                       className={fieldClass}
                       placeholder="0"
                       value={field.value}
@@ -336,6 +337,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   name="expenses.iptu"
                   render={({ field }) => (
                     <CurrencyInput
+                      id="iptu-monthly"
                       className={fieldClass}
                       placeholder="0"
                       value={field.value}
@@ -363,7 +365,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                 <div className="relative">
                   <input
                     type="number"
-                    step="0.5"
+                    step="0.1"
                     {...register('expenses.maintenancePercent', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />

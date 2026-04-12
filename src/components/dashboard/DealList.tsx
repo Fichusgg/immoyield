@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_TYPES } from '@/lib/validations/deal';
 import { Plus, Search } from 'lucide-react';
+import { getDealDisplayTitle } from '@/lib/deals/display';
 
 const PROPERTY_DESCRIPTIONS: Record<PropertyType, string> = {
   residential: 'Imóveis para aluguel de longo prazo e geração de renda passiva.',
@@ -60,9 +61,9 @@ export default function DealList() {
 
   const filtered = deals
     .filter((d) => !activeType || d.property_type === activeType)
-    .filter((d) => !search || (d.title ?? '').toLowerCase().includes(search.toLowerCase()))
+    .filter((d) => !search || getDealDisplayTitle(d).toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      if (sortBy === 'name') return (a.title ?? '').localeCompare(b.title ?? '');
+      if (sortBy === 'name') return getDealDisplayTitle(a).localeCompare(getDealDisplayTitle(b));
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
 

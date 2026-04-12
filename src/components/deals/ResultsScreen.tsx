@@ -16,12 +16,14 @@ import {
   ReferenceLine,
   Legend,
 } from 'recharts';
-import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check } from 'lucide-react';
+import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check, Printer, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { ShareButton } from '@/components/share/ShareButton';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { DealInput } from '@/lib/validations/deal';
+import { computeImmoScore, getScoreLabel } from '@/lib/scoring';
+import { generateInsights, generateRisks } from '@/lib/insights';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -482,6 +484,54 @@ export default function ResultsScreen({
     { name: 'FII (ref.)', value: FII_RATE, fill: '#D0CEC8' },
   ];
 
+  // ── ImmoScore ───────────────────────────────────────────────────────────────
+  const scoreBreakdown = useMemo(() => computeImmoScore({
+    capRate:           metrics.capRate,
+    monthlyCashFlow:   metrics.monthlyCashFlow,
+    cashOutlay:        metrics.cashOutlay,
+    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
+    operatingExpenses: metrics.operatingExpenses ?? 0,
+  }), [metrics]);
+
+  const scoreLabel = getScoreLabel(scoreBreakdown.total);
+
+  // ── Insights & Risks ────────────────────────────────────────────────────────
+  const insightsList = useMemo(() => generateInsights({
+    monthlyCashFlow:   metrics.monthlyCashFlow,
+    capRate:           metrics.capRate,
+    cashOnCash:        metrics.cashOnCash,
+    cashOutlay:        metrics.cashOutlay,
+    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
+    condoMonthly:      metrics.operatingExpenses
+                         ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
+                         : 0,
+    iptuMonthly:       0,
+    operatingExpenses: metrics.operatingExpenses ?? 0,
+    loanAmount:        metrics.loanAmount,
+    purchasePrice:     metrics.totalInvestment,
+    vacancyRate:       metrics.grossMonthlyRent && metrics.effectiveRent
+                         ? 1 - (metrics.effectiveRent / metrics.grossMonthlyRent)
+                         : 0.05,
+  }), [metrics]);
+
+  const risksList = useMemo(() => generateRisks({
+    monthlyCashFlow:   metrics.monthlyCashFlow,
+    capRate:           metrics.capRate,
+    cashOnCash:        metrics.cashOnCash,
+    cashOutlay:        metrics.cashOutlay,
+    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
+    condoMonthly:      metrics.operatingExpenses
+                         ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
+                         : 0,
+    iptuMonthly:       0,
+    operatingExpenses: metrics.operatingExpenses ?? 0,
+    loanAmount:        metrics.loanAmount,
+    purchasePrice:     metrics.totalInvestment,
+    vacancyRate:       metrics.grossMonthlyRent && metrics.effectiveRent
+                         ? 1 - (metrics.effectiveRent / metrics.grossMonthlyRent)
+                         : 0.05,
+  }), [metrics]);
+
   return (
     <div className="space-y-8 pb-10">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
@@ -494,7 +544,7 @@ export default function ResultsScreen({
             <h2 className="text-xl font-bold tracking-tight text-[#1C2B20]">
               {dealName ?? 'Resultado do Deal'}
             </h2>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
               <span
                 className={`inline-flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-bold ${
                   cashFlowPositive
@@ -504,6 +554,16 @@ export default function ResultsScreen({
               >
                 {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
                 Fluxo de caixa {cashFlowPositive ? 'positivo' : 'negativo'}
+              </span>
+
+              {/* ── ImmoScore badge ── */}
+              <span
+                className={`inline-flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-bold ${scoreLabel.bg} ${scoreLabel.color} ${scoreLabel.border}`}
+                title="ImmoScore: pontuação 0–100 baseada em yield, fluxo de caixa, payback e eficiência de custos"
+              >
+                <span className="text-[10px] font-black">{scoreBreakdown.total}</span>
+                <span className="opacity-70">/100</span>
+                <span className="ml-0.5">{scoreLabel.label}</span>
               </span>
             </div>
           </div>
@@ -545,6 +605,75 @@ export default function ResultsScreen({
           sub="resultado operacional líquido"
         />
       </div>
+
+      {/* ── ImmoScore full breakdown ─────────────────────────────────────────── */}
+      <div className={`border p-5 ${scoreLabel.bg} ${scoreLabel.border}`}>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+              ImmoScore — Avaliação do Deal
+            </p>
+            <p className={`mt-0.5 text-3xl font-black tabular-nums ${scoreLabel.color}`}>
+              {scoreBreakdown.total}
+              <span className="ml-1 text-base font-semibold opacity-60">/100 — {scoreLabel.label}</span>
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-5 gap-2 text-center">
+          {[
+            { label: 'Yield',       pts: scoreBreakdown.yield,        max: 35 },
+            { label: 'Fluxo',       pts: scoreBreakdown.cashflow,     max: 25 },
+            { label: 'Payback',     pts: scoreBreakdown.payback,      max: 20 },
+            { label: 'Eficiência',  pts: scoreBreakdown.expenseRatio, max: 15 },
+            { label: 'Dados',       pts: scoreBreakdown.completeness, max: 5  },
+          ].map((c) => (
+            <div key={c.label} className="rounded border border-white/60 bg-white/50 px-1 py-2">
+              <p className={`text-lg font-black tabular-nums ${scoreLabel.color}`}>{c.pts}</p>
+              <p className="text-[9px] font-semibold text-[#6B7280] uppercase">{c.label}</p>
+              <p className="text-[9px] text-[#9CA3AF]">/{c.max}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Insights & Risks ──────────────────────────────────────────────────── */}
+      {(insightsList.length > 0 || risksList.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Positives */}
+          {insightsList.length > 0 && (
+            <div className="border border-[#A8C5B2] bg-[#EBF3EE] p-5">
+              <p className="mb-3 text-[10px] font-semibold tracking-[0.07em] text-[#3D6B4F] uppercase">
+                Por que é interessante
+              </p>
+              <ul className="space-y-2">
+                {insightsList.map((ins, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-[#1C2B20]">
+                    <CheckCircle2 size={12} className="mt-0.5 shrink-0 text-[#4A7C59]" />
+                    <span>{ins.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Risks */}
+          {risksList.length > 0 && (
+            <div className="border border-[#FED7AA] bg-[#FFFBEB] p-5">
+              <p className="mb-3 text-[10px] font-semibold tracking-[0.07em] text-[#92400E] uppercase">
+                Riscos a considerar
+              </p>
+              <ul className="space-y-2">
+                {risksList.map((risk, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-[#1C2B20]">
+                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-[#F59E0B]" />
+                    <span>{risk.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── CDI Comparison Banner ─────────────────────────────────────────────*/}
       <CDIBanner
@@ -927,6 +1056,14 @@ export default function ResultsScreen({
               dealName={dealName ?? 'Deal'}
               className="flex items-center gap-1.5 border border-[#D0CEC8] bg-[#F0EFEB] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#6B7280] transition-colors hover:border-[#9CA3AF] hover:text-[#1C2B20]"
             />
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 border border-[#D0CEC8] bg-[#F0EFEB] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#6B7280] transition-colors hover:border-[#9CA3AF] hover:text-[#1C2B20]"
+              title="Imprimir análise"
+            >
+              <Printer size={12} />
+              Imprimir
+            </button>
             {savedOk && savedDealId && (
               <ShareButton
                 dealId={savedDealId}

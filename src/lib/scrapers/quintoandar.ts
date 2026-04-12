@@ -9,75 +9,127 @@
  *   browser, then return the fully-rendered HTML including __NEXT_DATA__.
  *   No extra dependencies needed.
  *
- * APPROACH B: Playwright (self-hosted only)
- *   See the comment block at the bottom of this file for a Playwright
- *   implementation you can use if you run a dedicated Node.js service
- *   instead of Vercel/Next.js API routes.
+ * APPROACH B: Direct fetch fallback (no ScraperAPI key)
+ *   We attempt a direct fetch with browser headers. QuintoAndar embeds
+ *   a partial __NEXT_DATA__ blob even in the HTML shell, which sometimes
+ *   contains enough data for basic extraction. CSS selectors are then
+ *   applied to whatever rendered content was returned.
  *
- * Current implementation: ScraperAPI render=true → parse __NEXT_DATA__
+ * APPROACH C: Playwright (self-hosted only)
+ *   See the comment block at the bottom of this file.
+ *
+ * Current implementation: ScraperAPI render=true → __NEXT_DATA__
+ *                         → CSS fallback (also works without ScraperAPI)
  */
 
 import axios from 'axios';
 import type { ScrapedProperty } from './types';
 import {
+  fetchHtml,
   extractNextData,
   loadHtml,
   parseBrlNumber,
+  parseIntSafe,
   detectPropertyType,
   dedupePhotos,
+  normalizeAmenities,
+  firstText,
+  collectImages,
   BROWSER_HEADERS,
 } from './utils';
 
 function extractListingId(url: string): string | undefined {
   // QuintoAndar: /imovel/{uuid} or /imovel/{slug}-{id}
-  return url.match(/\/imovel\/([a-f0-9-]{36})/)?.[1] ?? url.match(/\/imovel\/.*?-(\d{8,})/)?.[1];
+  return (
+    url.match(/\/imovel\/([a-f0-9-]{36})/)?.[1] ??
+    url.match(/\/imovel\/.*?-(\d{8,})/)?.[1] ??
+    url.match(/\/imovel\/(\d+)/)?.[1]
+  );
 }
 
+// ─── Fetch with JS rendering ─────────────────────────────────────────────────
+//
+// Tries ScraperAPI render=true first. If no API key is configured, falls back
+// to a direct fetch — this still works in development and may capture partial
+// data from the server-rendered HTML shell.
+//
 async function fetchRendered(url: string): Promise<string> {
   const apiKey = process.env.SCRAPERAPI_KEY;
-  if (!apiKey) {
-    throw new Error(
-      'QuintoAndar requires JavaScript rendering. Set SCRAPERAPI_KEY in your environment variables, ' +
-        'or use the Playwright implementation (see bottom of quintoandar.ts).'
-    );
+
+  if (apiKey) {
+    const proxyUrl =
+      `https://api.scraperapi.com/?api_key=${apiKey}` +
+      `&url=${encodeURIComponent(url)}&country_code=br&render=true`;
+    const response = await axios.get(proxyUrl, {
+      headers: BROWSER_HEADERS,
+      timeout: 35000,
+    });
+    return response.data as string;
   }
 
-  // render=true tells ScraperAPI to use a headless browser
-  const proxyUrl =
-    `https://api.scraperapi.com/?api_key=${apiKey}` +
-    `&url=${encodeURIComponent(url)}&country_code=br&render=true`;
-
-  const response = await axios.get(proxyUrl, {
-    headers: BROWSER_HEADERS,
-    timeout: 30000, // rendered requests take longer
-  });
-  return response.data as string;
+  // Fallback: direct fetch. QuintoAndar embeds a partial data blob in the
+  // server HTML shell — we may still extract something useful.
+  return fetchHtml(url);
 }
 
+// ─── Amenity extraction ───────────────────────────────────────────────────────
+function extractAmenities(listing: Record<string, any>): string[] {
+  return normalizeAmenities([
+    ...(listing.amenities ?? []),
+    ...(listing.features ?? []),
+    ...(listing.tags ?? []),
+    ...(listing.highlights ?? []),
+    ...(listing.condominiumAmenities ?? []),
+    ...(listing.buildingAmenities ?? []),
+  ]);
+}
+
+// ─── Strategy 1: __NEXT_DATA__ ───────────────────────────────────────────────
 function parseNextData(nextData: Record<string, any>, url: string): ScrapedProperty | null {
-  // QuintoAndar's __NEXT_DATA__ shape (observed from community scrapers)
   const pageProps = nextData?.props?.pageProps ?? {};
 
+  // QuintoAndar uses several different shapes depending on app version
   const listing =
     pageProps.listing ??
     pageProps.house ??
     pageProps.property ??
     pageProps.data?.listing ??
-    pageProps.data?.house;
+    pageProps.data?.house ??
+    pageProps.data?.property;
 
   if (!listing) return null;
 
-  const isRent = listing.forRent ?? (listing.listingType === 'RENT' || url.includes('para-alugar'));
-  const title = listing.title ?? listing.description ?? listing.seoTitle ?? undefined;
+  const isRent =
+    listing.forRent != null
+      ? Boolean(listing.forRent)
+      : listing.listingType === 'RENT' || url.includes('para-alugar');
+
+  const title =
+    listing.title ??
+    listing.seoTitle ??
+    listing.description?.slice(0, 120) ??
+    undefined;
 
   const photos = dedupePhotos([
-    ...(listing.images ?? []).map((i: any) => i.url ?? i),
-    ...(listing.photos ?? []).map((p: any) => p.url ?? p),
-    ...(listing.medias ?? []).filter((m: any) => m.type === 'IMAGE').map((m: any) => m.url),
-  ]).slice(0, 10);
+    ...(listing.images ?? []).map((i: any) => (typeof i === 'string' ? i : i.url ?? i.src)),
+    ...(listing.photos ?? []).map((p: any) => (typeof p === 'string' ? p : p.url ?? p.src)),
+    ...(listing.medias ?? [])
+      .filter((m: any) => m.type === 'IMAGE' || !m.type)
+      .map((m: any) => m.url ?? m.value),
+  ]);
 
-  const price: number | undefined = listing.rent ?? listing.price ?? listing.salePrice;
-  const area: number | undefined = listing.area ?? listing.usableArea;
+  const price: number | undefined =
+    listing.rent ?? listing.price ?? listing.salePrice ?? listing.totalPrice;
+  const area: number | undefined = parseIntSafe(listing.area ?? listing.usableArea ?? listing.squareMeters);
+
+  const phones: string[] = (listing.agent?.phones ?? listing.owner?.phones ?? [])
+    .map((p: any) => (typeof p === 'string' ? p : p?.number ?? p?.phone))
+    .filter(Boolean);
+
+  const datePosted: string | undefined =
+    listing.publishedAt ?? listing.createdAt ?? listing.publicationDate ?? undefined;
+  const dateUpdated: string | undefined =
+    listing.updatedAt ?? listing.lastUpdated ?? undefined;
 
   return {
     listingId: listing.id ?? listing.externalId ?? extractListingId(url),
@@ -88,62 +140,159 @@ function parseNextData(nextData: Record<string, any>, url: string): ScrapedPrope
     type: detectPropertyType(title),
     listingType: isRent ? 'rent' : 'sale',
     price,
-    condoFee: listing.condoFee ?? listing.iptu?.condoFee ?? listing.maintenanceFee,
-    iptu: listing.iptuValue ?? listing.iptu?.value ?? listing.iptu,
-    iptuPeriod: 'monthly',
+    condoFee: listing.condoFee ?? listing.maintenanceFee ?? undefined,
+    iptu: listing.iptuValue ?? listing.iptu?.value ?? (typeof listing.iptu === 'number' ? listing.iptu : undefined),
+    iptuPeriod: listing.iptuPeriod ?? 'monthly',
     area,
-    totalArea: listing.totalArea,
-    bedrooms: listing.bedrooms,
-    bathrooms: listing.bathrooms ?? listing.suites,
-    suites: listing.suites,
-    parkingSpots: listing.parkingSpots ?? listing.parkingSpaces,
+    totalArea: parseIntSafe(listing.totalArea),
+    bedrooms: parseIntSafe(listing.bedrooms),
+    bathrooms: parseIntSafe(listing.bathrooms),
+    suites: parseIntSafe(listing.suites),
+    parkingSpots: parseIntSafe(listing.parkingSpots ?? listing.parkingSpaces),
     address: {
       street: listing.street ?? listing.address?.street,
-      neighborhood: listing.neighbourhood ?? listing.neighborhood ?? listing.address?.neighbourhood,
+      neighborhood:
+        listing.neighbourhood ??
+        listing.neighborhood ??
+        listing.address?.neighbourhood ??
+        listing.address?.neighborhood,
       city: listing.city ?? listing.address?.city,
       state: listing.state ?? listing.address?.state,
       zipCode: listing.zipCode ?? listing.address?.zipCode ?? listing.postalCode,
-      fullText: listing.address?.fullAddress ?? listing.fullAddress,
+      fullText: listing.address?.fullAddress ?? listing.fullAddress ?? undefined,
     },
     photos,
     agentName: listing.agent?.name ?? listing.owner?.name,
+    contactPhone: phones[0],
     description: listing.description ?? listing.about ?? listing.fullDescription ?? undefined,
     zipCode: listing.zipCode ?? listing.address?.zipCode ?? listing.postalCode ?? undefined,
     pricePerSqm: price && area ? Math.round(price / area) : undefined,
     marketValue: listing.suggestedPrice ?? listing.marketPrice ?? undefined,
+    amenities: extractAmenities(listing),
+    datePosted,
+    dateUpdated,
     _extractionMethod: 'next_data',
-    _confidence: 'medium', // shape varies across QA app versions
+    _confidence: process.env.SCRAPERAPI_KEY ? 'medium' : 'low',
   };
 }
 
+// ─── Strategy 2: CSS selectors ───────────────────────────────────────────────
+//
+// QuintoAndar uses Tailwind + BEM-like class names that change across deploys.
+// We use a wide net of selectors + data-testid attributes where available.
+//
 function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
   const $ = loadHtml(html);
 
   const title =
-    $('h1[class*="title"], [data-testid="listing-title"]').first().text().trim() || undefined;
-  const priceText = $('[class*="price"], [data-testid="price"]').first().text().trim();
-  const condoText = $('[class*="condo"], [data-testid="condo-fee"]').first().text().trim();
-  const iptuText = $('[class*="iptu"], [data-testid="iptu"]').first().text().trim();
-  const areaText = $('[class*="area"], [data-testid="area"]').first().text().trim();
-  const bedsText = $('[class*="bedrooms"], [data-testid="bedrooms"]').first().text().trim();
-  const bathsText = $('[class*="bathrooms"], [data-testid="bathrooms"]').first().text().trim();
-  const addressText = $('[class*="address"], [data-testid="address"]').first().text().trim();
-  const zipText = $('[class*="zipCode"], [data-testid="zip-code"], [itemprop="postalCode"]')
-    .first()
-    .text()
-    .trim();
-  const descText = $('[class*="description"], [data-testid="description"]').first().text().trim();
+    firstText($, [
+      'h1[class*="title"]',
+      'h1[data-testid="listing-title"]',
+      '[data-testid="property-title"]',
+      'h1',
+    ]) || undefined;
+
+  const priceText = firstText($, [
+    '[data-testid="price"]',
+    '[data-testid="listing-price"]',
+    '[class*="price__value"]',
+    '[class*="listing-price"]',
+    // broad fallback — only use if more specific ones miss
+    'span[class*="price"]:not([class*="per"])',
+  ]);
+
+  const condoText = firstText($, [
+    '[data-testid="condo-fee"]',
+    '[class*="condo"]',
+    '[class*="condominio"]',
+  ]);
+
+  const iptuText = firstText($, [
+    '[data-testid="iptu"]',
+    '[class*="iptu"]',
+  ]);
+
+  const areaText = firstText($, [
+    '[data-testid="area"]',
+    '[class*="area__value"]',
+    '[class*="property-area"]',
+    // look for "m²" nearby
+    'span:contains("m²")',
+  ]);
+
+  const bedsText = firstText($, [
+    '[data-testid="bedrooms"]',
+    '[class*="bedroom"]',
+    '[aria-label*="quarto"]',
+  ]);
+
+  const bathsText = firstText($, [
+    '[data-testid="bathrooms"]',
+    '[class*="bathroom"]',
+    '[aria-label*="banheir"]',
+  ]);
+
+  const parkText = firstText($, [
+    '[data-testid="parking"]',
+    '[class*="parking"]',
+    '[class*="garagem"]',
+    '[aria-label*="vaga"]',
+  ]);
+
+  const addressText = firstText($, [
+    '[data-testid="address"]',
+    '[class*="address"]',
+    '[itemprop="address"]',
+  ]);
+
+  const zipText = firstText($, [
+    '[data-testid="zip-code"]',
+    '[class*="zipCode"]',
+    '[itemprop="postalCode"]',
+  ]);
+
+  const neighborhoodText = firstText($, [
+    '[data-testid="neighborhood"]',
+    '[class*="neighborhood"]',
+    '[class*="neighbourhood"]',
+  ]);
+
+  const descText = firstText($, [
+    '[data-testid="description"]',
+    '[class*="description"]',
+    '[itemprop="description"]',
+  ]);
+
+  const agentName =
+    firstText($, [
+      '[data-testid="agent-name"]',
+      '[class*="agent__name"]',
+      '[class*="owner-name"]',
+    ]) || undefined;
+
+  // Amenities — QuintoAndar renders them in a features/highlights list
+  const amenityTexts: string[] = [];
+  $(
+    '[data-testid="amenity"], [class*="amenity"], [class*="feature__item"], [class*="highlight__item"]'
+  ).each((_, el) => {
+    const text = $(el).text().trim();
+    if (text) amenityTexts.push(text);
+  });
 
   const photos = dedupePhotos(
-    $('img[src*="quintoandar"], img[src*="photos"]')
-      .map((_, el) => $(el).attr('src'))
-      .get()
-  ).slice(0, 10);
+    collectImages($, [
+      'img[src*="quintoandar"]',
+      'img[src*="photos"]',
+      'img[src*="images"]',
+      '[class*="gallery"] img',
+      '[class*="carousel"] img',
+    ])
+  );
 
   if (!title && !priceText) return null;
 
   const price = parseBrlNumber(priceText);
-  const area = parseBrlNumber(areaText);
+  const area = parseBrlNumber(areaText.replace(/m².*/, '').trim());
 
   return {
     listingId: extractListingId(url),
@@ -159,33 +308,47 @@ function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
     area,
     bedrooms: parseBrlNumber(bedsText),
     bathrooms: parseBrlNumber(bathsText),
-    address: { fullText: addressText || undefined },
+    parkingSpots: parseBrlNumber(parkText),
+    address: {
+      neighborhood: neighborhoodText || undefined,
+      fullText: addressText || undefined,
+    },
     photos,
+    agentName,
     description: descText || undefined,
     zipCode: zipText || undefined,
     pricePerSqm: price && area ? Math.round(price / area) : undefined,
+    amenities: normalizeAmenities(amenityTexts),
     _extractionMethod: 'css_selectors',
     _confidence: 'low',
   };
 }
 
+// ─── Public scraper function ──────────────────────────────────────────────────
 export async function scrapeQuintoAndar(url: string): Promise<ScrapedProperty> {
   const html = await fetchRendered(url);
 
+  // 1. __NEXT_DATA__
   const nextData = extractNextData(html);
   if (nextData) {
     const result = parseNextData(nextData, url);
     if (result && (result.price || result.area || result.bedrooms)) return result;
   }
 
+  // 2. CSS selectors
   const result = parseCssSelectors(html, url);
   if (result) return result;
 
-  throw new Error('PARSE_ERROR: Could not extract property data from QuintoAndar page');
+  throw new Error(
+    'PARSE_ERROR: Could not extract property data from QuintoAndar page. ' +
+      (process.env.SCRAPERAPI_KEY
+        ? 'The page structure may have changed.'
+        : 'Set SCRAPERAPI_KEY for JS-rendered extraction.')
+  );
 }
 
 /*
- * ─── APPROACH B: Playwright self-hosted implementation ─────────────────────
+ * ─── APPROACH C: Playwright self-hosted implementation ─────────────────────
  *
  * Use this if you're running a dedicated Node.js microservice (Railway/Fly.io)
  * instead of Next.js API routes. Playwright gives you the most reliable
@@ -194,8 +357,6 @@ export async function scrapeQuintoAndar(url: string): Promise<ScrapedProperty> {
  * Install:
  *   npm install playwright playwright-extra puppeteer-extra-plugin-stealth
  *   npx playwright install chromium
- *
- * Usage (replace the fetchRendered call above):
  *
  * import { chromium } from 'playwright-extra'
  * import StealthPlugin from 'puppeteer-extra-plugin-stealth'
@@ -218,11 +379,10 @@ export async function scrapeQuintoAndar(url: string): Promise<ScrapedProperty> {
  *   const page = await context.newPage()
  *   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 })
  *
- *   // If we intercepted an internal API call, normalize that
  *   if (apiData) {
  *     await browser.close()
- *     // apiData shape varies — log it on first run and adjust parseNextData
- *     return parseNextData({ props: { pageProps: { listing: apiData } } }, url) ?? {} as any
+ *     return parseNextData({ props: { pageProps: { listing: apiData } } }, url)
+ *       ?? (() => { throw new Error('PARSE_ERROR') })()
  *   }
  *
  *   const html = await page.content()

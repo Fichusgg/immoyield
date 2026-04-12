@@ -10,7 +10,7 @@ import { scrapeQuintoAndar } from './quintoandar';
 const SITE_PATTERNS: Record<SupportedSite, RegExp> = {
   zapimoveis: /zapimoveis\.com\.br/i,
   vivareal: /vivareal\.com\.br/i,
-  quintoandar: /quintoandar\.com\.br/i,
+  quintoandar: /quintoandar\.com/i,
 };
 
 export function detectSite(url: string): SupportedSite | null {
@@ -34,7 +34,7 @@ export async function parseListing(url: string): Promise<ParseListingResponse> {
     return {
       ok: false,
       error: 'UNSUPPORTED_SITE',
-      message: `Unsupported site. Supported: zapimoveis.com.br, vivareal.com.br, quintoandar.com.br`,
+      message: `Unsupported site. Supported: zapimoveis.com.br, vivareal.com.br, quintoandar.com`,
     };
   }
 

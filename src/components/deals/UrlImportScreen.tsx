@@ -13,11 +13,18 @@
  *   onBack                   — go back to the entry-method choice
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParseListing } from '@/hooks/useParseListing';
 import { mapToWizardForm } from '@/lib/scrapers/mapToWizardForm';
 import { useDealStore } from '@/store/useDealStore';
-import { Link2, ArrowLeft, Loader2, AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Link2, ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+
+const LOADING_STEPS = [
+  { label: 'Acessando o anúncio…', delay: 0 },
+  { label: 'Lendo estrutura da página…', delay: 2500 },
+  { label: 'Extraindo dados do imóvel…', delay: 5000 },
+  { label: 'Preenchendo o formulário…', delay: 8000 },
+];
 
 interface Props {
   propertyType: string;
@@ -36,6 +43,24 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
   const { fetch: parseListing, loading, error } = useParseListing();
   const { reset, updateFormData, setPrefilledFields } = useDealStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const stepTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    if (loading) {
+      setLoadingStep(0);
+      stepTimersRef.current.forEach(clearTimeout);
+      stepTimersRef.current = LOADING_STEPS.slice(1).map((s, i) =>
+        setTimeout(() => setLoadingStep(i + 1), s.delay),
+      );
+    } else {
+      stepTimersRef.current.forEach(clearTimeout);
+      stepTimersRef.current = [];
+    }
+    return () => {
+      stepTimersRef.current.forEach(clearTimeout);
+    };
+  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,7 +167,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
             {loading ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Importando…
+                {LOADING_STEPS[loadingStep]?.label ?? 'Importando…'}
               </>
             ) : (
               <>
@@ -161,6 +186,20 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
             Preencher manualmente →
           </button>
         </div>
+
+        {/* Step progress dots during loading */}
+        {loading && (
+          <div className="flex items-center gap-2 pt-1">
+            {LOADING_STEPS.map((s, i) => (
+              <div
+                key={s.label}
+                className={`h-1.5 flex-1 transition-all duration-500 ${
+                  i <= loadingStep ? 'bg-[#4A7C59]' : 'bg-[#E2E0DA]'
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* On error, also offer to open the wizard anyway */}
         {error && (

@@ -208,10 +208,17 @@ export function CompraECustos({ onBack, onNext }: Props) {
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-semibold text-[#1C2B20]">Financiamento Bancário</p>
           <label className="flex cursor-pointer items-center gap-2.5">
+            {/*
+              The <label> wraps the hidden checkbox, so ANY click anywhere on this
+              label (including the visual toggle div below) naturally activates the
+              checkbox via the browser's built-in label behaviour.
+              Do NOT add a separate onClick to the inner div — that would fire a
+              second state update on the same click and cancel the first one out,
+              making the toggle appear broken when clicking the button area.
+            */}
             <input type="checkbox" {...register('financing.enabled')} className="sr-only" />
             <div
-              onClick={() => setValue('financing.enabled', !isEnabled)}
-              className={`relative h-5 w-9 cursor-pointer transition-colors ${
+              className={`relative h-5 w-9 transition-colors ${
                 isEnabled ? 'bg-[#3D6B4F]' : 'bg-[#E2E0DA]'
               }`}
             >

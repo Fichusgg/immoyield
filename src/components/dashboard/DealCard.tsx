@@ -6,6 +6,7 @@ import { ShareButton } from '@/components/share/ShareButton';
 import { useState } from 'react';
 import Link from 'next/link';
 import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
+import { getDealDisplayTitle } from '@/lib/deals/display';
 
 const fmt = (v: number) =>
   new Intl.NumberFormat('pt-BR', {
@@ -23,6 +24,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
   const [deleting, setDeleting] = useState(false);
   const m = deal.results_cache?.metrics;
   const positive = (m?.monthlyCashFlow ?? 0) >= 0;
+  const displayTitle = getDealDisplayTitle(deal);
 
   const handleDelete = async () => {
     if (!confirm('Remover esta análise?')) return;
@@ -40,12 +42,12 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
       <Link
         href={`/imoveis/${deal.id}`}
         className="absolute inset-0 z-10"
-        aria-label={`Ver análise: ${deal.title}`}
+        aria-label={`Ver análise: ${displayTitle}`}
       />
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-black text-[#1C2B20]">{deal.title}</p>
+          <p className="truncate text-sm font-black text-[#1C2B20]">{displayTitle}</p>
           {deal.property_type && (
             <span className="mt-0.5 inline-block border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
               {PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type}
@@ -61,7 +63,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <div className="relative z-20">
-            <ShareButton dealId={deal.id} dealName={deal.title} compact />
+            <ShareButton dealId={deal.id} dealName={displayTitle} compact />
           </div>
           <button
             type="button"

@@ -2,15 +2,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, BarChart2 } from 'lucide-react';
+import { ArrowLeft, Pencil, BarChart2, ChevronDown, ChevronUp } from 'lucide-react';
 import { SavedDeal } from '@/lib/supabase/deals';
 import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { ShareButton } from '@/components/share/ShareButton';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import ResultsScreen from '@/components/deals/ResultsScreen';
+import BrazilianAnalysis from '@/components/deals/BrazilianAnalysis';
 import type { AnalysisResult } from '@/components/deals/ResultsScreen';
 import type { DealInput } from '@/lib/validations/deal';
 
+// ── Valid sidebar sections ──────────────────────────────────────────────────
+// 'analise' is now the single consolidated analysis section — it always renders
+// BrazilianAnalysis, and additionally shows the cached wizard ResultsScreen when
+// available. The old separate 'calcular' section has been removed.
 type NavSection = 'descricao' | 'planilha' | 'analise';
 
 const fmt = (v: number) =>
@@ -33,30 +38,42 @@ export default function DealDetailView({ deal }: Props) {
   const type = (deal.property_type as PropertyType) ?? 'aluguel';
   const label = PROPERTY_TYPE_LABELS[type] ?? deal.property_type;
   const cashFlowPositive = (m?.monthlyCashFlow ?? 0) >= 0;
+  const hasWizardResults = !!(deal.results_cache && deal.inputs);
 
   const navItems: { id: NavSection; label: string; icon: React.ReactNode }[] = [
     {
       id: 'descricao',
       label: 'Descrição do Imóvel',
-      icon: <span className="text-[#1a5c3a]">🏠</span>,
+      icon: <span>🏠</span>,
     },
     {
       id: 'planilha',
       label: 'Planilha de Compra',
-      icon: <span className="text-[#1a5c3a]">📋</span>,
+      icon: <span>📋</span>,
     },
     {
       id: 'analise',
-      label: 'Análise do Imóvel',
-      icon: <BarChart2 size={14} className="text-[#1a5c3a]" />,
+      label: 'Análise',
+      icon: <BarChart2 size={14} />,
     },
   ];
 
+  // ── Nav item class helper ────────────────────────────────────────────────
+  // Fix: the old code used `text-[#F0EFEB]` for active/hover text. That colour
+  // is `--bg-elevated` in the design system — a near-white background token,
+  // not a foreground colour. On the white/cream card it was invisible.
+  // Correct colours: active → accent text (#1a5c3a), hover → text-primary (#1c2b20).
+  const navItemClass = (id: NavSection) =>
+    `flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition-colors ${
+      activeSection === id
+        ? 'border-l-2 border-[#1a5c3a] bg-[#ebf3ee] text-[#1a5c3a]'
+        : 'border-l-2 border-transparent text-[#737373] hover:bg-[#f5f5f3] hover:text-[#1c2b20]'
+    }`;
+
   return (
     <div className="flex gap-6">
-      {/* ── Left panel ───────────────────────────────────────────────────────── */}
+      {/* ── Left sidebar ─────────────────────────────────────────────────────── */}
       <aside className="w-64 shrink-0">
-        {/* Back link */}
         <Link
           href="/propriedades"
           className="mb-4 flex items-center gap-1.5 text-xs font-medium text-[#1a5c3a] hover:underline"
@@ -67,7 +84,7 @@ export default function DealDetailView({ deal }: Props) {
 
         {/* Property card */}
         <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
-          {/* Placeholder image */}
+          {/* Thumbnail */}
           <div className="relative h-36 bg-gradient-to-br from-[#e5e5e3] to-[#d4d4d2]">
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-4xl opacity-40">🏠</span>
@@ -82,9 +99,10 @@ export default function DealDetailView({ deal }: Props) {
             </div>
           </div>
 
-          {/* Deal info */}
+          {/* Deal summary */}
           <div className="p-4">
-            <h2 className="text-sm font-bold text-[#F0EFEB]">{deal.title}</h2>
+            {/* Fix: was text-[#F0EFEB] — invisible on white. Now text-[#1c2b20]. */}
+            <h2 className="text-sm font-bold text-[#1c2b20]">{deal.title}</h2>
             <p className="mt-1 text-xs text-[#737373]">
               {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -94,8 +112,9 @@ export default function DealDetailView({ deal }: Props) {
             </p>
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-sm font-bold text-[#F0EFEB]">
-                {fmt(deal.inputs?.purchasePrice ?? 0)}
+              {/* Fix: was text-[#F0EFEB] — invisible on white. Now text-[#1c2b20]. */}
+              <span className="text-sm font-bold text-[#1c2b20]">
+                {fmt(deal.inputs?.purchasePrice ?? deal.price ?? 0)}
               </span>
               {m?.capRate != null && (
                 <span className="text-xs font-semibold text-[#1a5c3a]">
@@ -105,20 +124,16 @@ export default function DealDetailView({ deal }: Props) {
             </div>
           </div>
 
-          {/* Nav links */}
+          {/* Nav */}
           <div className="border-t border-[#e5e5e3]">
             <p className="px-4 pt-3 pb-1 text-[9px] font-bold tracking-widest text-[#a3a3a1] uppercase">
-              Análise
+              Seções
             </p>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
-                className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition-colors ${
-                  activeSection === item.id
-                    ? 'border-l-2 border-[#1a5c3a] bg-[#f5f5f3] text-[#F0EFEB]'
-                    : 'border-l-2 border-transparent text-[#737373] hover:bg-[#f5f5f3] hover:text-[#F0EFEB]'
-                }`}
+                className={navItemClass(item.id)}
               >
                 {item.icon}
                 {item.label}
@@ -126,7 +141,6 @@ export default function DealDetailView({ deal }: Props) {
             ))}
           </div>
 
-          {/* Delete */}
           <div className="border-t border-[#e5e5e3] p-4">
             <Link href="/propriedades" className="text-xs text-[#a3a3a1] hover:text-red-500">
               ← Voltar ao dashboard
@@ -135,17 +149,18 @@ export default function DealDetailView({ deal }: Props) {
         </div>
       </aside>
 
-      {/* ── Right content ────────────────────────────────────────────────────── */}
+      {/* ── Main content ─────────────────────────────────────────────────────── */}
       <div className="min-w-0 flex-1">
         {/* Page header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-[#F0EFEB]">
+            {/* Fix: was text-[#F0EFEB] — invisible. Now text-[#1c2b20]. */}
+            <h1 className="text-xl font-bold text-[#1c2b20]">
               {activeSection === 'descricao'
                 ? 'Descrição do Imóvel'
                 : activeSection === 'planilha'
                   ? 'Planilha de Compra'
-                  : 'Análise do Imóvel'}
+                  : 'Análise'}
             </h1>
             <nav className="mt-1 flex items-center gap-1 text-xs text-[#737373]">
               <Link href="/propriedades" className="text-[#1a5c3a] hover:underline">
@@ -154,7 +169,8 @@ export default function DealDetailView({ deal }: Props) {
               <span>/</span>
               <span>{deal.title}</span>
               <span>/</span>
-              <span className="text-[#F0EFEB]">
+              {/* Fix: was text-[#F0EFEB]. Now text-[#1c2b20]. */}
+              <span className="text-[#1c2b20]">
                 {activeSection === 'descricao'
                   ? 'Descrição'
                   : activeSection === 'planilha'
@@ -164,7 +180,7 @@ export default function DealDetailView({ deal }: Props) {
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            {deal.results_cache && deal.inputs && (
+            {hasWizardResults && (
               <DownloadPDFButton
                 result={deal.results_cache as AnalysisResult}
                 inputs={deal.inputs as DealInput}
@@ -182,7 +198,7 @@ export default function DealDetailView({ deal }: Props) {
           </div>
         </div>
 
-        {/* ── KPI strip (always visible) ─────────────────────────────────────── */}
+        {/* ── KPI strip (only when wizard results are cached) ─────────────────── */}
         {m && (
           <div className="mb-6 grid grid-cols-4 gap-3">
             {[
@@ -200,13 +216,14 @@ export default function DealDetailView({ deal }: Props) {
                 <p className="text-[10px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
                   {kpi.label}
                 </p>
+                {/* Fix: was text-[#F0EFEB] for neutral KPIs — invisible on white. Now text-[#1c2b20]. */}
                 <p
                   className={`mt-1.5 text-lg font-bold tabular-nums ${
                     kpi.colored
                       ? kpi.positive
                         ? 'text-[#1a5c3a]'
                         : 'text-red-500'
-                      : 'text-[#F0EFEB]'
+                      : 'text-[#1c2b20]'
                   }`}
                 >
                   {kpi.value}
@@ -216,33 +233,78 @@ export default function DealDetailView({ deal }: Props) {
           </div>
         )}
 
-        {/* ── Section content ────────────────────────────────────────────────── */}
+        {/* ── Section content ─────────────────────────────────────────────────── */}
         {activeSection === 'descricao' && <DescricaoSection deal={deal} label={label} />}
         {activeSection === 'planilha' && <PlanilhaSection deal={deal} />}
+
+        {/* ── Unified Analysis section ─────────────────────────────────────────
+            Architecture: one 'analise' section, two layers of depth.
+
+            Layer 1 (always): BrazilianAnalysis — market benchmarks, financing
+            scenarios, risk flags. Works for any deal, including URL-imported ones
+            that have no wizard results.  Opens immediately when no wizard data
+            exists so users aren't greeted with an empty state.
+
+            Layer 2 (conditional): cached wizard ResultsScreen — detailed cash-flow
+            charts and projections from the full deal wizard. Shown in a collapsible
+            panel when available, so it doesn't crowd the page by default.
+         ── */}
         {activeSection === 'analise' && (
-          deal.results_cache && deal.inputs ? (
-            <div className="rounded-xl border border-[#e5e5e3] bg-white p-6">
-              <ResultsScreen
-                result={deal.results_cache as AnalysisResult}
-                dealName={deal.title}
-                inputs={deal.inputs as DealInput}
-                onReset={() => {}}
-                isAuthenticated={true}
-                hideHeader
-                hideSaveButton
-              />
-            </div>
-          ) : (
-            <div className="rounded-xl border border-[#e5e5e3] bg-[#FAFAF8] p-8 text-center">
-              <p className="text-sm font-medium text-[#6B7280]">Análise não disponível</p>
-              <p className="mt-1 text-xs text-[#9CA3AF]">
-                Este imóvel foi importado via URL ou inserido manualmente. Use o formulário de
-                análise completa para calcular Cap Rate, fluxo de caixa e projeções.
-              </p>
-            </div>
-          )
+          <div className="space-y-4">
+            <BrazilianAnalysis
+              deal={deal}
+              defaultOpen={!hasWizardResults}
+            />
+
+            {hasWizardResults && (
+              <WizardResultsPanel deal={deal} />
+            )}
+          </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── Collapsible wizard results panel ──────────────────────────────────────────
+// Shown only when the deal was run through the full wizard (has results_cache +
+// inputs). Collapsed by default so it doesn't obscure the market analysis above.
+
+function WizardResultsPanel({ deal }: { deal: SavedDeal }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#f5f5f3]"
+      >
+        <div>
+          <p className="text-sm font-semibold text-[#1c2b20]">Resultado da Análise Detalhada</p>
+          <p className="mt-0.5 text-xs text-[#737373]">
+            Gráficos de fluxo de caixa, projeções e métricas calculadas pelo formulário de análise.
+          </p>
+        </div>
+        {open ? (
+          <ChevronUp size={16} className="shrink-0 text-[#737373]" />
+        ) : (
+          <ChevronDown size={16} className="shrink-0 text-[#737373]" />
+        )}
+      </button>
+
+      {open && (
+        <div className="border-t border-[#e5e5e3] p-6">
+          <ResultsScreen
+            result={deal.results_cache as AnalysisResult}
+            dealName={deal.title}
+            inputs={deal.inputs as DealInput}
+            onReset={() => {}}
+            isAuthenticated={true}
+            hideHeader
+            hideSaveButton
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -255,6 +317,9 @@ function DescricaoSection({ deal, label }: { deal: SavedDeal; label: string }) {
       <Section title="Detalhes do Imóvel">
         <Row label="Nome" value={deal.title} />
         <Row label="Tipo" value={label} />
+        {deal.city && <Row label="Cidade" value={[deal.city, deal.state].filter(Boolean).join(', ')} />}
+        {deal.area && <Row label="Área" value={`${deal.area} m²`} />}
+        {deal.bedrooms != null && <Row label="Quartos" value={String(deal.bedrooms)} />}
         <Row
           label="Salvo em"
           value={new Date(deal.updated_at).toLocaleDateString('pt-BR', {
@@ -275,7 +340,7 @@ function PlanilhaSection({ deal }: { deal: SavedDeal }) {
   const m = deal.results_cache?.metrics;
   if (!inp) return <p className="text-sm text-[#737373]">Sem dados de planilha.</p>;
 
-  const fmt = (v: number) =>
+  const fmtR = (v: number) =>
     new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
@@ -286,31 +351,29 @@ function PlanilhaSection({ deal }: { deal: SavedDeal }) {
   return (
     <div className="space-y-4">
       <Section title="Compra & Reforma">
-        <RowCalc label="Preço de Compra" value={fmt(inp.purchasePrice)} />
+        <RowCalc label="Preço de Compra" value={fmtR(inp.purchasePrice)} />
         {inp.financing?.enabled && (
           <>
-            <RowCalc label="Valor Financiado" value={`− ${fmt(inp.financing.downPayment)}`} sub />
-            <RowCalc
-              label="Entrada"
-              value={fmt(inp.financing.downPayment)}
-              highlighted
-              label2="Entrada:"
-            />
+            <RowCalc label="Valor Financiado" value={`− ${fmtR(inp.financing.downPayment)}`} sub />
+            <RowCalc label="Entrada" value={fmtR(inp.financing.downPayment)} highlighted label2="Entrada:" />
           </>
         )}
         <RowCalc
           label="Custos de Aquisição (ITBI + Cartório)"
-          value={`+ ${fmt(inp.purchasePrice * inp.acquisitionCosts.itbiPercent + inp.acquisitionCosts.cartorio)}`}
+          value={`+ ${fmtR(
+            inp.purchasePrice * inp.acquisitionCosts.itbiPercent +
+              inp.acquisitionCosts.cartorio,
+          )}`}
           plus
         />
         <RowCalc
           label="Reformas / Benfeitorias"
-          value={`+ ${fmt(inp.acquisitionCosts.reforms)}`}
+          value={`+ ${fmtR(inp.acquisitionCosts.reforms)}`}
           plus
         />
         <RowCalc
           label="Capital Total Necessário"
-          value={fmt(m?.cashOutlay ?? m?.totalInvestment ?? 0)}
+          value={fmtR(m?.cashOutlay ?? m?.totalInvestment ?? 0)}
           total
         />
       </Section>
@@ -323,7 +386,7 @@ function PlanilhaSection({ deal }: { deal: SavedDeal }) {
             <Row label="Prazo" value={`${inp.financing.termMonths} meses`} />
             <Row
               label="Parcela Inicial"
-              value={fmt(deal.results_cache?.schedule?.[0]?.installment ?? 0)}
+              value={fmtR(deal.results_cache?.schedule?.[0]?.installment ?? 0)}
             />
           </>
         ) : (
@@ -334,24 +397,24 @@ function PlanilhaSection({ deal }: { deal: SavedDeal }) {
       <Section title="Receitas & Despesas">
         {inp.propertyType === 'airbnb' ? (
           <>
-            <Row label="Diária Média" value={fmt(inp.revenue?.dailyRate ?? 0)} />
+            <Row label="Diária Média" value={fmtR(inp.revenue?.dailyRate ?? 0)} />
             <Row label="Taxa de Ocupação" value={pct(inp.revenue?.occupancyRate ?? 0.65)} />
           </>
         ) : inp.propertyType === 'flip' ? (
           <>
-            <Row label="Valor Pós-Reforma (ARV)" value={fmt(inp.revenue?.afterRepairValue ?? 0)} />
+            <Row label="Valor Pós-Reforma (ARV)" value={fmtR(inp.revenue?.afterRepairValue ?? 0)} />
             <Row label="Prazo de Reforma" value={`${inp.revenue?.holdingMonths ?? 6} meses`} />
           </>
         ) : (
           <>
-            <Row label="Aluguel Mensal Bruto" value={fmt(inp.revenue?.monthlyRent ?? 0)} />
+            <Row label="Aluguel Mensal Bruto" value={fmtR(inp.revenue?.monthlyRent ?? 0)} />
             <Row label="Taxa de Vacância" value={pct(inp.revenue?.vacancyRate ?? 0.05)} />
           </>
         )}
-        <Row label="Condomínio" value={fmt(inp.expenses?.condo ?? 0)} />
-        <Row label="IPTU" value={fmt(inp.expenses?.iptu ?? 0)} />
+        <Row label="Condomínio" value={fmtR(inp.expenses?.condo ?? 0)} />
+        <Row label="IPTU" value={fmtR(inp.expenses?.iptu ?? 0)} />
         <Row label="Administração" value={pct(inp.expenses?.managementPercent ?? 0.1)} />
-        <Row label="Manutenção" value={pct(inp.expenses?.maintenancePercent ?? 0.05)} />
+        <Row label="Manutenção" value={pct(inp.expenses?.maintenancePercent ?? 0.03)} />
       </Section>
     </div>
   );
@@ -374,7 +437,8 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between px-5 py-3">
       <span className="text-sm text-[#737373]">{label}</span>
-      <span className="text-sm font-semibold text-[#F0EFEB]">{value}</span>
+      {/* Fix: was text-[#F0EFEB] — invisible on white. Now text-[#1c2b20]. */}
+      <span className="text-sm font-semibold text-[#1c2b20]">{value}</span>
     </div>
   );
 }
@@ -405,7 +469,8 @@ function RowCalc({
       <div className="flex items-center gap-2">
         {sub && <span className="w-4 text-xs text-[#a3a3a1]">−</span>}
         {plus && <span className="w-4 text-xs text-[#a3a3a1]">+</span>}
-        {total && <span className="w-4 text-xs font-bold text-[#F0EFEB]">=</span>}
+        {/* Fix: was text-[#F0EFEB] — invisible on white. Now text-[#1c2b20]. */}
+        {total && <span className="w-4 text-xs font-bold text-[#1c2b20]">=</span>}
         {!sub && !plus && !total && <span className="w-4" />}
         <span className={`text-sm ${total ? 'font-bold text-[#1a5c3a]' : 'text-[#737373]'}`}>
           {label2 ?? label}
@@ -417,7 +482,7 @@ function RowCalc({
             ? 'font-bold text-[#1a5c3a]'
             : highlighted
               ? 'font-bold text-[#1a5c3a]'
-              : 'font-semibold text-[#F0EFEB]'
+              : 'font-semibold text-[#1c2b20]'
         }`}
       >
         {value}

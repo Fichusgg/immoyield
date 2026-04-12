@@ -43,6 +43,8 @@ const PREFILLED_FIELD_TO_ID: Record<string, string> = {
   'property.address.city': 'city',
   'property.address.region': 'region',
   'property.address.postalCode': 'postal-code',
+  'expenses.condo': 'condo-monthly',
+  'expenses.iptu': 'iptu-monthly',
 };
 
 function buildPrefillCss(prefilledFields: string[]): string {

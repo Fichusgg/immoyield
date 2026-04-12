@@ -7,8 +7,8 @@ import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { useDealStore } from '@/store/useDealStore';
 import DealWizard from '@/components/deals/DealWizard';
 import UrlImportScreen from '@/components/deals/UrlImportScreen';
-import DealCard from '@/components/dashboard/DealCard';
 import { Home, CalendarDays, Wrench, Plus, Search, ArrowLeft, BarChart2, Link2 } from 'lucide-react';
+import { getDealDisplayTitle } from '@/lib/deals/display';
 
 // ─── The 3 DealCheck-style categories ────────────────────────────────────────
 
@@ -108,9 +108,9 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
 
   const filteredDeals = deals
     .filter((d) => mapToCategory(d.property_type ?? 'residential') === activeCategory)
-    .filter((d) => !search || (d.title ?? '').toLowerCase().includes(search.toLowerCase()))
+    .filter((d) => !search || getDealDisplayTitle(d).toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      if (sortBy === 'name') return (a.title ?? '').localeCompare(b.title ?? '');
+      if (sortBy === 'name') return getDealDisplayTitle(a).localeCompare(getDealDisplayTitle(b));
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
 
@@ -396,13 +396,13 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             {!loading && !error && filteredDeals.length === 0 && !search && (
               <div className="mt-4 text-center">
                 <p className="text-sm text-[#9CA3AF]">
-                  Nenhum imóvel em "{activeDef.label}" ainda.
+                  Nenhum imóvel em &quot;{activeDef.label}&quot; ainda.
                 </p>
               </div>
             )}
             {!loading && !error && filteredDeals.length === 0 && search && (
               <div className="mt-4 text-center">
-                <p className="text-sm text-[#9CA3AF]">Nenhum resultado para "{search}".</p>
+                <p className="text-sm text-[#9CA3AF]">Nenhum resultado para &quot;{search}&quot;.</p>
               </div>
             )}
           </div>
@@ -418,6 +418,7 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
   const [deleting, setDeleting] = useState(false);
   const m = deal.results_cache?.metrics;
   const positive = (m?.monthlyCashFlow ?? 0) >= 0;
+  const displayTitle = getDealDisplayTitle(deal);
 
   const fmt = (v: number) =>
     new Intl.NumberFormat('pt-BR', {
@@ -448,7 +449,7 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
 
         {/* Info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-[#1C2B20]">{deal.title}</p>
+          <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
           <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
             {deal.property_type
               ? (PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type)

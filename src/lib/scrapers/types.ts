@@ -56,6 +56,16 @@ export interface ScrapedProperty {
   marketValue?: number; // site's estimated market value
   marketPricePerSqm?: number; // median market price per m² in the area
 
+  // Amenities & features
+  amenities?: string[]; // normalized lowercase: ["pool", "gym", "balcony", ...]
+
+  // Contact
+  contactPhone?: string; // advertiser/agent phone (may be masked by site)
+
+  // Temporal
+  datePosted?: string; // ISO 8601 — when listing was first published
+  dateUpdated?: string; // ISO 8601 — last update/refresh
+
   // Extraction metadata (helps debugging)
   _extractionMethod?: ExtractionMethod;
   _confidence?: 'high' | 'medium' | 'low';

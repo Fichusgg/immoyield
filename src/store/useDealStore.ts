@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { DealInput } from '@/lib/validations/deal';
 
 type DeepPartial<T> = {
@@ -56,49 +57,62 @@ const defaultFormData: DeepPartial<DealInput> = {
   },
 };
 
-export const useDealStore = create<DealState>((set) => ({
-  activeTab: 0,
-  step: 1, // legacy
-  formData: { ...defaultFormData },
-  prefilledFields: [],
+export const useDealStore = create<DealState>()(
+  persist(
+    (set) => ({
+      activeTab: 0,
+      step: 1, // legacy
+      formData: { ...defaultFormData },
+      prefilledFields: [],
 
-  setActiveTab: (tab) => set({ activeTab: tab, step: tab + 1 }),
-  setStep: (step) => set({ step, activeTab: step - 1 }),
+      setActiveTab: (tab) => set({ activeTab: tab, step: tab + 1 }),
+      setStep: (step) => set({ step, activeTab: step - 1 }),
 
-  updateFormData: (data) =>
-    set((state) => ({
-      formData: {
-        ...state.formData,
-        ...data,
-        property: data.property
-          ? {
-              ...state.formData.property,
-              ...data.property,
-              address: data.property.address
-                ? { ...state.formData.property?.address, ...data.property.address }
-                : state.formData.property?.address,
-            }
-          : state.formData.property,
-        acquisitionCosts: data.acquisitionCosts
-          ? { ...state.formData.acquisitionCosts, ...data.acquisitionCosts }
-          : state.formData.acquisitionCosts,
-        financing: data.financing
-          ? { ...state.formData.financing, ...data.financing }
-          : state.formData.financing,
-        revenue: data.revenue
-          ? { ...state.formData.revenue, ...data.revenue }
-          : state.formData.revenue,
-        expenses: data.expenses
-          ? { ...state.formData.expenses, ...data.expenses }
-          : state.formData.expenses,
-        projections: data.projections
-          ? { ...state.formData.projections, ...data.projections }
-          : state.formData.projections,
-      },
-    })),
+      updateFormData: (data) =>
+        set((state) => ({
+          formData: {
+            ...state.formData,
+            ...data,
+            property: data.property
+              ? {
+                  ...state.formData.property,
+                  ...data.property,
+                  address: data.property.address
+                    ? { ...state.formData.property?.address, ...data.property.address }
+                    : state.formData.property?.address,
+                }
+              : state.formData.property,
+            acquisitionCosts: data.acquisitionCosts
+              ? { ...state.formData.acquisitionCosts, ...data.acquisitionCosts }
+              : state.formData.acquisitionCosts,
+            financing: data.financing
+              ? { ...state.formData.financing, ...data.financing }
+              : state.formData.financing,
+            revenue: data.revenue
+              ? { ...state.formData.revenue, ...data.revenue }
+              : state.formData.revenue,
+            expenses: data.expenses
+              ? { ...state.formData.expenses, ...data.expenses }
+              : state.formData.expenses,
+            projections: data.projections
+              ? { ...state.formData.projections, ...data.projections }
+              : state.formData.projections,
+          },
+        })),
 
-  setPrefilledFields: (fields) => set({ prefilledFields: fields }),
+      setPrefilledFields: (fields) => set({ prefilledFields: fields }),
 
-  reset: () =>
-    set({ activeTab: 0, step: 1, formData: { ...defaultFormData }, prefilledFields: [] }),
-}));
+      reset: () =>
+        set({ activeTab: 0, step: 1, formData: { ...defaultFormData }, prefilledFields: [] }),
+    }),
+    {
+      name: 'immoyield-deal-draft',
+      // Only persist form data and active tab — prefilledFields are transient
+      partialize: (state) => ({
+        activeTab: state.activeTab,
+        step: state.step,
+        formData: state.formData,
+      }),
+    },
+  ),
+);
