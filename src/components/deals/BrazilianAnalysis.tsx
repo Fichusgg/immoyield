@@ -341,9 +341,11 @@ interface Props {
   /** When true the analysis panel opens immediately without requiring a button click.
    *  Pass true when there are no wizard results so the section is immediately useful. */
   defaultOpen?: boolean;
+  /** Override the heading text shown in both collapsed button and open header. */
+  heading?: string;
 }
 
-export default function BrazilianAnalysis({ deal, defaultOpen = false }: Props) {
+export default function BrazilianAnalysis({ deal, defaultOpen = false, heading }: Props) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [activeTab, setActiveTab] = useState<AnalysisTab>('renda');
   const [showRef, setShowRef] = useState(false);
@@ -593,7 +595,7 @@ export default function BrazilianAnalysis({ deal, defaultOpen = false }: Props) 
             <Calculator size={18} className="text-[#1a5c3a]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#1a5c3a]">Calcular Análise Completa</p>
+            <p className="text-sm font-semibold text-[#1a5c3a]">{heading ?? 'Calcular Análise Completa'}</p>
             <p className="text-xs text-[#737373]">
               Renda, financiamento, métricas e alertas com dados reais do mercado 2025
             </p>
@@ -613,7 +615,7 @@ export default function BrazilianAnalysis({ deal, defaultOpen = false }: Props) 
             <Calculator size={16} className="text-[#1a5c3a]" />
           </div>
           <div>
-            <p className="text-sm font-bold text-[#1c2b20]">Análise Financeira Completa</p>
+            <p className="text-sm font-bold text-[#1c2b20]">{heading ?? 'Análise Financeira Completa'}</p>
             <p className="text-[11px] text-[#737373]">Dados de referência: FipeZap, BCB, ABECIP — 2025/2026</p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,6 +44,10 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
   const propertyType = formData.propertyType ?? 'aluguel';
   const isAirbnb = propertyType === 'airbnb';
   const isReforma = propertyType === 'flip';
+
+  const [showCondoIptu, setShowCondoIptu] = useState(
+    (formData.expenses?.condo ?? 0) > 0 || (formData.expenses?.iptu ?? 0) > 0
+  );
 
   const { register, handleSubmit, control } = useForm<StepData>({
     resolver: zodResolver(stepSchema),
@@ -103,8 +108,8 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
         holdingMonths: data.revenue.holdingMonths,
       },
       expenses: {
-        condo: data.expenses.condo,
-        iptu: data.expenses.iptu,
+        condo: showCondoIptu ? data.expenses.condo : 0,
+        iptu: showCondoIptu ? data.expenses.iptu : 0,
         managementPercent: data.expenses.managementPercent / 100,
         maintenancePercent: data.expenses.maintenancePercent / 100,
         sellingCostPercent: data.expenses.sellingCostPercent / 100,
@@ -263,6 +268,64 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             </div>
           </div>
 
+          {/* Condo / IPTU toggle */}
+          <div className="mt-4 border border-[#E2E0DA] bg-[#F8F7F4] p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-[#1C2B20]">Incluir condomínio e IPTU</p>
+                <p className="font-mono text-[10px] text-[#9CA3AF]">
+                  Adiciona custos fixos do imóvel ao cálculo das despesas
+                </p>
+              </div>
+              <div
+                onClick={() => setShowCondoIptu((v) => !v)}
+                className={`relative h-5 w-9 cursor-pointer transition-colors ${
+                  showCondoIptu ? 'bg-[#3D6B4F]' : 'bg-[#E2E0DA]'
+                }`}
+              >
+                <div
+                  className={`absolute top-0.5 h-4 w-4 bg-[#1C2B20] transition-transform ${
+                    showCondoIptu ? 'translate-x-4' : 'translate-x-0.5'
+                  }`}
+                />
+              </div>
+            </div>
+            {showCondoIptu && (
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Condomínio (R$/mês)</label>
+                  <Controller
+                    control={control}
+                    name="expenses.condo"
+                    render={({ field }) => (
+                      <CurrencyInput
+                        className={fieldClass}
+                        placeholder="0"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>IPTU (R$/mês)</label>
+                  <Controller
+                    control={control}
+                    name="expenses.iptu"
+                    render={({ field }) => (
+                      <CurrencyInput
+                        className={fieldClass}
+                        placeholder="0"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* IPCA indexation */}
           <div className="mt-4 border border-[#E2E0DA] bg-[#F8F7F4] p-4">
             <div className="flex items-center justify-between">
@@ -314,38 +377,6 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           <div>
             <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Despesas Operacionais</p>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Condomínio (R$/mês)</label>
-                <Controller
-                  control={control}
-                  name="expenses.condo"
-                  render={({ field }) => (
-                    <CurrencyInput
-                      id="condo-monthly"
-                      className={fieldClass}
-                      placeholder="0"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>IPTU (R$/mês)</label>
-                <Controller
-                  control={control}
-                  name="expenses.iptu"
-                  render={({ field }) => (
-                    <CurrencyInput
-                      id="iptu-monthly"
-                      className={fieldClass}
-                      placeholder="0"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
               <div>
                 <label className={labelClass}>Administração (%)</label>
                 <div className="relative">

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, BarChart2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Pencil, BarChart2, BarChart } from 'lucide-react';
 import { SavedDeal } from '@/lib/supabase/deals';
 import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { ShareButton } from '@/components/share/ShareButton';
@@ -198,113 +198,130 @@ export default function DealDetailView({ deal }: Props) {
           </div>
         </div>
 
-        {/* ── KPI strip (only when wizard results are cached) ─────────────────── */}
-        {m && (
-          <div className="mb-6 grid grid-cols-4 gap-3">
-            {[
-              { label: 'Capital Necessário', value: fmt(m.cashOutlay ?? m.totalInvestment) },
-              {
-                label: 'Fluxo de Caixa',
-                value: `${fmt(m.monthlyCashFlow)}/mês`,
-                colored: true,
-                positive: cashFlowPositive,
-              },
-              { label: 'Cap Rate', value: fmtPct(m.capRate) },
-              { label: 'COC', value: fmtPct(m.cashOnCash) },
-            ].map((kpi) => (
-              <div key={kpi.label} className="rounded-xl border border-[#e5e5e3] bg-white p-4">
-                <p className="text-[10px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
-                  {kpi.label}
-                </p>
-                {/* Fix: was text-[#F0EFEB] for neutral KPIs — invisible on white. Now text-[#1c2b20]. */}
-                <p
-                  className={`mt-1.5 text-lg font-bold tabular-nums ${
-                    kpi.colored
-                      ? kpi.positive
-                        ? 'text-[#1a5c3a]'
-                        : 'text-red-500'
-                      : 'text-[#1c2b20]'
-                  }`}
-                >
-                  {kpi.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* ── Section content ─────────────────────────────────────────────────── */}
         {activeSection === 'descricao' && <DescricaoSection deal={deal} label={label} />}
         {activeSection === 'planilha' && <PlanilhaSection deal={deal} />}
-
-        {/* ── Unified Analysis section ─────────────────────────────────────────
-            Architecture: one 'analise' section, two layers of depth.
-
-            Layer 1 (always): BrazilianAnalysis — market benchmarks, financing
-            scenarios, risk flags. Works for any deal, including URL-imported ones
-            that have no wizard results.  Opens immediately when no wizard data
-            exists so users aren't greeted with an empty state.
-
-            Layer 2 (conditional): cached wizard ResultsScreen — detailed cash-flow
-            charts and projections from the full deal wizard. Shown in a collapsible
-            panel when available, so it doesn't crowd the page by default.
-         ── */}
         {activeSection === 'analise' && (
-          <div className="space-y-4">
-            <BrazilianAnalysis
-              deal={deal}
-              defaultOpen={!hasWizardResults}
-            />
-
-            {hasWizardResults && (
-              <WizardResultsPanel deal={deal} />
-            )}
-          </div>
+          <AnaliseSection deal={deal} hasWizardResults={hasWizardResults} m={m} cashFlowPositive={cashFlowPositive} />
         )}
       </div>
     </div>
   );
 }
 
-// ── Collapsible wizard results panel ──────────────────────────────────────────
-// Shown only when the deal was run through the full wizard (has results_cache +
-// inputs). Collapsed by default so it doesn't obscure the market analysis above.
+// ── Analysis section ──────────────────────────────────────────────────────────
 
-function WizardResultsPanel({ deal }: { deal: SavedDeal }) {
-  const [open, setOpen] = useState(false);
+type AnaliseMetrics = {
+  capRate: number;
+  cashOnCash: number;
+  monthlyCashFlow: number;
+  cashOutlay: number;
+  totalInvestment: number;
+} | null | undefined;
 
+function AnaliseSection({
+  deal,
+  hasWizardResults,
+  m,
+  cashFlowPositive,
+}: {
+  deal: SavedDeal;
+  hasWizardResults: boolean;
+  m: AnaliseMetrics;
+  cashFlowPositive: boolean;
+}) {
+  if (hasWizardResults && m) {
+    return (
+      <div className="space-y-4">
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: 'Capital Necessário', value: fmt(m.cashOutlay ?? m.totalInvestment) },
+            {
+              label: 'Fluxo de Caixa',
+              value: `${fmt(m.monthlyCashFlow)}/mês`,
+              colored: true,
+              positive: cashFlowPositive,
+            },
+            { label: 'Cap Rate', value: fmtPct(m.capRate) },
+            { label: 'COC', value: fmtPct(m.cashOnCash) },
+          ].map((kpi) => (
+            <div key={kpi.label} className="rounded-xl border border-[#e5e5e3] bg-white p-4">
+              <p className="text-[10px] font-semibold tracking-widest text-[#a3a3a1] uppercase">
+                {kpi.label}
+              </p>
+              <p
+                className={`mt-1.5 text-lg font-bold tabular-nums ${
+                  kpi.colored
+                    ? kpi.positive
+                      ? 'text-[#1a5c3a]'
+                      : 'text-red-500'
+                    : 'text-[#1c2b20]'
+                }`}
+              >
+                {kpi.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Full wizard analysis */}
+        <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
+          <div className="flex items-center gap-2 border-b border-[#e5e5e3] bg-[#f5f5f3] px-5 py-3">
+            <BarChart size={13} className="text-[#1a5c3a]" />
+            <p className="text-[10px] font-bold tracking-widest text-[#1a5c3a] uppercase">
+              Análise do Investimento
+            </p>
+          </div>
+          <div className="p-6">
+            <ResultsScreen
+              result={deal.results_cache as AnalysisResult}
+              dealName={deal.title}
+              inputs={deal.inputs as DealInput}
+              onReset={() => {}}
+              isAuthenticated={true}
+              hideHeader
+              hideSaveButton
+            />
+          </div>
+        </div>
+
+        {/* Market benchmarks — supplementary context */}
+        <BrazilianAnalysis
+          deal={deal}
+          defaultOpen={false}
+          heading="Benchmarks de Mercado"
+        />
+      </div>
+    );
+  }
+
+  // No wizard results — show market benchmarks + CTA
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e5e5e3] bg-white">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#f5f5f3]"
-      >
-        <div>
-          <p className="text-sm font-semibold text-[#1c2b20]">Resultado da Análise Detalhada</p>
-          <p className="mt-0.5 text-xs text-[#737373]">
-            Gráficos de fluxo de caixa, projeções e métricas calculadas pelo formulário de análise.
-          </p>
+    <div className="space-y-4">
+      {/* CTA to run full wizard analysis */}
+      <div className="rounded-xl border border-dashed border-[#1a5c3a]/40 bg-[#f5fff8] p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1a5c3a]/10">
+            <BarChart size={18} className="text-[#1a5c3a]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-[#1a5c3a]">Análise detalhada não calculada</p>
+            <p className="mt-0.5 text-xs text-[#737373]">
+              Use o formulário de análise completa para calcular fluxo de caixa, amortização, projeções de 10 anos e pontuação ImmoScore.
+            </p>
+            <Link
+              href="/deals/new"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#1a5c3a] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#163f2a]"
+            >
+              Fazer análise completa →
+            </Link>
+          </div>
         </div>
-        {open ? (
-          <ChevronUp size={16} className="shrink-0 text-[#737373]" />
-        ) : (
-          <ChevronDown size={16} className="shrink-0 text-[#737373]" />
-        )}
-      </button>
+      </div>
 
-      {open && (
-        <div className="border-t border-[#e5e5e3] p-6">
-          <ResultsScreen
-            result={deal.results_cache as AnalysisResult}
-            dealName={deal.title}
-            inputs={deal.inputs as DealInput}
-            onReset={() => {}}
-            isAuthenticated={true}
-            hideHeader
-            hideSaveButton
-          />
-        </div>
-      )}
+      {/* Market benchmarks — primary content when no wizard data */}
+      <BrazilianAnalysis deal={deal} defaultOpen />
     </div>
   );
 }
