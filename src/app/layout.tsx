@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   description: 'Análise de investimento imobiliário para o mercado brasileiro.',
 };
 
+import { Toaster } from '@/components/ui/sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,7 +38,10 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">{children}</body>
+      <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">
+        {children}
+        <Toaster position="bottom-right" />
+      </body>
     </html>
   );
 }

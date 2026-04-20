@@ -305,10 +305,15 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
           /* ── Property list view ─────────────────────────────────────────── */
           <div className="flex-1 p-8">
             {/* Page header */}
-            <div className="mb-1">
+            <div className="mb-4">
               <h1 className="text-xl font-bold tracking-tight text-[#1C2B20]">{activeDef.label}</h1>
               <p className="mt-0.5 text-sm text-[#9CA3AF]">{activeDef.description}</p>
             </div>
+
+            {/* Aggregate KPI header */}
+            {!loading && deals.length > 0 && (
+              <PortfolioHeader deals={deals} />
+            )}
 
             {/* Toolbar */}
             <div className="mb-5 flex items-center gap-3 border-b border-[#E2E0DA] py-4">
@@ -394,15 +399,28 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
 
             {/* Empty state */}
             {!loading && !error && filteredDeals.length === 0 && !search && (
-              <div className="mt-4 text-center">
-                <p className="text-sm text-[#9CA3AF]">
-                  Nenhum imóvel em &quot;{activeDef.label}&quot; ainda.
+              <div className="flex flex-col items-center py-16 text-center">
+                <span className="font-serif text-8xl font-bold italic text-[#E2E0DA]">0</span>
+                <p className="mt-4 text-sm font-semibold text-[#1C2B20]">
+                  Nenhum deal em &quot;{activeDef.label}&quot; ainda.
+                </p>
+                <p className="mt-1 text-xs text-[#9CA3AF]">
+                  Clique em &quot;Adicionar imóvel&quot; para começar sua primeira análise.
                 </p>
               </div>
             )}
             {!loading && !error && filteredDeals.length === 0 && search && (
-              <div className="mt-4 text-center">
-                <p className="text-sm text-[#9CA3AF]">Nenhum resultado para &quot;{search}&quot;.</p>
+              <div className="flex flex-col items-center py-16 text-center">
+                <span className="font-serif text-8xl font-bold italic text-[#E2E0DA]">?</span>
+                <p className="mt-4 text-sm font-semibold text-[#1C2B20]">
+                  Nenhum resultado para &quot;{search}&quot;.
+                </p>
+                <button
+                  onClick={() => setSearch('')}
+                  className="mt-3 font-mono text-xs text-[#9CA3AF] underline transition-colors hover:text-[#6B7280]"
+                >
+                  Limpar busca
+                </button>
               </div>
             )}
           </div>
@@ -412,7 +430,59 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
   );
 }
 
-// ─── Property Row — DealCheck style (horizontal card with KPIs on right) ─────
+// ─── Portfolio header — aggregate KPIs across all deals ──────────────────────
+
+function PortfolioHeader({ deals }: { deals: SavedDeal[] }) {
+  const fmt = (v: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+
+  const totalValue = deals.reduce((sum, d) => sum + (d.inputs?.purchasePrice ?? d.price ?? 0), 0);
+  const dealsWithMetrics = deals.filter((d) => d.results_cache?.metrics);
+  const avgCashFlow =
+    dealsWithMetrics.length > 0
+      ? dealsWithMetrics.reduce((sum, d) => sum + (d.results_cache?.metrics?.monthlyCashFlow ?? 0), 0) /
+        dealsWithMetrics.length
+      : null;
+  const avgCapRate =
+    dealsWithMetrics.length > 0
+      ? dealsWithMetrics.reduce((sum, d) => sum + (d.results_cache?.metrics?.capRate ?? 0), 0) /
+        dealsWithMetrics.length
+      : null;
+
+  return (
+    <div className="mb-5 grid grid-cols-3 gap-px border border-[#E2E0DA] bg-[#E2E0DA]">
+      <div className="bg-[#FAFAF8] px-4 py-3">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          Deals em análise
+        </p>
+        <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">{deals.length}</p>
+      </div>
+      <div className="bg-[#FAFAF8] px-4 py-3">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          Valor total
+        </p>
+        <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">{fmt(totalValue)}</p>
+      </div>
+      <div className="bg-[#FAFAF8] px-4 py-3">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          Fluxo médio / Cap Rate
+        </p>
+        {avgCashFlow != null ? (
+          <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">
+            {fmt(avgCashFlow)}{' '}
+            <span className="text-sm font-medium text-[#9CA3AF]">
+              · {avgCapRate?.toFixed(1)}% cap
+            </span>
+          </p>
+        ) : (
+          <p className="mt-1 font-mono text-sm text-[#9CA3AF]">—</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Property Row — denser DealCheck style ────────────────────────────────────
 
 function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void }) {
   const [deleting, setDeleting] = useState(false);
@@ -438,18 +508,24 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
     }
   };
 
+  const updatedAt = new Date(deal.updated_at);
+  const dateLabel = updatedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
+
   return (
     <div className="group flex items-center border border-[#E2E0DA] bg-[#FAFAF8] transition-colors hover:border-[#D0CEC8]">
       {/* Left: property info */}
       <a href={`/imoveis/${deal.id}`} className="flex min-w-0 flex-1 items-center gap-4 p-4">
         {/* Thumbnail placeholder */}
-        <div className="flex h-16 w-20 shrink-0 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB]">
-          <Home size={20} className="text-[#D0CEC8]" />
+        <div className="flex h-14 w-16 shrink-0 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB]">
+          <Home size={18} className="text-[#D0CEC8]" />
         </div>
 
         {/* Info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
+            <span className="shrink-0 font-mono text-[10px] text-[#9CA3AF]">{dateLabel}</span>
+          </div>
           <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
             {deal.property_type
               ? (PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type)
@@ -457,11 +533,11 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
           </p>
           {/* KPI strip — analysis deal */}
           {m && (
-            <div className="mt-1.5 flex items-center gap-3 font-mono text-xs">
-              <span className={positive ? 'text-[#4A7C59]' : 'text-[#DC2626]'}>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
+              <span className={`font-semibold ${positive ? 'text-[#4A7C59]' : 'text-[#DC2626]'}`}>
                 {fmt(m.monthlyCashFlow ?? 0)}/mês
               </span>
-              <span className="text-[#9CA3AF]">{m.capRate?.toFixed(1)}% Cap Rate</span>
+              <span className="text-[#9CA3AF]">{m.capRate?.toFixed(1)}% Cap</span>
               <span className="text-[#9CA3AF]">{m.cashOnCash?.toFixed(1)}% COC</span>
             </div>
           )}
@@ -477,7 +553,7 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
       {/* Right: price + actions */}
       <div className="flex shrink-0 items-center gap-4 border-l border-[#E2E0DA] px-5 py-4">
         <div className="text-right">
-          <p className="font-mono text-sm font-bold text-[#4A7C59]">
+          <p className="font-mono text-sm font-bold text-[#1C2B20]">
             {fmt(deal.inputs?.purchasePrice ?? deal.price ?? 0)}
           </p>
           <p className="font-mono text-[10px] text-[#9CA3AF]">

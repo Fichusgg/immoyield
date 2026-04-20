@@ -26,9 +26,12 @@ export default async function DealDetailPage({ params }: Props) {
   if (error || !deal) notFound();
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8F7F4]">
-      <TopNav userEmail={user.email} />
-      <main className="flex-1 overflow-y-auto p-8">
+    <div className="flex h-dvh flex-col bg-[#F8F7F4]">
+      <TopNav
+        userEmail={user.email}
+        breadcrumb={[{ label: 'Propriedades', href: '/propriedades' }, { label: deal.title ?? 'Imóvel' }]}
+      />
+      <main className="min-h-0 flex-1 overflow-y-auto p-8">
         <DealDetailView deal={deal} />
       </main>
     </div>

@@ -92,10 +92,41 @@
   --chart-3: #6b7280;
   --chart-4: #9ca3af;
   --chart-5: #d0cec8;
+
+  /* Semantic — positive */
+  --positive-strong: #2f855a;
+  --positive: #4a7c59;
+  --positive-soft: #ebf3ee;
+
+  /* Semantic — warning */
+  --warning-strong: #b45309;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+
+  /* Semantic — negative */
+  --negative-strong: #b91c1c;
+  --negative: #dc2626;
+  --negative-soft: #fee2e2;
+
+  /* Semantic — info */
+  --info-strong: #1e40af;
+  --info: #3b82f6;
+  --info-soft: #dbeafe;
+
+  /* Layout */
+  --content-max-marketing: 64rem;
+  --content-max-app: 72rem;
+
+  /* Shadows */
+  --shadow-popover: 0 10px 30px rgba(28, 43, 32, 0.08);
+  --shadow-modal: 0 20px 50px rgba(28, 43, 32, 0.12);
 }
 
 /* ── Base styles ─────────────────────────────────────────────────────────── */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-[#E2E0DA] outline-[#4A7C59]/20;
   }
