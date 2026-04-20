@@ -1,5 +1,7 @@
 export type AmortizationSystem = 'SAC' | 'PRICE';
 
+export type FinancingModality = 'SFH' | 'SFI' | 'consorcio' | 'outro';
+
 export interface DealInputs {
   purchasePrice: number;
   propertyType?: string;
