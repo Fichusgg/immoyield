@@ -400,7 +400,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             {/* Empty state */}
             {!loading && !error && filteredDeals.length === 0 && !search && (
               <div className="flex flex-col items-center py-16 text-center">
-                <span className="font-serif text-8xl font-bold italic text-[#E2E0DA]">0</span>
+                <span className="text-8xl font-bold tabular-nums text-[#E2E0DA]">0</span>
                 <p className="mt-4 text-sm font-semibold text-[#1C2B20]">
                   Nenhum deal em &quot;{activeDef.label}&quot; ainda.
                 </p>
@@ -411,7 +411,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             )}
             {!loading && !error && filteredDeals.length === 0 && search && (
               <div className="flex flex-col items-center py-16 text-center">
-                <span className="font-serif text-8xl font-bold italic text-[#E2E0DA]">?</span>
+                <span className="text-8xl font-bold text-[#E2E0DA]">?</span>
                 <p className="mt-4 text-sm font-semibold text-[#1C2B20]">
                   Nenhum resultado para &quot;{search}&quot;.
                 </p>

@@ -170,7 +170,7 @@ export default function AuthPage() {
       <div className="hidden border-l border-[#E2E0DA] bg-[#FAFAF8] md:flex md:w-1/2 md:flex-col md:justify-center md:px-12 md:py-16">
         {/* Quote */}
         <blockquote className="mb-10 border-l-2 border-[#4A7C59] pl-5">
-          <p className="font-serif text-base italic leading-relaxed text-[#1C2B20]">
+          <p className="text-base leading-relaxed text-[#1C2B20]">
             &ldquo;Economizei a planilha que eu fazia a cada imóvel. Agora eu rejeito em dois minutos
             o que antes tomava uma noite inteira.&rdquo;
           </p>

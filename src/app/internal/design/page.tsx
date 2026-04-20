@@ -132,10 +132,10 @@ export default function InternalDesignPage() {
 
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6">
               <p className="mb-1 font-mono text-[10px] text-[#9CA3AF]">
-                DM Serif Display · var(--font-dm-serif) · Acentos editoriais · Máximo 1× por tela
+                Display serif · Removido · Fontes de script/display não são mais usadas
               </p>
-              <p className="font-serif text-4xl italic text-[#4A7C59]">em minutos, não planilhas.</p>
-              <p className="mt-2 text-sm text-[#9CA3AF]">Usar sempre itálico. Nunca bold. Nunca em corpo de texto.</p>
+              <p className="text-4xl font-bold text-[#9CA3AF] line-through">em minutos, não planilhas.</p>
+              <p className="mt-2 text-sm text-[#9CA3AF]">Acentos editoriais agora usam sans bold.</p>
             </div>
 
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6">

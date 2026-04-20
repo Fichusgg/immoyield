@@ -10,7 +10,7 @@ interface EmptyStateProps {
 export function EmptyState({ title, description, action, className }: EmptyStateProps) {
   return (
     <div className={cn('flex flex-col items-center py-16 text-center', className)}>
-      <span className="font-serif text-8xl font-bold italic text-[#E2E0DA]">0</span>
+      <span className="text-8xl font-bold tabular-nums text-[#E2E0DA]">0</span>
       <p className="mt-4 text-sm font-semibold text-[#1C2B20]">{title}</p>
       {description && <p className="mt-1 text-xs text-[#9CA3AF]">{description}</p>}
       {action && <div className="mt-6">{action}</div>}

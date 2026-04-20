@@ -7,21 +7,27 @@ interface Props {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function FadeInSection({ children, delay = 0, className }: Props) {
+export default function FadeInSection({ children, delay = 0, className, style }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px 0px' });
   const reduced = useReducedMotion();
 
   if (reduced) {
-    return <div className={className}>{children}</div>;
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
   }
 
   return (
     <motion.div
       ref={ref}
       className={className}
+      style={style}
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.55, delay, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
