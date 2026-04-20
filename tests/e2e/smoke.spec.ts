@@ -56,7 +56,7 @@ test.describe('Auth page', () => {
     await expect(page.getByText('Entrar na plataforma')).toBeVisible();
     // Right trust panel is only visible on md+ screens
     if (viewport && viewport.width >= 768) {
-      await expect(page.getByText(/ImóYield não compra/)).toBeVisible();
+      await expect(page.getByText(/ImmoYield não compra/)).toBeVisible();
     }
   });
 

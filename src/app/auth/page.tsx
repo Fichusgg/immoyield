@@ -58,7 +58,7 @@ export default function AuthPage() {
             <div className="flex h-7 w-7 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
               I
             </div>
-            <span className="text-base font-bold tracking-tight text-[#1C2B20]">ImóYield</span>
+            <span className="text-base font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
           </Link>
           <span className="border border-[#A8C5B2] bg-[#EBF3EE] px-2 py-0.5 font-mono text-[10px] font-semibold text-[#4A7C59]">
             beta
@@ -196,7 +196,7 @@ export default function AuthPage() {
 
         {/* Disclaimer */}
         <p className="font-mono text-[10px] leading-relaxed text-[#9CA3AF]">
-          Cálculos para fins informativos — ImóYield não compra, vende nem recomenda imóveis e não
+          Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não
           presta consultoria de investimento.
         </p>
       </div>

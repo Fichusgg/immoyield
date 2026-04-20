@@ -35,7 +35,7 @@ export default function InternalDesignPage() {
             <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
               I
             </div>
-            <span className="text-sm font-bold text-[#1C2B20]">ImóYield</span>
+            <span className="text-sm font-bold text-[#1C2B20]">ImmoYield</span>
             <span className="font-mono text-[11px] text-[#D0CEC8]">/</span>
             <span className="font-mono text-[11px] text-[#9CA3AF]">Sistema de Design · Interno</span>
           </div>
@@ -53,7 +53,7 @@ export default function InternalDesignPage() {
           </p>
           <h1 className="text-3xl font-bold text-[#1C2B20]">Sistema de Design</h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#6B7280]">
-            Tokens, tipografia, componentes e regras visuais do ImóYield. Referência central para
+            Tokens, tipografia, componentes e regras visuais do ImmoYield. Referência central para
             qualquer nova página ou componente — use este guia antes de abrir um novo arquivo.
           </p>
           <p className="mt-3 font-mono text-[10px] text-[#9CA3AF]">
@@ -423,7 +423,7 @@ export default function InternalDesignPage() {
         {/* Footer */}
         <div className="pt-6">
           <p className="font-mono text-[10px] text-[#9CA3AF]">
-            ImóYield · Sistema de Design v2.0 · Uso interno · Não indexado
+            ImmoYield · Sistema de Design v2.0 · Uso interno · Não indexado
           </p>
         </div>
       </main>

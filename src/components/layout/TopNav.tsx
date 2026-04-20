@@ -31,7 +31,7 @@ export default function TopNav({ userEmail, breadcrumb }: TopNavProps) {
         <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
           I
         </div>
-        <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImóYield</span>
+        <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
       </Link>
 
       {/* Main nav link */}

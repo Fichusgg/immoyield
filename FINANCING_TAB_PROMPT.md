@@ -1,4 +1,4 @@
-# ImóYield — Financing Simulator Tab
+# ImmoYield — Financing Simulator Tab
 
 ## What to build
 

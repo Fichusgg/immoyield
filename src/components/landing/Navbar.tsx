@@ -35,7 +35,7 @@ export default function Navbar() {
             I
           </span>
           <span className="text-base font-bold tracking-tight text-[#1C2B20]">
-            ImóYield
+            ImmoYield
           </span>
         </Link>
 

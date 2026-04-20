@@ -1,13 +1,13 @@
-# ImóYield — Claude Code Implementation Prompt
+# ImmoYield — Claude Code Implementation Prompt
 ## Full DealCheck Parity + Brazilian Market Adaptations
 
 ---
 
 ## Context & Goal
 
-You are working on **ImóYield**, a Brazilian real estate investment analysis app built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, **shadcn/ui**, and **Supabase**.
+You are working on **ImmoYield**, a Brazilian real estate investment analysis app built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, **shadcn/ui**, and **Supabase**.
 
-The goal of this session is to make ImóYield functionally identical to [DealCheck.io](https://dealcheck.io) in terms of its analysis flow, UI structure, and metrics — but fully adapted to the Brazilian real estate market (BRL currency, Brazilian taxes, Brazilian financing modalities, Brazilian indices).
+The goal of this session is to make ImmoYield functionally identical to [DealCheck.io](https://dealcheck.io) in terms of its analysis flow, UI structure, and metrics — but fully adapted to the Brazilian real estate market (BRL currency, Brazilian taxes, Brazilian financing modalities, Brazilian indices).
 
 You have already done a full reverse-engineering of DealCheck. The tasks below are derived from that blueprint and represent **concrete gaps** between what currently exists in this codebase and what must be built. Work through them in order.
 

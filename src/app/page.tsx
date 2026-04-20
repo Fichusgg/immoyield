@@ -72,7 +72,7 @@ const PLANS = [
     price: '0',
     suffix: 'para sempre',
     tagline: 'Para suas primeiras análises.',
-    features: ['5 análises por mês', 'PDF com marca ImóYield', 'Compartilhamento por link', 'Suporte por email'],
+    features: ['5 análises por mês', 'PDF com marca ImmoYield', 'Compartilhamento por link', 'Suporte por email'],
     cta: 'Começar grátis',
     href: '/auth',
     highlight: false,
@@ -82,7 +82,7 @@ const PLANS = [
     price: '39',
     suffix: 'por mês',
     tagline: 'Para investidores ativos.',
-    features: ['Análises ilimitadas', 'Comparativo lado a lado', 'PDF com marca ImóYield', 'Suporte prioritário'],
+    features: ['Análises ilimitadas', 'Comparativo lado a lado', 'PDF com marca ImmoYield', 'Suporte prioritário'],
     cta: 'Assinar Pro',
     href: '/auth',
     highlight: true,
@@ -271,7 +271,7 @@ export default function Home() {
               >
                 I
               </span>
-              <span className="font-bold tracking-tight text-[#1C2B20]">ImóYield</span>
+              <span className="font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
             </div>
             <p className="mt-3 text-xs text-[#9CA3AF]">
               Calculadora de investimento imobiliário para o Brasil.
@@ -323,8 +323,8 @@ export default function Home() {
         <div className="border-t border-[#E2E0DA]">
           <div className="mx-auto max-w-[1200px] px-6 py-4">
             <p className="text-[10px] leading-relaxed text-[#9CA3AF]">
-              © 2026 ImóYield. CDI: fonte BACEN SGS, atualizado semanalmente. Cálculos para fins
-              informativos — ImóYield não compra, vende nem recomenda imóveis e não presta
+              © 2026 ImmoYield. CDI: fonte BACEN SGS, atualizado semanalmente. Cálculos para fins
+              informativos — ImmoYield não compra, vende nem recomenda imóveis e não presta
               consultoria de investimento.
             </p>
           </div>

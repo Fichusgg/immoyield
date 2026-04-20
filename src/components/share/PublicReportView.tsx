@@ -185,7 +185,7 @@ export default function PublicReportView({
             <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
               I
             </div>
-            <span className="font-bold tracking-tight text-[#1C2B20]">ImóYield</span>
+            <span className="font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
           </Link>
 
           <div className="hidden items-center gap-4 font-mono text-xs text-[#9CA3AF] sm:flex">
@@ -213,7 +213,7 @@ export default function PublicReportView({
         {/* Title block */}
         <div className="border-b border-[#E2E0DA] pb-6">
           <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
-            Análise de Investimento · Compartilhado via ImóYield
+            Análise de Investimento · Compartilhado via ImmoYield
           </p>
           <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20] md:text-3xl">{dealName}</h1>
           <div className="mt-3 flex items-center gap-3">
@@ -433,7 +433,7 @@ export default function PublicReportView({
 
         {/* Disclaimer */}
         <p className="font-mono text-center text-[10px] leading-relaxed text-[#9CA3AF]">
-          Cálculos para fins informativos — ImóYield não compra, vende nem recomenda imóveis e não presta
+          Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não presta
           consultoria de investimento.
         </p>
       </main>
