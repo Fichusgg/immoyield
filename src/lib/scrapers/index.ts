@@ -1,27 +1,30 @@
 /**
- * Main scraper dispatcher — detects site from URL and calls the right scraper.
+ * Main scraper dispatcher.
+ *
+ * Routes to a site-specific scraper when the URL matches a known pattern,
+ * otherwise falls back to the generic Brazilian real-estate extractor.
  */
 
 import type { ScrapedProperty, SupportedSite, ParseListingResponse } from './types';
 import { scrapeZap } from './zap';
 import { scrapeVivaReal } from './vivareal';
 import { scrapeQuintoAndar } from './quintoandar';
+import { scrapeGeneric } from './generic';
 
-const SITE_PATTERNS: Record<SupportedSite, RegExp> = {
+const SITE_PATTERNS: Record<Exclude<SupportedSite, 'generic'>, RegExp> = {
   zapimoveis: /zapimoveis\.com\.br/i,
   vivareal: /vivareal\.com\.br/i,
   quintoandar: /quintoandar\.com/i,
 };
 
-export function detectSite(url: string): SupportedSite | null {
+export function detectSite(url: string): SupportedSite {
   for (const [site, pattern] of Object.entries(SITE_PATTERNS)) {
     if (pattern.test(url)) return site as SupportedSite;
   }
-  return null;
+  return 'generic';
 }
 
 export async function parseListing(url: string): Promise<ParseListingResponse> {
-  // Validate URL
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(url);
@@ -29,14 +32,12 @@ export async function parseListing(url: string): Promise<ParseListingResponse> {
     return { ok: false, error: 'INVALID_URL', message: 'The provided URL is not valid.' };
   }
 
-  const site = detectSite(parsedUrl.href);
-  if (!site) {
-    return {
-      ok: false,
-      error: 'UNSUPPORTED_SITE',
-      message: `Unsupported site. Supported: zapimoveis.com.br, vivareal.com.br, quintoandar.com`,
-    };
+  // Basic scheme / host sanity — rejects file://, data:, javascript: etc.
+  if (!/^https?:$/.test(parsedUrl.protocol) || !parsedUrl.hostname) {
+    return { ok: false, error: 'INVALID_URL', message: 'Only http(s) URLs are supported.' };
   }
+
+  const site = detectSite(parsedUrl.href);
 
   try {
     let data: ScrapedProperty;
@@ -50,6 +51,9 @@ export async function parseListing(url: string): Promise<ParseListingResponse> {
         break;
       case 'quintoandar':
         data = await scrapeQuintoAndar(url);
+        break;
+      case 'generic':
+        data = await scrapeGeneric(url);
         break;
     }
 

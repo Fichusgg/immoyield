@@ -273,7 +273,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
       {/* ── URL bar ───────────────────────────────────────────────────────── */}
       <div>
         <p className="text-xs text-[#6B7280] mb-2">
-          Cole o link de um anúncio do ZAP Imóveis, VivaReal ou QuintoAndar.
+          Cole o link de qualquer anúncio imobiliário brasileiro (ZAP, VivaReal, QuintoAndar, ImovelWeb, OLX, Loft…).
         </p>
         <div className="flex gap-2">
           <input

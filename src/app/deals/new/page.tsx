@@ -479,8 +479,8 @@ export default function NewDealPage() {
 
               <h2 className="mb-1 text-sm font-semibold text-[#1C2B20]">Importar de URL</h2>
               <p className="text-xs leading-relaxed text-[#6B7280]">
-                Cole o link de um anúncio do ZAP Imóveis, VivaReal ou QuintoAndar para preencher os
-                dados automaticamente.
+                Cole o link de qualquer portal imobiliário brasileiro (ZAP, VivaReal, QuintoAndar, ImovelWeb, OLX, Loft…)
+                para preencher os dados automaticamente.
               </p>
 
               <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#4A7C59]">
