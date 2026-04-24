@@ -52,6 +52,9 @@ export const dealSchema = z.object({
     itbiPercent: z.number().min(0).max(0.1),
     cartorio: z.number().min(0),
     reforms: z.number().min(0),
+    escritura: z.number().min(0).optional(),
+    registro: z.number().min(0).optional(),
+    avaliacao: z.number().min(0).optional(),
   }),
 
   financing: z.object({
@@ -60,15 +63,21 @@ export const dealSchema = z.object({
     interestRateYear: z.number().min(0),
     termMonths: z.number().int().positive(),
     system: z.enum(['SAC', 'PRICE']),
+    modality: z.enum(['SFH', 'SFI', 'MCMV', 'consorcio', 'outro']).optional(),
+    fgtsAmount: z.number().min(0).optional(),
+    insurancePercentYear: z.number().min(0).max(0.05).optional(),
   }),
 
   revenue: z.object({
     // Aluguel / Comercial
     monthlyRent: z.number().min(0),
     vacancyRate: z.number().min(0).max(1),
-    // IPCA indexation
+    // IPCA indexation (legacy, kept for back-compat)
     ipcaIndexed: z.boolean().default(false),
     annualIpcaRate: z.number().min(0).max(0.5).default(0.05),
+    // Rent index selection (IPCA / IGP-M / IGP-DI / custom)
+    rentIndex: z.enum(['IPCA', 'IGPM', 'IGPDI', 'custom']).optional(),
+    annualRentIndexRate: z.number().min(0).max(0.5).optional(),
     // Airbnb
     dailyRate: z.number().min(0).default(0),
     occupancyRate: z.number().min(0).max(1).default(0.65),
@@ -84,6 +93,13 @@ export const dealSchema = z.object({
     maintenancePercent: z.number().min(0).max(1),
     sellingCostPercent: z.number().min(0).max(0.2).default(0.06),
   }),
+
+  taxation: z
+    .object({
+      regime: z.enum(['PF', 'PJ', 'isento']).default('PF'),
+      reinvestWithin180Days: z.boolean().default(false),
+    })
+    .optional(),
 
   // Long-term projections (DealCheck step 4)
   projections: z
