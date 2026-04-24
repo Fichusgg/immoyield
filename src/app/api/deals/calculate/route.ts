@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server';
 import { dealSchema } from '@/lib/validations/deal';
 import { analyzeRentalDeal } from '@/lib/calculations/rental';
 import { calculateProjections } from '@/lib/calculations/projections';
+import { checkRateLimit, getClientIp, limiters, rateLimitHeaders } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+  const rl = await checkRateLimit(limiters.standard, `deals-calc:${getClientIp(req)}`);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas requisições.' },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   try {
     const body = await req.json();
 

@@ -12,7 +12,7 @@ import { DealInput } from '@/lib/validations/deal';
 import { useState, useEffect } from 'react';
 import { PROPERTY_TYPE_LABELS } from '@/lib/validations/deal';
 
-const TABS = [
+const ALL_TABS = [
   { id: 0, label: 'Dados', sub: 'Descrição e endereço' },
   { id: 1, label: 'Compra', sub: 'Valor e financiamento' },
   { id: 2, label: 'Receitas', sub: 'Aluguel e despesas' },
@@ -113,6 +113,13 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
 
   const propertyType = formData.propertyType ?? 'residential';
   const propertyLabel = PROPERTY_TYPE_LABELS[propertyType];
+  const isReforma = propertyType === 'flip';
+
+  const TABS = isReforma ? ALL_TABS.filter((t) => t.id !== 3) : ALL_TABS;
+
+  useEffect(() => {
+    if (isReforma && activeTab === 3) setActiveTab(4);
+  }, [isReforma, activeTab, setActiveTab]);
 
   const prefillCss = buildPrefillCss(prefilledFields);
 
@@ -178,7 +185,11 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
       </div>
 
       {/* ── Tab strip ───────────────────────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-5 border border-[#E2E0DA] bg-[#FAFAF8]">
+      <div
+        className={`mb-6 grid border border-[#E2E0DA] bg-[#FAFAF8] ${
+          isReforma ? 'grid-cols-4' : 'grid-cols-5'
+        }`}
+      >
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
           const completed = activeTab > tab.id;
@@ -221,14 +232,17 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
           <CompraECustos onBack={() => setActiveTab(0)} onNext={() => setActiveTab(2)} />
         )}
         {activeTab === 2 && (
-          <ReceitasEDespesas onBack={() => setActiveTab(1)} onNext={() => setActiveTab(3)} />
+          <ReceitasEDespesas
+            onBack={() => setActiveTab(1)}
+            onNext={() => setActiveTab(isReforma ? 4 : 3)}
+          />
         )}
-        {activeTab === 3 && (
+        {activeTab === 3 && !isReforma && (
           <ProjecoesLongoPrazo onBack={() => setActiveTab(2)} onNext={() => setActiveTab(4)} />
         )}
         {activeTab === 4 && (
           <ProjecoesTab
-            onBack={() => setActiveTab(3)}
+            onBack={() => setActiveTab(isReforma ? 2 : 3)}
             onCalculate={calculateDeal}
             loading={loading}
             apiError={apiError}

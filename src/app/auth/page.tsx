@@ -3,6 +3,7 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { createClient } from '@/lib/supabase/client';
+import { safeNextPath } from '@/lib/auth/safe-redirect';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -29,8 +30,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const nextParam = params.get('next');
-    const nextPath = nextParam?.startsWith('/') ? nextParam : '/propriedades';
+    const nextPath = safeNextPath(params.get('next'), '/propriedades');
     nextPathRef.current = nextPath;
     const redirectToUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     queueMicrotask(() => setRedirectTo(redirectToUrl));

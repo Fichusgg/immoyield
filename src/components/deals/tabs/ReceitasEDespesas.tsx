@@ -189,39 +189,42 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
 
       {/* Airbnb */}
       {isAirbnb && (
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Diária Média (R$)</label>
-            <div className="relative">
-              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
-                R$
-              </span>
-              <Controller
-                control={control}
-                name="revenue.dailyRate"
-                render={({ field }) => (
-                  <CurrencyInput
-                    className={`${fieldClass} pl-10`}
-                    placeholder="0"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                )}
-              />
+        <div>
+          <p className="mb-3 text-sm font-semibold text-[#1C2B20]">Receita de Temporada</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Diária Média (R$)</label>
+              <div className="relative">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
+                  R$
+                </span>
+                <Controller
+                  control={control}
+                  name="revenue.dailyRate"
+                  render={({ field }) => (
+                    <CurrencyInput
+                      className={`${fieldClass} pl-10`}
+                      placeholder="0"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
             </div>
-          </div>
-          <div>
-            <label className={labelClass}>Taxa de Ocupação (%)</label>
-            <div className="relative">
-              <input
-                type="number"
-                step="1"
-                {...register('revenue.occupancyRate', { valueAsNumber: true })}
-                className={`${fieldClass} pr-8`}
-              />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
-                %
-              </span>
+            <div>
+              <label className={labelClass}>Taxa de Ocupação (%)</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="1"
+                  {...register('revenue.occupancyRate', { valueAsNumber: true })}
+                  className={`${fieldClass} pr-8`}
+                />
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                  %
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -267,9 +270,13 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Condo / IPTU toggle */}
-          <div className="mt-4 border border-[#E2E0DA] bg-[#F8F7F4] p-4">
+      {/* Condo / IPTU + IPCA toggles — shared between aluguel and airbnb */}
+      {!isReforma && (
+        <div className="space-y-4">
+          <div className="border border-[#E2E0DA] bg-[#F8F7F4] p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#1C2B20]">Incluir condomínio e IPTU</p>
@@ -326,13 +333,14 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             )}
           </div>
 
-          {/* IPCA indexation */}
-          <div className="mt-4 border border-[#E2E0DA] bg-[#F8F7F4] p-4">
+          <div className="border border-[#E2E0DA] bg-[#F8F7F4] p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#1C2B20]">Reajuste pelo IPCA</p>
                 <p className="font-mono text-[10px] text-[#9CA3AF]">
-                  Projeta crescimento do aluguel corrigido pela inflação
+                  {isAirbnb
+                    ? 'Projeta crescimento da diária corrigida pela inflação'
+                    : 'Projeta crescimento do aluguel corrigido pela inflação'}
                 </p>
               </div>
               <label className="flex cursor-pointer items-center gap-2.5">

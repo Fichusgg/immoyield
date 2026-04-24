@@ -91,7 +91,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
               ].map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
 
         {/* Projeções de Longo Prazo */}
-        {proj && (
+        {proj && !isReforma && (
           <>
             <SectionHeader label="Projeções de Longo Prazo" />
             {[

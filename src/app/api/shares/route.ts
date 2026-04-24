@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import { createShareLinkServer, revokeShareLinkServer } from '@/lib/supabase/shares.server';
+import { checkRateLimit, getClientIp, limiters, rateLimitHeaders } from '@/lib/rate-limit';
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
 export async function POST(req: Request) {
+  const rl = await checkRateLimit(limiters.write, `shares-post:${getClientIp(req)}`);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas requisições.' },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   try {
     const body = (await req.json()) as unknown;
     if (!body || typeof body !== 'object') {
@@ -32,6 +41,14 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const rl = await checkRateLimit(limiters.write, `shares-del:${getClientIp(req)}`);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas requisições.' },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const dealId = searchParams.get('dealId');

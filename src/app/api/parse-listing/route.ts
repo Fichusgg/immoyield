@@ -13,11 +13,21 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { parseListing } from '@/lib/scrapers';
+import { checkRateLimit, getClientIp, limiters, rateLimitHeaders } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs'; // Playwright/axios require Node.js runtime
 export const maxDuration = 30; // Allow up to 30s for browser-rendered pages
 
 export async function POST(req: NextRequest) {
+  // ── Rate limit (paid scraper — keep strict) ─────────────────────────────────
+  const rl = await checkRateLimit(limiters.expensive, `parse-listing:${getClientIp(req)}`);
+  if (!rl.success) {
+    return NextResponse.json(
+      { ok: false, error: 'RATE_LIMITED', message: 'Muitas requisições. Tente novamente em alguns instantes.' },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   // ── Parse request body ──────────────────────────────────────────────────────
   let body: { url?: string };
   try {
