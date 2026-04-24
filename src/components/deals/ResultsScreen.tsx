@@ -40,6 +40,16 @@ interface Metrics {
   effectiveRent?: number;
   operatingExpenses?: number;
   firstInstallment?: number;
+  insuranceMonthly?: number;
+  monthlyIR?: number;
+  annualIR?: number;
+  effectiveIRRate?: number;
+  marginalIRRate?: number;
+  irrAnnual?: number | null;
+  fgtsAmount?: number;
+  outOfPocketCash?: number;
+  cashOnCashOutOfPocket?: number;
+  modality?: 'SFH' | 'SFI' | 'MCMV' | 'consorcio' | 'outro' | null;
 }
 
 interface AmortizationPeriod {
@@ -75,6 +85,10 @@ export interface AnalysisResult {
 interface Benchmarks {
   cdi: number;
   fii: number;
+  lci?: number;
+  lca?: number;
+  tesouroIpcaReal?: number;
+  ipcaProjected?: number;
   updatedAt: string | null;
 }
 
@@ -473,6 +487,11 @@ export default function ResultsScreen({
     }));
 
   // ── Benchmark comparison ────────────────────────────────────────────────────
+  const LCI_RATE = benchmarks?.lci ?? CDI_RATE * 0.92;
+  const TESOURO_REAL = benchmarks?.tesouroIpcaReal ?? 6.2;
+  const IPCA_PROJ = benchmarks?.ipcaProjected ?? 4.0;
+  const TESOURO_NOMINAL = (1 + TESOURO_REAL / 100) * (1 + IPCA_PROJ / 100) * 100 - 100;
+
   const benchmarkData = [
     { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#4A7C59' },
     {
@@ -480,8 +499,13 @@ export default function ResultsScreen({
       value: +metrics.cashOnCash.toFixed(2),
       fill: metrics.cashOnCash >= 0 ? '#3D6B4F' : '#DC2626',
     },
-    { name: 'CDI (ref.)', value: CDI_RATE, fill: '#D0CEC8' },
-    { name: 'FII (ref.)', value: FII_RATE, fill: '#D0CEC8' },
+    ...(metrics.irrAnnual != null && Number.isFinite(metrics.irrAnnual)
+      ? [{ name: 'TIR 5a', value: +metrics.irrAnnual.toFixed(2), fill: '#6366F1' }]
+      : []),
+    { name: 'CDI', value: +CDI_RATE.toFixed(2), fill: '#D0CEC8' },
+    { name: 'LCI/LCA (isento)', value: +LCI_RATE.toFixed(2), fill: '#D0CEC8' },
+    { name: 'Tesouro IPCA+', value: +TESOURO_NOMINAL.toFixed(2), fill: '#D0CEC8' },
+    { name: 'FII (IFIX)', value: FII_RATE, fill: '#D0CEC8' },
   ];
 
   // ── ImmoScore ───────────────────────────────────────────────────────────────
@@ -578,11 +602,11 @@ export default function ResultsScreen({
       )}
 
       {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <KPICard
           label="Fluxo de Caixa"
           value={fmt(metrics.monthlyCashFlow)}
-          sub="por mês"
+          sub="mensal, líquido de IR"
           positive={cashFlowPositive}
           negative={!cashFlowPositive}
         />
@@ -600,9 +624,30 @@ export default function ResultsScreen({
           negative={metrics.cashOnCash < 0}
         />
         <KPICard
+          label="TIR (5 anos)"
+          value={
+            metrics.irrAnnual != null && Number.isFinite(metrics.irrAnnual)
+              ? fmtPct(metrics.irrAnnual)
+              : '—'
+          }
+          sub="com saída e ganho de capital"
+          positive={(metrics.irrAnnual ?? 0) >= CDI_RATE}
+          negative={(metrics.irrAnnual ?? 0) < 0}
+        />
+        <KPICard
           label="NOI Mensal"
           value={fmt(metrics.monthlyNOI)}
-          sub="resultado operacional líquido"
+          sub="resultado operacional"
+        />
+        <KPICard
+          label="IR Aluguel"
+          value={fmt(metrics.monthlyIR ?? 0)}
+          sub={
+            (metrics.monthlyIR ?? 0) > 0
+              ? `Carnê-Leão · alíq. marg. ${fmtPct((metrics.marginalIRRate ?? 0) * 100)}`
+              : 'Isento na faixa atual'
+          }
+          negative={(metrics.monthlyIR ?? 0) > 0}
         />
       </div>
 
@@ -716,6 +761,24 @@ export default function ResultsScreen({
                     },
                   ]
                 : []),
+              ...(metrics.insuranceMonthly && metrics.insuranceMonthly > 0
+                ? [
+                    {
+                      label: 'Seguro DFI + MIP',
+                      value: fmt(-(metrics.insuranceMonthly ?? 0)),
+                      sign: 'neg',
+                    },
+                  ]
+                : []),
+              ...(metrics.monthlyIR && metrics.monthlyIR > 0
+                ? [
+                    {
+                      label: `IR aluguel (Carnê-Leão, alíq. ${fmtPct((metrics.marginalIRRate ?? 0) * 100)})`,
+                      value: fmt(-(metrics.monthlyIR ?? 0)),
+                      sign: 'neg',
+                    },
+                  ]
+                : []),
               {
                 label: 'Fluxo de Caixa Líquido',
                 value: fmt(metrics.monthlyCashFlow),
@@ -806,9 +869,30 @@ export default function ResultsScreen({
           {[
             { label: 'Investimento total', value: fmt(metrics.totalInvestment) },
             { label: 'Capital próprio (entrada)', value: fmt(metrics.cashOutlay) },
+            ...(metrics.fgtsAmount && metrics.fgtsAmount > 0
+              ? [
+                  {
+                    label: 'FGTS utilizado',
+                    value: fmt(metrics.fgtsAmount),
+                  },
+                  {
+                    label: 'Caixa efetivamente desembolsado',
+                    value: fmt(metrics.outOfPocketCash ?? 0),
+                  },
+                  ...(metrics.cashOnCashOutOfPocket != null
+                    ? [{
+                        label: 'Cash-on-Cash (sem FGTS)',
+                        value: fmtPct(metrics.cashOnCashOutOfPocket),
+                      }]
+                    : []),
+                ]
+              : []),
             ...(metrics.loanAmount > 0
               ? [
                   { label: 'Financiamento', value: fmt(metrics.loanAmount) },
+                  ...(metrics.modality
+                    ? [{ label: 'Modalidade', value: metrics.modality }]
+                    : []),
                   {
                     label: 'LTV',
                     value: fmtPct((metrics.loanAmount / metrics.totalInvestment) * 100),
@@ -914,7 +998,8 @@ export default function ResultsScreen({
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
-            CDI atualizado semanalmente via Banco Central. FII é referência de mercado.
+            CDI via BACEN (SGS). LCI/LCA estimada em 92% do CDI (isenta de IR p/ PF).
+            Tesouro IPCA+ = cupom real {TESOURO_REAL.toFixed(2)}% + IPCA projetado {IPCA_PROJ.toFixed(2)}%.
           </p>
         </div>
       </div>

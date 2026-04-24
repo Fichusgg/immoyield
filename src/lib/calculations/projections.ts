@@ -10,7 +10,11 @@ export function calculateProjections(
   const projections = [];
   let currentPropertyValue = inputs.purchasePrice;
 
-  const ipcaRate = inputs.revenue.ipcaIndexed ? (inputs.revenue.annualIpcaRate ?? 0.05) : 0;
+  const ipcaRate = inputs.revenue.rentIndex
+    ? (inputs.revenue.annualRentIndexRate ?? inputs.revenue.annualIpcaRate ?? 0.04)
+    : inputs.revenue.ipcaIndexed
+      ? (inputs.revenue.annualIpcaRate ?? 0.05)
+      : 0;
 
   for (let year = 1; year <= years; year++) {
     currentPropertyValue *= 1 + annualAppreciation;

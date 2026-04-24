@@ -12,6 +12,9 @@ const stepSchema = z.object({
     itbiPercent: z.number().min(0).max(10),
     cartorio: z.number().min(0),
     reforms: z.number().min(0),
+    escritura: z.number().min(0).optional(),
+    registro: z.number().min(0).optional(),
+    avaliacao: z.number().min(0).optional(),
   }),
   financing: z.object({
     enabled: z.boolean(),
@@ -19,6 +22,8 @@ const stepSchema = z.object({
     interestRateYear: z.number().min(0),
     termMonths: z.number().int().positive(),
     system: z.enum(['SAC', 'PRICE']),
+    // Expressed as % a.a. in the form (e.g. 0.5); stored as decimal (0.005).
+    insurancePercentYear: z.number().min(0).max(5).optional(),
   }),
 });
 
@@ -51,6 +56,9 @@ export function CompraECustos({ onBack, onNext }: Props) {
         itbiPercent: (formData.acquisitionCosts?.itbiPercent ?? 0.03) * 100,
         cartorio: formData.acquisitionCosts?.cartorio ?? 0,
         reforms: formData.acquisitionCosts?.reforms ?? 0,
+        escritura: formData.acquisitionCosts?.escritura ?? undefined,
+        registro: formData.acquisitionCosts?.registro ?? undefined,
+        avaliacao: formData.acquisitionCosts?.avaliacao ?? undefined,
       },
       financing: {
         enabled: formData.financing?.enabled ?? true,
@@ -58,6 +66,8 @@ export function CompraECustos({ onBack, onNext }: Props) {
         interestRateYear: formData.financing?.interestRateYear ?? 10.5,
         termMonths: formData.financing?.termMonths ?? 360,
         system: formData.financing?.system ?? 'SAC',
+        insurancePercentYear:
+          (formData.financing?.insurancePercentYear ?? 0.005) * 100,
       },
     },
   });
@@ -81,8 +91,17 @@ export function CompraECustos({ onBack, onNext }: Props) {
         itbiPercent: data.acquisitionCosts.itbiPercent / 100,
         cartorio: data.acquisitionCosts.cartorio,
         reforms: data.acquisitionCosts.reforms,
+        escritura: data.acquisitionCosts.escritura,
+        registro: data.acquisitionCosts.registro,
+        avaliacao: data.acquisitionCosts.avaliacao,
       },
-      financing: data.financing,
+      financing: {
+        ...data.financing,
+        insurancePercentYear:
+          data.financing.insurancePercentYear != null
+            ? data.financing.insurancePercentYear / 100
+            : undefined,
+      },
     });
     onNext();
   };
@@ -199,6 +218,62 @@ export function CompraECustos({ onBack, onNext }: Props) {
             />
           </div>
         </div>
+
+        <details className="mt-3 text-xs text-[#6B7280]">
+          <summary className="cursor-pointer font-mono tracking-wide text-[#9CA3AF] uppercase">
+            Detalhar cartório (escritura · registro · avaliação)
+          </summary>
+          <div className="mt-3 grid grid-cols-3 gap-4">
+            <div>
+              <label className={labelClass}>Escritura (R$)</label>
+              <Controller
+                control={control}
+                name="acquisitionCosts.escritura"
+                render={({ field }) => (
+                  <CurrencyInput
+                    className={fieldClass}
+                    placeholder="0"
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Registro (R$)</label>
+              <Controller
+                control={control}
+                name="acquisitionCosts.registro"
+                render={({ field }) => (
+                  <CurrencyInput
+                    className={fieldClass}
+                    placeholder="0"
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Avaliação (R$)</label>
+              <Controller
+                control={control}
+                name="acquisitionCosts.avaliacao"
+                render={({ field }) => (
+                  <CurrencyInput
+                    className={fieldClass}
+                    placeholder="0"
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+            Se preenchidos, a soma destes três substitui o campo Cartório no cálculo.
+          </p>
+        </details>
       </div>
 
       <div className="border-t border-[#E2E0DA]" />
@@ -279,6 +354,25 @@ export function CompraECustos({ onBack, onNext }: Props) {
                 <option value="SAC">SAC — Amortização Constante</option>
                 <option value="PRICE">PRICE — Parcela Fixa</option>
               </select>
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass}>
+                Seguro DFI + MIP (% a.a. sobre saldo devedor)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register('financing.insurancePercentYear', { valueAsNumber: true })}
+                  className={`${fieldClass} pr-8`}
+                />
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                  %
+                </span>
+              </div>
+              <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+                Caixa/Itaú cobram tipicamente 0,30% a 0,60% a.a. sobre saldo devedor.
+              </p>
             </div>
           </div>
         )}

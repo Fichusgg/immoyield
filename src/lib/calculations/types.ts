@@ -1,14 +1,57 @@
 export type AmortizationSystem = 'SAC' | 'PRICE';
 
-export type FinancingModality = 'SFH' | 'SFI' | 'consorcio' | 'outro';
+export type FinancingModality = 'SFH' | 'SFI' | 'MCMV' | 'consorcio' | 'outro';
+
+export type TaxRegime = 'PF' | 'PJ' | 'isento';
+
+export type RentIndex = 'IPCA' | 'IGPM' | 'IGPDI' | 'custom';
+
+/** SFH rate cap and LTV rules, enforced/informational only. */
+export const MODALITY_RULES: Record<
+  FinancingModality,
+  { label: string; maxLtv: number; maxRate: number | null; note: string }
+> = {
+  SFH: {
+    label: 'SFH — Sistema Financeiro da Habitação',
+    maxLtv: 0.8,
+    maxRate: 12,
+    note: 'Teto TR + 12% a.a. · imóvel até R$1,5M · FGTS aceito',
+  },
+  MCMV: {
+    label: 'MCMV — Minha Casa Minha Vida',
+    maxLtv: 0.8,
+    maxRate: 10.5,
+    note: 'Juros subsidiados por faixa de renda · FGTS aceito',
+  },
+  SFI: {
+    label: 'SFI — Sistema de Financiamento Imobiliário',
+    maxLtv: 0.9,
+    maxRate: null,
+    note: 'Sem teto de juros · sem limite de valor do imóvel',
+  },
+  consorcio: {
+    label: 'Consórcio',
+    maxLtv: 1,
+    maxRate: null,
+    note: 'Sem juros · taxa de administração ≈ 0,2% a.m.',
+  },
+  outro: { label: 'Outro / à vista', maxLtv: 1, maxRate: null, note: '' },
+};
 
 export interface DealInputs {
   purchasePrice: number;
   propertyType?: string;
   acquisitionCosts: {
     itbiPercent: number;
+    /** Legacy catch-all (backwards compat). Preferred: escritura+registro+avaliacao. */
     cartorio: number;
     reforms: number;
+    /** Escritura pública (cartório de notas). */
+    escritura?: number;
+    /** Registro de imóveis. */
+    registro?: number;
+    /** Avaliação/laudo exigido pelo banco no financiamento. */
+    avaliacao?: number;
   };
   financing: {
     enabled: boolean;
@@ -16,12 +59,24 @@ export interface DealInputs {
     interestRateYear: number;
     termMonths: number;
     system: AmortizationSystem;
+    modality?: FinancingModality;
+    /** Parcela da entrada oriunda do saldo do FGTS (valor, em R$). */
+    fgtsAmount?: number;
+    /**
+     * Seguro habitacional (DFI + MIP) em % ao ano sobre saldo devedor.
+     * Range típico: 0.30% a 0.60% a.a. Default: 0.5%.
+     */
+    insurancePercentYear?: number;
   };
   revenue: {
     monthlyRent: number;
     vacancyRate: number;
+    /** @deprecated use `rentIndex` + `annualRentIndexRate`. Kept for backwards compat. */
     ipcaIndexed?: boolean;
     annualIpcaRate?: number;
+    rentIndex?: RentIndex;
+    /** Ajuste anual nominal usado para reajuste do aluguel. */
+    annualRentIndexRate?: number;
     dailyRate?: number;
     occupancyRate?: number;
     afterRepairValue?: number;
@@ -33,6 +88,11 @@ export interface DealInputs {
     managementPercent: number;
     maintenancePercent: number;
     sellingCostPercent?: number;
+  };
+  taxation?: {
+    regime: TaxRegime;
+    /** Reinvestir em imóvel residencial em 180 dias isenta ganho de capital. */
+    reinvestWithin180Days?: boolean;
   };
 }
 
