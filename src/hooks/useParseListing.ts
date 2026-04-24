@@ -67,16 +67,16 @@ export function useParseListing(): UseParseListing {
 function friendlyError(code: string | undefined): string {
   switch (code) {
     case 'UNSUPPORTED_SITE':
-      return 'This website is not supported yet. Supported: ZAP Imóveis, VivaReal, QuintoAndar.';
+      return 'Este site ainda não é suportado. Tente um link do ZAP, VivaReal, QuintoAndar ou outro portal imobiliário.';
     case 'BLOCKED':
-      return 'The listing site is blocking automated access. Make sure SCRAPERAPI_KEY is set in production.';
+      return 'O site está bloqueando o acesso automatizado. Defina SCRAPERAPI_KEY em produção.';
     case 'PARSE_ERROR':
-      return 'The page loaded but the data could not be extracted. The site may have changed its layout.';
+      return 'A página foi carregada, mas não conseguimos extrair os dados. O site pode exigir JavaScript — configure SCRAPERAPI_KEY ou preencha o formulário manualmente.';
     case 'TIMEOUT':
-      return 'The request timed out. The site may be slow — try again in a moment.';
+      return 'A requisição excedeu o tempo limite. O site pode estar lento — tente novamente em instantes.';
     case 'INVALID_URL':
-      return 'Please paste a valid property listing URL.';
+      return 'Cole um link de anúncio válido (http:// ou https://).';
     default:
-      return 'Something went wrong. Try again or fill in the form manually.';
+      return 'Algo deu errado. Tente novamente ou preencha o formulário manualmente.';
   }
 }

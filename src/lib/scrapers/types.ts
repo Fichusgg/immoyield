@@ -2,8 +2,14 @@
 
 export type ListingType = 'sale' | 'rent';
 export type PropertyType = 'apartment' | 'house' | 'commercial' | 'land' | 'other';
-export type SupportedSite = 'zapimoveis' | 'vivareal' | 'quintoandar';
-export type ExtractionMethod = 'next_data' | 'schema_org' | 'css_selectors' | 'browser';
+export type SupportedSite = 'zapimoveis' | 'vivareal' | 'quintoandar' | 'generic';
+export type ExtractionMethod =
+  | 'next_data'
+  | 'schema_org'
+  | 'css_selectors'
+  | 'opengraph'
+  | 'heuristic'
+  | 'browser';
 
 export interface PropertyAddress {
   street?: string;

@@ -278,8 +278,8 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 <div>
                   <p className="text-sm font-semibold text-[#1C2B20]">Importar de URL ou manual</p>
                   <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
-                    Cole o link de um anúncio do ZAP, VivaReal ou QuintoAndar para preencher
-                    automaticamente, ou insira os dados manualmente.
+                    Cole o link de qualquer portal imobiliário brasileiro (ZAP, VivaReal, QuintoAndar, ImovelWeb, OLX…)
+                    para preencher automaticamente, ou insira os dados manualmente.
                   </p>
                 </div>
                 <span className="mt-auto flex items-center gap-1 text-xs font-semibold text-[#4A7C59]">

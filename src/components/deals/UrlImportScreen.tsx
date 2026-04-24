@@ -33,7 +33,7 @@ interface Props {
   onBack: () => void;
 }
 
-const SUPPORTED_SITES = ['zapimoveis.com.br', 'vivareal.com.br', 'quintoandar.com'];
+const FEATURED_SITES = ['ZAP Imóveis', 'VivaReal', 'QuintoAndar', 'ImovelWeb', 'OLX', 'Loft'];
 
 const inputClass =
   'w-full border border-[#E2E0DA] bg-[#F0EFEB] px-3 py-2.5 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
@@ -115,7 +115,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
           Importar de URL
         </h2>
         <p className="mt-1 text-sm text-[#9CA3AF]">
-          Cole o link do anúncio. Os campos do formulário serão preenchidos automaticamente.
+          Cole o link de qualquer portal imobiliário brasileiro. Os campos do formulário serão preenchidos automaticamente.
         </p>
       </div>
 
@@ -143,7 +143,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
 
         {/* Supported sites */}
         <p className="font-mono text-[10px] text-[#9CA3AF]">
-          Suportado: ZAP Imóveis, VivaReal, QuintoAndar
+          Funciona com {FEATURED_SITES.join(', ')} e outros portais brasileiros.
         </p>
 
         {/* Error */}
