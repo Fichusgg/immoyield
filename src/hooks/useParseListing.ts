@@ -9,6 +9,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 import type { ParseListingResponse, ScrapedProperty } from '@/lib/scrapers/types';
 
 interface UseParseListing {
@@ -36,17 +37,46 @@ export function useParseListing(): UseParseListing {
         body: JSON.stringify({ url }),
       });
 
-      const json: ParseListingResponse = await res.json();
+      // ── Not signed in → send to login, preserving current location ─────────
+      if (res.status === 401) {
+        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/auth?next=${next}`;
+        return null;
+      }
 
-      if (!json.ok || !json.data) {
-        const msg = json.message ?? friendlyError(json.error);
+      const json: (ParseListingResponse & { retryAfter?: number }) | null =
+        await res.json().catch(() => null);
+
+      // ── Rate limited → toast with retry-after ──────────────────────────────
+      if (res.status === 429) {
+        const retryAfter =
+          json?.retryAfter ?? Number(res.headers.get('Retry-After')) ?? 60;
+        const msg = `Muitas requisições — tente novamente em ${retryAfter}s.`;
+        toast.warning(msg);
+        setError(msg);
+        return null;
+      }
+
+      // ── Invalid / unsupported URL (allowlist reject) ───────────────────────
+      if (res.status === 400) {
+        const msg =
+          json?.error === 'UNSUPPORTED_SITE'
+            ? 'Este site ainda não é suportado. Use um link do VivaReal, ZAP Imóveis ou QuintoAndar.'
+            : (json?.message ?? 'Cole um link de anúncio válido.');
+        toast.error(msg);
+        setError(msg);
+        return null;
+      }
+
+      if (!json || !json.ok || !json.data) {
+        const msg = json?.message ?? friendlyError(json?.error);
         setError(msg);
         return null;
       }
 
       setData(json.data);
       return json.data;
-    } catch (err: any) {
+    } catch {
       const msg = 'Network error — check your connection and try again.';
       setError(msg);
       return null;

@@ -9,11 +9,14 @@ const supabaseOrigin = (() => {
   }
 })();
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 const contentSecurityPolicy = [
   "default-src 'self'",
-  // 'unsafe-inline' for scripts is required by Next.js runtime; 'unsafe-eval' kept
-  // off. Tighten with nonces once all inline scripts are moved out.
-  "script-src 'self' 'unsafe-inline'",
+  // 'unsafe-inline' for scripts is required by Next.js runtime; 'unsafe-eval' is
+  // only allowed in development, where React uses eval() for debug features.
+  // Tighten with nonces once all inline scripts are moved out.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
