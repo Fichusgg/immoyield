@@ -23,7 +23,6 @@ export function Toggle({ on, onChange, label, description, ariaLabel, disabled }
       type="button"
       role="switch"
       aria-checked={on}
-      aria-pressed={on}
       aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
       disabled={disabled}
       onClick={() => onChange(!on)}
