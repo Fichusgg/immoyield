@@ -193,7 +193,7 @@ export function AddDealWizard({
 
       const insertPayload = {
         user_id: user.id,
-        name: data.property?.name || 'Imóvel sem nome',
+        title: data.property?.name || 'Imóvel sem nome',
         property_type: data.property?.type,
         inputs: data,
       };

@@ -61,9 +61,41 @@ export interface SavedDeal {
   inputs: DealInput | null;
   results_cache: AnalysisResult | null;
 
+  // Manually-entered sales / rental comparables (migration 004)
+  comps: { sales?: SalesComp[]; rentals?: RentalComp[] } | null;
+
   // Timestamps
   created_at: string;
   updated_at: string;
+}
+
+// ── Comp shapes — see migration 004 ──────────────────────────────────────────
+
+export interface SalesComp {
+  id: string;
+  address?: string;
+  /** Sale price (or asking price for active listings). */
+  price: number;
+  squareMeters: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  /** YYYY-MM-DD */
+  saleDate?: string;
+  sourceUrl?: string;
+  notes?: string;
+}
+
+export interface RentalComp {
+  id: string;
+  address?: string;
+  monthlyRent: number;
+  squareMeters: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  /** YYYY-MM-DD */
+  listingDate?: string;
+  sourceUrl?: string;
+  notes?: string;
 }
 
 // ── saveDeal ──────────────────────────────────────────────────────────────────

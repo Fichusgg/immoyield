@@ -397,7 +397,7 @@ export default function ResultsScreen({
 
       const payload = {
         user_id: user.id,
-        name: inputs.name,
+        title: inputs.name,
         property_type: inputs.propertyType,
         inputs,
         results_cache: result,
@@ -405,7 +405,7 @@ export default function ResultsScreen({
 
       console.debug('[deals.save] insert payload', {
         user_id: payload.user_id,
-        name: payload.name,
+        title: payload.title,
         property_type: payload.property_type,
         inputs: payload.inputs,
         results_cache: {
