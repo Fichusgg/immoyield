@@ -223,12 +223,15 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
             'Nome do imóvel',
             'Preço de venda',
             'Quartos e banheiros',
-            'Área (m²)',
+            'Área e tamanho do lote',
             'Endereço completo',
             'CEP',
             'Condomínio mensal',
             'IPTU mensal',
             'Descrição do anúncio',
+            'Vagas de garagem',
+            'Tags (mobiliado, varanda…)',
+            'Código do anúncio',
           ].map((item) => (
             <div key={item} className="flex items-center gap-1.5">
               <CheckCircle2 size={10} className="shrink-0 text-[#4A7C59]" />

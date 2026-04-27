@@ -300,12 +300,13 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             {showCondoIptu && (
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Condomínio (R$/mês)</label>
+                  <label htmlFor="condo-monthly" className={labelClass}>Condomínio (R$/mês)</label>
                   <Controller
                     control={control}
                     name="expenses.condo"
                     render={({ field }) => (
                       <CurrencyInput
+                        id="condo-monthly"
                         className={fieldClass}
                         placeholder="0"
                         value={field.value}
@@ -315,12 +316,13 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>IPTU (R$/mês)</label>
+                  <label htmlFor="iptu-monthly" className={labelClass}>IPTU (R$/mês)</label>
                   <Controller
                     control={control}
                     name="expenses.iptu"
                     render={({ field }) => (
                       <CurrencyInput
+                        id="iptu-monthly"
                         className={fieldClass}
                         placeholder="0"
                         value={field.value}

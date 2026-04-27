@@ -7,7 +7,7 @@ import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { useDealStore } from '@/store/useDealStore';
 import DealWizard from '@/components/deals/DealWizard';
 import UrlImportScreen from '@/components/deals/UrlImportScreen';
-import { Home, CalendarDays, Wrench, Plus, Search, ArrowLeft, BarChart2, Link2 } from 'lucide-react';
+import { Home, CalendarDays, Wrench, Plus, Search, ArrowLeft, PencilLine, Link2 } from 'lucide-react';
 import { getDealDisplayTitle } from '@/lib/deals/display';
 
 // ─── The 3 DealCheck-style categories ────────────────────────────────────────
@@ -240,51 +240,76 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
               Adicionar imóvel — {activeDef.label}
             </h2>
             <p className="mb-6 text-sm text-[#9CA3AF]">
-              Como prefere inserir os dados deste imóvel?
+              Escolha como deseja cadastrar este imóvel
             </p>
 
-            <div className="grid grid-cols-2 gap-4 max-w-2xl">
-              {/* Option A — Full analysis wizard */}
+            <div className="grid grid-cols-1 gap-4 max-w-2xl sm:grid-cols-2">
+              {/* Option A — Manual entry */}
               <button
                 type="button"
                 onClick={handleChooseAnalysis}
-                className="group flex flex-col gap-4 border border-[#E2E0DA] bg-[#FAFAF8] p-6 text-left transition-all hover:border-[#4A7C59] hover:bg-[#EBF3EE] focus:outline-none focus:ring-2 focus:ring-[#4A7C59]"
+                className="group flex cursor-pointer flex-col gap-4 border border-[#E2E0DA] bg-[#FAFAF8] p-6 text-left transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-[#4A7C59] hover:bg-[#EBF3EE] hover:shadow-[0_4px_14px_rgba(74,124,89,0.12)] focus:outline-none focus:ring-2 focus:ring-[#4A7C59]"
               >
-                <div className="flex h-10 w-10 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB] text-[#6B7280] transition-colors group-hover:border-[#4A7C59] group-hover:bg-[#4A7C59] group-hover:text-white">
-                  <BarChart2 size={18} />
+                <div className="flex h-12 w-12 items-center justify-center border border-[#D6E4DB] bg-[#E5EFE8] text-[#4A7C59] transition-colors group-hover:border-[#4A7C59] group-hover:bg-[#4A7C59] group-hover:text-white">
+                  <PencilLine size={22} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1C2B20]">Análise completa</p>
-                  <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
-                    Preencha o formulário passo a passo — financiamento, receitas, despesas e
-                    projeções — e obtenha Cap Rate, fluxo de caixa e COC calculados.
+                  <p className="text-sm font-semibold text-[#1C2B20]">Preencher manualmente</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[#6B7280]">
+                    Insira os dados do imóvel passo a passo: financiamento, receitas, despesas e
+                    projeções. Ideal para imóveis fora de portais ou com informações personalizadas.
                   </p>
                 </div>
                 <span className="mt-auto flex items-center gap-1 text-xs font-semibold text-[#4A7C59]">
-                  Iniciar análise
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  Começar preenchimento
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transition-transform duration-150 ease-out group-hover:translate-x-1"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </span>
               </button>
 
-              {/* Option B — Import from URL or manual */}
+              {/* Option B — Import from URL */}
               <button
                 type="button"
                 onClick={handleChooseImport}
-                className="group flex flex-col gap-4 border border-[#E2E0DA] bg-[#FAFAF8] p-6 text-left transition-all hover:border-[#4A7C59] hover:bg-[#EBF3EE] focus:outline-none focus:ring-2 focus:ring-[#4A7C59]"
+                className="group flex cursor-pointer flex-col gap-4 border border-[#E2E0DA] bg-[#FAFAF8] p-6 text-left transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-[#4A7C59] hover:bg-[#EBF3EE] hover:shadow-[0_4px_14px_rgba(74,124,89,0.12)] focus:outline-none focus:ring-2 focus:ring-[#4A7C59]"
               >
-                <div className="flex h-10 w-10 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB] text-[#6B7280] transition-colors group-hover:border-[#4A7C59] group-hover:bg-[#4A7C59] group-hover:text-white">
-                  <Link2 size={18} />
+                <div className="flex h-12 w-12 items-center justify-center border border-[#D6E4DB] bg-[#E5EFE8] text-[#4A7C59] transition-colors group-hover:border-[#4A7C59] group-hover:bg-[#4A7C59] group-hover:text-white">
+                  <Link2 size={22} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#1C2B20]">Importar de URL ou manual</p>
-                  <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
-                    Cole o link de qualquer portal imobiliário brasileiro (ZAP, VivaReal, QuintoAndar, ImovelWeb, OLX…)
-                    para preencher automaticamente, ou insira os dados manualmente.
+                  <p className="text-sm font-semibold text-[#1C2B20]">Importar de um link</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[#6B7280]">
+                    Cole o link de qualquer portal imobiliário brasileiro (ZAP, VivaReal,
+                    QuintoAndar, ImovelWeb, OLX) e preencheremos os dados automaticamente. Você
+                    poderá revisar tudo antes de salvar.
                   </p>
                 </div>
                 <span className="mt-auto flex items-center gap-1 text-xs font-semibold text-[#4A7C59]">
-                  Continuar
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  Colar link
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transition-transform duration-150 ease-out group-hover:translate-x-1"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </span>
               </button>
             </div>

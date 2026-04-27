@@ -1,25 +1,31 @@
 /**
  * ZAP Imóveis scraper
  *
- * ZAP uses a Next.js frontend backed by Grupo OLX Brasil's "glue-api".
- * Listing pages deliver most property data inside __NEXT_DATA__, so we
- * can extract everything without rendering JavaScript.
+ * ZAP runs on Next.js. As of April 2026 they migrated from the Pages Router
+ * (which embedded all data in __NEXT_DATA__) to the App Router with React
+ * Server Component streaming — listing data now lives inside
+ * `self.__next_f.push([1, "..."])` script chunks. We extract the streamed
+ * `pageData` object first, fall back to legacy __NEXT_DATA__ for older
+ * caches, then JSON-LD, then CSS.
  *
  * Extraction order (most → least reliable):
- *   1. __NEXT_DATA__ JSON  ← fastest, most complete
- *   2. JSON-LD schema.org  ← rare but very clean when present
- *   3. CSS selectors       ← fallback if the above are absent/empty
+ *   1. RSC pageData          ← current ZAP/VivaReal layout (full payload)
+ *   2. __NEXT_DATA__ JSON    ← legacy Pages Router (fallback if revived)
+ *   3. JSON-LD schema.org    ← rare but very clean when present
+ *   4. CSS selectors         ← last resort
  */
 
 import type { ScrapedProperty } from './types';
 import {
   fetchHtml,
   extractNextData,
+  extractRscPageData,
   extractJsonLd,
   loadHtml,
   parseBrlNumber,
   parseIntSafe,
   detectPropertyType,
+  mapUnitType,
   dedupePhotos,
   normalizeAmenities,
   firstText,
@@ -35,6 +41,17 @@ function extractListingId(url: string): string | undefined {
   );
 }
 
+// ZAP image URLs use a templated form like ".../img/.../{description}.webp?action={action}&dimension={width}x{height}".
+// Replace the placeholders so the URL is actually fetchable.
+function realizeImageUrl(template: string | undefined): string | undefined {
+  if (!template || !template.startsWith('http')) return undefined;
+  return template
+    .replace('{description}', 'photo')
+    .replace('{action}', 'fit-in')
+    .replace('{width}', '1024')
+    .replace('{height}', '768');
+}
+
 // ─── Amenity extraction from ZAP/VivaReal __NEXT_DATA__ ──────────────────────
 function extractAmenities(listing: Record<string, any>): string[] {
   const raw: (string | undefined | null)[] = [
@@ -46,7 +63,109 @@ function extractAmenities(listing: Record<string, any>): string[] {
   return normalizeAmenities(raw);
 }
 
-// ─── Strategy 1: __NEXT_DATA__ ────────────────────────────────────────────────
+// ─── Strategy 1: RSC streamed pageData (current layout) ──────────────────────
+//
+// pageData layout (April 2026):
+//   prices: [{ businessType, price, monthlyCondoFee, iptuPeriod }]
+//   mainAmenities: { usableAreas: "65 m²", bedrooms, bathrooms, suites, parkingSpaces, unitFloor }
+//   amenities: ["FURNISHED", "BARBECUE_GRILL", ...]   ← enum codes
+//   address: { street, streetNumber, zipCode, city, neighborhood, state, stateAcronym, point }
+//   formattedAddress: "Rua X, 123 - Bairro, Cidade - UF"
+//   account: { name, phones, creci, isVerified, ... }
+//   listing: { id, title, description, unitType, listingType, externalId, ... }
+//   updatedAt, createdAt
+//   whatsAppNumber, virtualTourUrl
+//
+function parseRscData(pageData: Record<string, any>, url: string): ScrapedProperty | null {
+  const listing = pageData.listing ?? {};
+  const ma = pageData.mainAmenities ?? {};
+  const pricing = pageData.prices?.[0] ?? listing.prices ?? {};
+  const address = pageData.address ?? listing.address ?? {};
+
+  const business = pageData.business ?? pricing.businessType;
+  const listingType = business === 'RENTAL' || business === 'RENT' ? 'rent' : 'sale';
+
+  const price =
+    parseBrlNumber(String(pricing.price ?? '')) ??
+    listing.prices?.mainValue ??
+    parseBrlNumber(String(listing.prices?.rent ?? ''));
+
+  // mainAmenities values come as strings like "65 m²" / "2" / "" — peel digits.
+  const area = parseIntSafe(ma.usableAreas?.toString().match(/\d+/)?.[0]);
+  const bedrooms = parseIntSafe(ma.bedrooms?.toString().match(/\d+/)?.[0]);
+  const bathrooms = parseIntSafe(ma.bathrooms?.toString().match(/\d+/)?.[0]);
+  const suites = parseIntSafe(ma.suites?.toString().match(/\d+/)?.[0]);
+  const parkingSpots = parseIntSafe(ma.parkingSpaces?.toString().match(/\d+/)?.[0]);
+
+  const monthlyCondoFee = parseBrlNumber(String(pricing.monthlyCondoFee ?? ''));
+  const yearlyIptu = parseBrlNumber(String(pricing.yearlyIptu ?? pricing.iptu ?? ''));
+  const iptuPeriod = pricing.iptuPeriod === 'YEARLY' ? 'yearly' : pricing.iptuPeriod === 'MONTHLY' ? 'monthly' : undefined;
+
+  const photos = dedupePhotos(
+    (pageData.images ?? listing.imageList ?? [])
+      .map((img: any) => realizeImageUrl(img?.dangerousSrc ?? img?.url ?? img?.value))
+  );
+
+  const phones: string[] = [
+    ...(pageData.account?.phones ?? []),
+    pageData.whatsAppNumber,
+    pageData.account?.mainPhone,
+  ].filter(Boolean);
+
+  const description =
+    listing.description && !listing.description.startsWith('$')
+      ? listing.description
+      : pageData.description && !String(pageData.description).startsWith('$')
+        ? pageData.description
+        : undefined;
+
+  const title = listing.title ?? pageData.metaContent?.title;
+  const type = mapUnitType(listing.unitType) ?? detectPropertyType(title, description);
+
+  return {
+    listingId: listing.id ?? pageData.listingId ?? extractListingId(url),
+    sourceUrl: url,
+    sourceSite: 'zapimoveis',
+    scrapedAt: new Date().toISOString(),
+    title,
+    type,
+    listingType,
+    price,
+    condoFee: monthlyCondoFee,
+    iptu: yearlyIptu,
+    iptuPeriod: yearlyIptu ? iptuPeriod ?? 'yearly' : undefined,
+    area,
+    bedrooms,
+    bathrooms,
+    suites,
+    parkingSpots,
+    address: {
+      street: address.street
+        ? address.streetNumber
+          ? `${address.street}, ${address.streetNumber}`
+          : address.street
+        : undefined,
+      neighborhood: address.neighborhood ?? address.zone,
+      city: address.city,
+      state: address.stateAcronym ?? address.state,
+      zipCode: address.zipCode,
+      fullText: pageData.formattedAddress ?? address.fullAddress,
+    },
+    photos,
+    agentName: pageData.account?.name ?? listing.advertiser?.name,
+    contactPhone: phones[0],
+    description,
+    zipCode: address.zipCode,
+    pricePerSqm: price && area ? Math.round(price / area) : undefined,
+    amenities: normalizeAmenities([...(pageData.amenities ?? []), ...(listing.amenities?.values ?? [])]),
+    datePosted: pageData.createdAt,
+    dateUpdated: pageData.updatedAt,
+    _extractionMethod: 'next_data', // RSC is a Next.js data source — keep enum compatible
+    _confidence: 'high',
+  };
+}
+
+// ─── Strategy 2: legacy __NEXT_DATA__ ────────────────────────────────────────
 function parseNextData(nextData: Record<string, any>, url: string): ScrapedProperty | null {
   // ZAP puts listing under various paths depending on page type
   const listing =
@@ -94,7 +213,7 @@ function parseNextData(nextData: Record<string, any>, url: string): ScrapedPrope
     sourceSite: 'zapimoveis',
     scrapedAt: new Date().toISOString(),
     title,
-    type: detectPropertyType(title),
+    type: mapUnitType(listing.unitType) ?? detectPropertyType(title),
     listingType,
     price,
     condoFee: parseBrlNumber(String(pricing.monthlyCondoFee ?? '')),
@@ -130,7 +249,7 @@ function parseNextData(nextData: Record<string, any>, url: string): ScrapedPrope
   };
 }
 
-// ─── Strategy 2: JSON-LD schema.org ──────────────────────────────────────────
+// ─── Strategy 3: JSON-LD schema.org ──────────────────────────────────────────
 function parseSchemaOrg(schema: Record<string, any>, url: string): ScrapedProperty | null {
   if (!schema.name && !schema.offers?.price) return null;
 
@@ -163,7 +282,7 @@ function parseSchemaOrg(schema: Record<string, any>, url: string): ScrapedProper
   };
 }
 
-// ─── Strategy 3: CSS selectors ───────────────────────────────────────────────
+// ─── Strategy 4: CSS selectors ───────────────────────────────────────────────
 function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
   const $ = loadHtml(html);
 
@@ -336,21 +455,28 @@ function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
 export async function scrapeZap(url: string): Promise<ScrapedProperty> {
   const html = await fetchHtml(url);
 
-  // 1. __NEXT_DATA__
+  // 1. RSC pageData (current ZAP layout)
+  const rsc = extractRscPageData(html);
+  if (rsc) {
+    const result = parseRscData(rsc, url);
+    if (result && (result.price || result.area || result.bedrooms)) return result;
+  }
+
+  // 2. Legacy __NEXT_DATA__
   const nextData = extractNextData(html);
   if (nextData) {
     const result = parseNextData(nextData, url);
     if (result && (result.price || result.area || result.bedrooms)) return result;
   }
 
-  // 2. JSON-LD
+  // 3. JSON-LD
   const schema = extractJsonLd(html);
   if (schema) {
     const result = parseSchemaOrg(schema, url);
     if (result) return result;
   }
 
-  // 3. CSS selectors
+  // 4. CSS selectors
   const result = parseCssSelectors(html, url);
   if (result) return result;
 

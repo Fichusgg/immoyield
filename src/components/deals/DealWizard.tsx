@@ -35,10 +35,15 @@ interface DealWizardProps {
 /** Maps a prefilled-field key to its input's DOM id (for CSS tinting). */
 const PREFILLED_FIELD_TO_ID: Record<string, string> = {
   name: 'property-name',
+  propertyType: 'property-type',
   'property.shortDescription': 'short-description',
+  'property.tagsAndLabels': 'tags-and-labels',
   'property.bedrooms': 'bedrooms',
   'property.bathrooms': 'bathrooms',
   'property.squareFootage': 'square-footage',
+  'property.lotSizeSquareFeet': 'lot-size',
+  'property.parking': 'parking',
+  'property.mlsNumber': 'mls-number',
   'property.address.streetAddress': 'street-address',
   'property.address.city': 'city',
   'property.address.region': 'region',
@@ -68,6 +73,13 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setIsAuthenticated(!!data.user));
   }, []);
+
+  const propertyType = formData.propertyType ?? 'residential';
+  const isReforma = propertyType === 'flip';
+
+  useEffect(() => {
+    if (isReforma && activeTab === 3) setActiveTab(4);
+  }, [isReforma, activeTab, setActiveTab]);
 
   const calculateDeal = async () => {
     setLoading(true);
@@ -111,16 +123,8 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
     );
   }
 
-  const propertyType = formData.propertyType ?? 'residential';
   const propertyLabel = PROPERTY_TYPE_LABELS[propertyType];
-  const isReforma = propertyType === 'flip';
-
   const TABS = isReforma ? ALL_TABS.filter((t) => t.id !== 3) : ALL_TABS;
-
-  useEffect(() => {
-    if (isReforma && activeTab === 3) setActiveTab(4);
-  }, [isReforma, activeTab, setActiveTab]);
-
   const prefillCss = buildPrefillCss(prefilledFields);
 
   return (

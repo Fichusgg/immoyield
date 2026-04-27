@@ -43,3 +43,6 @@ next-env.d.ts
 
 #ignore claude
 .claude/
+
+# scratch space for debug scripts (HTML dumps, parsed JSON)
+/tmp/

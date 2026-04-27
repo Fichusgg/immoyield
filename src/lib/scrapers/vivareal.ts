@@ -11,16 +11,116 @@ import type { ScrapedProperty } from './types';
 import {
   fetchHtml,
   extractNextData,
+  extractRscPageData,
   extractJsonLd,
   loadHtml,
   parseBrlNumber,
   parseIntSafe,
   detectPropertyType,
+  mapUnitType,
   dedupePhotos,
   normalizeAmenities,
   firstText,
   collectImages,
 } from './utils';
+
+function realizeImageUrl(template: string | undefined): string | undefined {
+  if (!template || !template.startsWith('http')) return undefined;
+  return template
+    .replace('{description}', 'photo')
+    .replace('{action}', 'fit-in')
+    .replace('{width}', '1024')
+    .replace('{height}', '768');
+}
+
+// ─── Strategy 1: RSC streamed pageData (current VivaReal layout) ─────────────
+function parseRscData(pageData: Record<string, any>, url: string): ScrapedProperty | null {
+  const listing = pageData.listing ?? {};
+  const ma = pageData.mainAmenities ?? {};
+  const pricing = pageData.prices?.[0] ?? listing.prices ?? {};
+  const address = pageData.address ?? listing.address ?? {};
+
+  const business = pageData.business ?? pricing.businessType;
+  const listingType = business === 'RENTAL' || business === 'RENT' ? 'rent' : 'sale';
+
+  const price =
+    parseBrlNumber(String(pricing.price ?? '')) ??
+    listing.prices?.mainValue ??
+    parseBrlNumber(String(listing.prices?.rent ?? ''));
+
+  const area = parseIntSafe(ma.usableAreas?.toString().match(/\d+/)?.[0]);
+  const bedrooms = parseIntSafe(ma.bedrooms?.toString().match(/\d+/)?.[0]);
+  const bathrooms = parseIntSafe(ma.bathrooms?.toString().match(/\d+/)?.[0]);
+  const suites = parseIntSafe(ma.suites?.toString().match(/\d+/)?.[0]);
+  const parkingSpots = parseIntSafe(ma.parkingSpaces?.toString().match(/\d+/)?.[0]);
+
+  const monthlyCondoFee = parseBrlNumber(String(pricing.monthlyCondoFee ?? ''));
+  const yearlyIptu = parseBrlNumber(String(pricing.yearlyIptu ?? pricing.iptu ?? ''));
+  const iptuPeriod = pricing.iptuPeriod === 'YEARLY' ? 'yearly' : pricing.iptuPeriod === 'MONTHLY' ? 'monthly' : undefined;
+
+  const photos = dedupePhotos(
+    (pageData.images ?? listing.imageList ?? [])
+      .map((img: any) => realizeImageUrl(img?.dangerousSrc ?? img?.url ?? img?.value))
+  );
+
+  const phones: string[] = [
+    ...(pageData.account?.phones ?? []),
+    pageData.whatsAppNumber,
+    pageData.account?.mainPhone,
+  ].filter(Boolean);
+
+  const description =
+    listing.description && !listing.description.startsWith('$')
+      ? listing.description
+      : pageData.description && !String(pageData.description).startsWith('$')
+        ? pageData.description
+        : undefined;
+
+  const title = listing.title ?? pageData.metaContent?.title;
+  const type = mapUnitType(listing.unitType) ?? detectPropertyType(title, description);
+
+  return {
+    listingId: listing.id ?? pageData.listingId ?? extractListingId(url),
+    sourceUrl: url,
+    sourceSite: 'vivareal',
+    scrapedAt: new Date().toISOString(),
+    title,
+    type,
+    listingType,
+    price,
+    condoFee: monthlyCondoFee,
+    iptu: yearlyIptu,
+    iptuPeriod: yearlyIptu ? iptuPeriod ?? 'yearly' : undefined,
+    area,
+    bedrooms,
+    bathrooms,
+    suites,
+    parkingSpots,
+    address: {
+      street: address.street
+        ? address.streetNumber
+          ? `${address.street}, ${address.streetNumber}`
+          : address.street
+        : undefined,
+      neighborhood: address.neighborhood ?? address.zone,
+      city: address.city,
+      state: address.stateAcronym ?? address.state,
+      zipCode: address.zipCode,
+      fullText: pageData.formattedAddress ?? address.fullAddress,
+    },
+    photos,
+    agentName: pageData.account?.name ?? listing.advertiser?.name,
+    contactPhone: phones[0],
+    description,
+    zipCode: address.zipCode,
+    pricePerSqm: price && area ? Math.round(price / area) : undefined,
+    amenities: normalizeAmenities([...(pageData.amenities ?? []), ...(listing.amenities?.values ?? [])]),
+    datePosted: pageData.createdAt,
+    dateUpdated: pageData.updatedAt,
+    _extractionMethod: 'next_data',
+    _confidence: 'high',
+  };
+}
 
 function extractListingId(url: string): string | undefined {
   return (
@@ -274,7 +374,14 @@ function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
 export async function scrapeVivaReal(url: string): Promise<ScrapedProperty> {
   const html = await fetchHtml(url);
 
-  // 1. __NEXT_DATA__
+  // 1. RSC pageData (current VivaReal layout)
+  const rsc = extractRscPageData(html);
+  if (rsc) {
+    const result = parseRscData(rsc, url);
+    if (result && (result.price || result.area || result.bedrooms)) return result;
+  }
+
+  // 2. Legacy __NEXT_DATA__
   const nextData = extractNextData(html);
   if (nextData) {
     const result = parseNextData(nextData, url);

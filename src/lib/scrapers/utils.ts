@@ -64,6 +64,148 @@ export function extractNextData(html: string): Record<string, any> | null {
   }
 }
 
+// ─── RSC payload extractor (Next.js App Router) ──────────────────────────────
+//
+// ZAP / VivaReal moved to Next.js App Router, which no longer embeds a single
+// __NEXT_DATA__ blob. Instead it streams React Server Component chunks via
+// `self.__next_f.push([1, "<chunk>"])` calls. Each chunk is a slice of a
+// concatenated stream where lines look like:
+//
+//   3f:["$","$L40",null,{"baseData":{"pageData":{...}, ...}}]
+//   41:T849,Listing description text...
+//
+// The pageData object contains the listing data we want, but some string
+// fields are references like "$41" pointing to text chunks defined elsewhere
+// in the same stream. We extract the balanced JSON containing "baseData",
+// parse it, then walk it to resolve references.
+//
+export function extractRscPageData(html: string): Record<string, any> | null {
+  // 1. Pull and decode all RSC stream chunks
+  const re = /self\.__next_f\.push\(\[1,"((?:\\.|[^"\\])*)"\]\)/g;
+  const parts: string[] = [];
+  let match;
+  while ((match = re.exec(html)) !== null) {
+    try {
+      parts.push(JSON.parse(`"${match[1]}"`));
+    } catch {
+      // skip malformed chunk
+    }
+  }
+  if (parts.length === 0) return null;
+  const stream = parts.join('');
+
+  // 2. Build a chunk-id → resolved-value map by parsing each line of the stream
+  const refs = parseRscChunks(stream);
+
+  // 3. Find the balanced JSON object containing "baseData"
+  const bdIdx = stream.indexOf('"baseData":');
+  if (bdIdx === -1) return null;
+  const json = extractBalancedObject(stream, bdIdx);
+  if (!json) return null;
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return null;
+  }
+
+  const pageData = parsed?.baseData?.pageData;
+  if (!pageData || typeof pageData !== 'object') return null;
+
+  // 4. Resolve $<hex> references in-place (mutates a copy)
+  return resolveRscReferences(pageData, refs);
+}
+
+// Walks the RSC stream and records the value for each "<id>:<value>" line.
+// Only handles text chunks (T<hex>,<text>) since that's all we currently
+// need to resolve — references like $41 point to text bodies (descriptions).
+//
+// IMPORTANT: the hex length after `T` is the UTF-8 BYTE length of the body,
+// not the character length. Brazilian portal listings are full of accented
+// characters (á/ã/í) that are 2 bytes each, so a char-based slice would
+// over-read into the next chunk's header. We slice at the byte level.
+function parseRscChunks(stream: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const re = /(?:^|\n)([a-f0-9]+):T([a-f0-9]+),/g;
+  const buf = Buffer.from(stream, 'utf8');
+  let m;
+  while ((m = re.exec(stream)) !== null) {
+    const id = m[1];
+    const lenBytes = parseInt(m[2], 16);
+    // Find ',' position in BYTE space (not char space) — m.index is a char
+    // index but most ASCII characters before the body match 1:1 to bytes;
+    // we re-locate via the buffer to be safe.
+    const prefixCharEnd = stream.indexOf(',', m.index) + 1;
+    const prefixByteEnd = Buffer.byteLength(stream.substring(0, prefixCharEnd), 'utf8');
+    out.set(id, buf.subarray(prefixByteEnd, prefixByteEnd + lenBytes).toString('utf8'));
+  }
+  return out;
+}
+
+// Returns the substring for a balanced { ... } block whose opening brace is
+// the nearest '{' at or before `pivot`. Respects strings and escapes.
+function extractBalancedObject(str: string, pivot: number): string | null {
+  const open = str.lastIndexOf('{', pivot);
+  if (open === -1) return null;
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  for (let i = open; i < str.length; i++) {
+    const c = str[i];
+    if (inStr) {
+      if (esc) {
+        esc = false;
+        continue;
+      }
+      if (c === '\\') {
+        esc = true;
+        continue;
+      }
+      if (c === '"') {
+        inStr = false;
+      }
+      continue;
+    }
+    if (c === '"') {
+      inStr = true;
+      continue;
+    }
+    if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) return str.substring(open, i + 1);
+    }
+  }
+  return null;
+}
+
+// Recursively replaces "$<hex>" references with resolved text chunks, and
+// drops "$undefined" sentinel values. Returns a new tree (does not mutate).
+function resolveRscReferences(value: any, refs: Map<string, string>): any {
+  if (value == null) return value;
+  if (typeof value === 'string') {
+    if (value === '$undefined') return undefined;
+    if (/^\$[a-f0-9]+$/.test(value)) {
+      const id = value.slice(1);
+      return refs.get(id) ?? value;
+    }
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => resolveRscReferences(v, refs));
+  }
+  if (typeof value === 'object') {
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      const resolved = resolveRscReferences(v, refs);
+      if (resolved !== undefined) out[k] = resolved;
+    }
+    return out;
+  }
+  return value;
+}
+
 // ─── JSON-LD schema.org extractor ────────────────────────────────────────────
 //
 // Returns the first JSON-LD block that looks like a real estate listing.
@@ -163,6 +305,33 @@ export function detectPropertyType(
     return 'commercial';
   if (src.match(/terreno|lote\b|área\b|area\b/)) return 'land';
   return 'other';
+}
+
+// Map a ZAP/VivaReal "unitType" enum string to our internal PropertyType.
+// More reliable than guessing from the title — the enum is set per listing
+// in the publishing flow.
+const UNIT_TYPE_MAP: Record<string, PropertyType> = {
+  APARTMENT: 'apartment',
+  HOME: 'house',
+  HOUSE: 'house',
+  CONDOMINIUM: 'house',
+  COUNTRY_HOUSE: 'house',
+  FARM: 'house',
+  ALLOTMENT_LAND: 'land',
+  RESIDENTIAL_ALLOTMENT_LAND: 'land',
+  COMMERCIAL_ALLOTMENT_LAND: 'land',
+  LAND: 'land',
+  COMMERCIAL_BUILDING: 'commercial',
+  COMMERCIAL_PROPERTY: 'commercial',
+  BUSINESS: 'commercial',
+  OFFICE: 'commercial',
+  WAREHOUSE_SHED: 'commercial',
+  SHED_DEPOSIT_WAREHOUSE: 'commercial',
+};
+
+export function mapUnitType(code: string | undefined): PropertyType | undefined {
+  if (!code) return undefined;
+  return UNIT_TYPE_MAP[code.toUpperCase()];
 }
 
 // ─── Deduplicate photo URLs ───────────────────────────────────────────────────
