@@ -28,7 +28,7 @@ export interface PropertyNavItem {
 export const PROPERTY_NAV: PropertyNavItem[] = [
   { slug: 'descricao', label: 'Descrição', icon: Home },
   { slug: 'planilha', label: 'Planilha de Compra', icon: Pencil },
-  { slug: 'fotos', label: 'Fotos', icon: ImageIcon, comingSoon: true },
+  { slug: 'fotos', label: 'Fotos', icon: ImageIcon },
   { slug: 'mapa', label: 'Mapa', icon: MapPin, comingSoon: true },
 
   { slug: 'analise', label: 'Análise', icon: BarChart2, group: 'ANÁLISE' },

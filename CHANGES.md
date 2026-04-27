@@ -15,7 +15,7 @@ Restructured the authenticated property experience into a DealCheck-style worksp
 | `/imoveis/[id]/descricao` | **NEW** — Nome, Endereço, Características (12 fields), Notas |
 | `/imoveis/[id]/planilha` | **NEW** — Full purchase worksheet (Preço, Financiamento, Custos, Reforma, Receita, Despesas link, Projeções) |
 | `/imoveis/[id]/planilha/despesas` | **NEW** — Itemized operating expenses with unit selector (Por Mês / Por Ano / % do Aluguel) |
-| `/imoveis/[id]/fotos` | **NEW** — *Em Breve* (renders existing imported photos behind overlay) |
+| `/imoveis/[id]/fotos` | **NEW** — Real upload to `property-images` Supabase Storage bucket · drag-drop or click-to-pick · cover indicator on the first photo · hover overlay (zoom / set as cover / delete) · lightbox · client-side validation (type whitelist + 10 MB cap) |
 | `/imoveis/[id]/mapa` | **NEW** — *Em Breve* (Como Chegar deeplink works when address is set) |
 | `/imoveis/[id]/projecoes` | **NEW** — Live scenario controls (período, valorização, custos de venda) · 4 KPIs · valor + equity area chart · 9-row year-by-year table (1, 2, 3, 5, 10, 15, 20, 25, 30 anos) |
 | `/imoveis/[id]/comps-vendas` | **NEW** — Add/edit/delete sales comps · stats KPIs (mediana / média / faixa por m²) · ARV-suggestion panel with one-click "Aplicar como ARV" · persists to `deals.comps.sales` |
@@ -51,6 +51,17 @@ All wrap existing `src/components/ui/*` (shadcn / base-ui) — no parallel compo
 | `comps/AddCompDialog.tsx` | Modal for adding/editing a single comp (sales or rentals mode) |
 | `comps/ComparablesContent.tsx` | Shared content for both `/comps-vendas` and `/comps-aluguel` (mode prop) — KPIs, suggestion panel, table, save bar, auto-import badge |
 
+### Storage helpers (`src/lib/supabase/storage-photos.ts`)
+| Export | Purpose |
+|---|---|
+| `uploadPropertyPhoto(dealId, file)` | Validates type/size, uploads to `property-images/{dealId}/{uuid}.{ext}`, returns public URL |
+| `deletePropertyPhoto(url)` | Best-effort delete; silently skips foreign URLs (e.g. scraped listing photos) |
+| `isOwnedPhoto(url)` | True for our-bucket URLs, false for imported third-party URLs |
+| `MAX_PHOTO_BYTES`, `ACCEPTED_PHOTO_TYPES` | Validation constants |
+
+### Storage policies (`supabase/migrations/005_property_images_storage_policies.sql`)
+RLS policies on `storage.objects` for the `property-images` bucket — INSERT / UPDATE / DELETE all scoped to the requesting user owning the deal whose ID is the first path segment. Reads stay public via the bucket's PUBLIC flag (set in dashboard). **Apply this migration after creating the bucket.**
+
 ### Top nav (`src/components/layout/TopNav.tsx`)
 - Three primary links: **Meus Imóveis** · **Buscar Imóveis** *Em Breve* · **Buscar Bancos** *Em Breve*
 - Active link gets sage underline indicator
@@ -61,7 +72,7 @@ All wrap existing `src/components/ui/*` (shadcn / base-ui) — no parallel compo
 ```
 Descrição
 Planilha de Compra
-Fotos · Em Breve
+Fotos
 Mapa · Em Breve
 ─────  ANÁLISE  ─────
 Análise
@@ -99,7 +110,6 @@ Excluir
 
 ## TODOs / queued for follow-ups
 
-- **Storage bucket + Photos:** real photo upload, set-as-cover, delete — gated on a Supabase Storage bucket being provisioned. The Fotos page already renders imported photos from the original listing behind the *Em Breve* overlay.
 - **Maps integration:** Mapbox or Google Maps key needed. The Mapa page already provides a working "Como Chegar" deeplink to Google Maps when an address is set.
 - **Custom expense rows:** the `expenses` schema has 4 fixed bound fields (`condo`, `iptu`, `managementPercent`, `maintenancePercent`). The Despesas sub-page renders them as a list with unit selector but the Add/Delete row UI is gated until the schema is extended with a JSON `customItems` array.
 - **Comparáveis · auto-import:** manual entry works end-to-end and persists. The "Importação Automática · Em Breve" badge marks the spot for wiring `src/lib/scrapers/` (vivareal/zap/quintoandar) to fetch proximity/specs-matched listings — likely needs a server action with rate limiting.
