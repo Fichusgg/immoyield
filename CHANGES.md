@@ -62,6 +62,13 @@ All wrap existing `src/components/ui/*` (shadcn / base-ui) — no parallel compo
 ### Storage policies (`supabase/migrations/005_property_images_storage_policies.sql`)
 RLS policies on `storage.objects` for the `property-images` bucket — INSERT / UPDATE / DELETE all scoped to the requesting user owning the deal whose ID is the first path segment. Reads stay public via the bucket's PUBLIC flag (set in dashboard). **Apply this migration after creating the bucket.**
 
+### DB ↔ app alignment (`supabase/migrations/006_align_deal_columns_with_app.sql`)
+Cleaned up two long-standing schema drifts vs. the TypeScript model:
+- Renamed `deals.name` → `deals.title`. The app code has 28 `deal.title` references; the column was historically `name`. Three write paths (`Wizard.tsx`, `ResultsScreen.tsx`, plus the older `DealImportForm.tsx` / `DealForm.tsx` already correct) were sending `name:` and silently broken. Fixed those keys in lockstep with the rename.
+- Added `deals.type text` for physical property structure (apartment, house, commercial, …) — distinct from `property_type` (investment strategy: residential, airbnb, flip, …).
+- Applied (long-deferred) migration 004 — `deals.comps jsonb` with `gin` index for sales/rental comparables.
+- Added column `COMMENT`s so the schema documents itself.
+
 ### Top nav (`src/components/layout/TopNav.tsx`)
 - Three primary links: **Meus Imóveis** · **Buscar Imóveis** *Em Breve* · **Buscar Bancos** *Em Breve*
 - Active link gets sage underline indicator
