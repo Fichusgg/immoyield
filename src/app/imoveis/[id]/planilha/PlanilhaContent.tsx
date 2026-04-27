@@ -191,13 +191,21 @@ export default function PlanilhaContent({ deal }: Props) {
             label="Valor Pós-Reforma (ARV)"
             help="Valor estimado do imóvel após reformas. Se não houver reforma, é o valor de mercado atual."
           >
-            <NumberInput
-              prefix="R$"
-              value={inp.revenue.afterRepairValue ?? 0}
-              onChange={(v) =>
-                setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
-              }
-            />
+            <div className="space-y-1">
+              <NumberInput
+                prefix="R$"
+                value={inp.revenue.afterRepairValue ?? 0}
+                onChange={(v) =>
+                  setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
+                }
+              />
+              <Link
+                href={`/imoveis/${deal.id}/comps-vendas`}
+                className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
+              >
+                Ver comparáveis de venda →
+              </Link>
+            </div>
           </FormRow>
         </FormCard>
 
@@ -468,13 +476,21 @@ export default function PlanilhaContent({ deal }: Props) {
             ) : (
               <>
                 <FormRow label="Aluguel Mensal Bruto">
-                  <NumberInput
-                    prefix="R$"
-                    value={inp.revenue.monthlyRent}
-                    onChange={(v) =>
-                      setNested('revenue', 'monthlyRent', typeof v === 'number' ? v : 0)
-                    }
-                  />
+                  <div className="space-y-1">
+                    <NumberInput
+                      prefix="R$"
+                      value={inp.revenue.monthlyRent}
+                      onChange={(v) =>
+                        setNested('revenue', 'monthlyRent', typeof v === 'number' ? v : 0)
+                      }
+                    />
+                    <Link
+                      href={`/imoveis/${deal.id}/comps-aluguel`}
+                      className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
+                    >
+                      Ver comparáveis de aluguel →
+                    </Link>
+                  </div>
                 </FormRow>
                 <FormRow
                   label="Taxa de Vacância"

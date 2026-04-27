@@ -32,20 +32,18 @@ export const PROPERTY_NAV: PropertyNavItem[] = [
   { slug: 'mapa', label: 'Mapa', icon: MapPin, comingSoon: true },
 
   { slug: 'analise', label: 'Análise', icon: BarChart2, group: 'ANÁLISE' },
-  { slug: 'projecoes', label: 'Projeções', icon: TrendingUp, comingSoon: true },
+  { slug: 'projecoes', label: 'Projeções', icon: TrendingUp },
 
   {
     slug: 'comps-vendas',
     label: 'Comparáveis de Venda',
     icon: DollarSign,
     group: 'PESQUISA',
-    comingSoon: true,
   },
   {
     slug: 'comps-aluguel',
     label: 'Comparáveis de Aluguel',
     icon: Thermometer,
-    comingSoon: true,
   },
 ];
 

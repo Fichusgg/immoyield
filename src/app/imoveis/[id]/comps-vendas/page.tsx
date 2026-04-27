@@ -1,7 +1,7 @@
 import TopNav from '@/components/layout/TopNav';
 import { PropertyWorkspace } from '@/components/property/PropertyWorkspace';
-import { PlaceholderPage } from '@/components/property/PlaceholderPage';
 import { loadDealForWorkspace } from '@/components/property/loadDeal';
+import { ComparablesContent } from '@/components/property/comps/ComparablesContent';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -22,16 +22,7 @@ export default async function CompsVendasPage({ params }: Props) {
       />
       <main className="flex-1">
         <PropertyWorkspace deal={deal}>
-          <PlaceholderPage
-            title="Comparáveis de Venda"
-            breadcrumb={[
-              { label: 'Imóveis', href: '/propriedades' },
-              { label: deal.title, href: `/imoveis/${deal.id}/analise` },
-              { label: 'Comparáveis de Venda' },
-            ]}
-            helper="Encontre vendas recentes de imóveis similares para validar o ARV."
-            description="A busca por comparáveis de venda (ARV) está em construção. Será integrada com bases públicas de cartórios e portais."
-          />
+          <ComparablesContent deal={deal} mode="sales" />
         </PropertyWorkspace>
       </main>
     </div>

@@ -17,9 +17,9 @@ Restructured the authenticated property experience into a DealCheck-style worksp
 | `/imoveis/[id]/planilha/despesas` | **NEW** — Itemized operating expenses with unit selector (Por Mês / Por Ano / % do Aluguel) |
 | `/imoveis/[id]/fotos` | **NEW** — *Em Breve* (renders existing imported photos behind overlay) |
 | `/imoveis/[id]/mapa` | **NEW** — *Em Breve* (Como Chegar deeplink works when address is set) |
-| `/imoveis/[id]/projecoes` | **NEW** — *Em Breve* placeholder |
-| `/imoveis/[id]/comps-vendas` | **NEW** — *Em Breve* placeholder |
-| `/imoveis/[id]/comps-aluguel` | **NEW** — *Em Breve* placeholder |
+| `/imoveis/[id]/projecoes` | **NEW** — Live scenario controls (período, valorização, custos de venda) · 4 KPIs · valor + equity area chart · 9-row year-by-year table (1, 2, 3, 5, 10, 15, 20, 25, 30 anos) |
+| `/imoveis/[id]/comps-vendas` | **NEW** — Add/edit/delete sales comps · stats KPIs (mediana / média / faixa por m²) · ARV-suggestion panel with one-click "Aplicar como ARV" · persists to `deals.comps.sales` |
+| `/imoveis/[id]/comps-aluguel` | **NEW** — Same UX as comps-vendas but for monthly rent · "Aplicar como Aluguel" pushes median to `inputs.revenue.monthlyRent` |
 | `/imoveis/[id]/edit` | **Kept untouched** — legacy edit form via `DealForm` (still works as a fallback) |
 | `/buscar-imoveis` | **NEW** — *Em Breve* landing |
 | `/buscar-bancos` | **NEW** — *Em Breve* landing |
@@ -47,6 +47,9 @@ All wrap existing `src/components/ui/*` (shadcn / base-ui) — no parallel compo
 | `sidebar-nav.ts` | Single source of truth for the property nav order, groups, and Em Breve flags |
 | `loadDeal.ts` | Server-side auth + ownership-checked deal fetch — used by every workspace page |
 | `save-deal.ts` | Client-side `patchDeal` helper for form persistence |
+| `comps/helpers.ts` | Shared comp math (price/m², median, mean, suggestedFromComps) + sales↔rentals normalization |
+| `comps/AddCompDialog.tsx` | Modal for adding/editing a single comp (sales or rentals mode) |
+| `comps/ComparablesContent.tsx` | Shared content for both `/comps-vendas` and `/comps-aluguel` (mode prop) — KPIs, suggestion panel, table, save bar, auto-import badge |
 
 ### Top nav (`src/components/layout/TopNav.tsx`)
 - Three primary links: **Meus Imóveis** · **Buscar Imóveis** *Em Breve* · **Buscar Bancos** *Em Breve*
@@ -62,10 +65,10 @@ Fotos · Em Breve
 Mapa · Em Breve
 ─────  ANÁLISE  ─────
 Análise
-Projeções · Em Breve
+Projeções
 ─────  PESQUISA  ─────
-Comparáveis de Venda · Em Breve
-Comparáveis de Aluguel · Em Breve
+Comparáveis de Venda
+Comparáveis de Aluguel
 ─── (footer)
 Excluir
 ```
@@ -99,8 +102,7 @@ Excluir
 - **Storage bucket + Photos:** real photo upload, set-as-cover, delete — gated on a Supabase Storage bucket being provisioned. The Fotos page already renders imported photos from the original listing behind the *Em Breve* overlay.
 - **Maps integration:** Mapbox or Google Maps key needed. The Mapa page already provides a working "Como Chegar" deeplink to Google Maps when an address is set.
 - **Custom expense rows:** the `expenses` schema has 4 fixed bound fields (`condo`, `iptu`, `managementPercent`, `maintenancePercent`). The Despesas sub-page renders them as a list with unit selector but the Add/Delete row UI is gated until the schema is extended with a JSON `customItems` array.
-- **Projeções page:** wire to existing `calculateProjections()` with a multi-year table and chart. Parameters are already editable in the Planilha de Compra.
-- **Comparáveis de Venda / Aluguel:** integrate with QuintoAndar / VivaReal / Zap scrapers (already in `src/lib/scrapers/`) for proximity/specs-matched listings.
+- **Comparáveis · auto-import:** manual entry works end-to-end and persists. The "Importação Automática · Em Breve" badge marks the spot for wiring `src/lib/scrapers/` (vivareal/zap/quintoandar) to fetch proximity/specs-matched listings — likely needs a server action with rate limiting.
 - **Top-bar dropdowns:** Ajuda and Configurações icon buttons render but don't open menus yet — add Popover content when settings/help routes exist.
 - **Floating help bubble:** wire `onClick` to Crisp / Intercom / etc. when a support channel is chosen.
 - **Mobile sidebar:** the property sidebar is 270px sticky on desktop. Below 768px it stacks above content; consider a collapsible drawer (the `Sheet` ui primitive is already available).
