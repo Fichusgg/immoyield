@@ -71,6 +71,9 @@ export interface DealInputs {
   revenue: {
     monthlyRent: number;
     vacancyRate: number;
+    /** True (default): rent already includes condo+IPTU (landlord pays them).
+     *  False: tenant pays condo+IPTU directly — exclude from landlord expenses. */
+    rentIncludesCondoIptu?: boolean;
     /** @deprecated use `rentIndex` + `annualRentIndexRate`. Kept for backwards compat. */
     ipcaIndexed?: boolean;
     annualIpcaRate?: number;

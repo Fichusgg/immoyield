@@ -68,7 +68,7 @@ export default function DescricaoContent({ deal }: Props) {
     deal.inputs?.property?.yearBuilt ?? ''
   );
   const [parking, setParking] = React.useState(
-    deal.inputs?.property?.parking ?? (deal.parking_spots != null ? String(deal.parking_spots) : '0')
+    deal.parking_spots != null ? String(deal.parking_spots) : '0'
   );
   const [lotSize, setLotSize] = React.useState<number | ''>(
     deal.inputs?.property?.lotSizeSquareFeet ?? ''
@@ -241,7 +241,11 @@ export default function DescricaoContent({ deal }: Props) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {(v) =>
+                      TIPO_OPTIONS.find((o) => o.value === v)?.label ?? v
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {TIPO_OPTIONS.map((o) => (
@@ -260,7 +264,7 @@ export default function DescricaoContent({ deal }: Props) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>{(v) => v}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {NUM_OPTIONS.map((n) => (
@@ -279,7 +283,7 @@ export default function DescricaoContent({ deal }: Props) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>{(v) => v}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {NUM_OPTIONS.map((n) => (

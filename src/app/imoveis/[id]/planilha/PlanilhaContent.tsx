@@ -22,6 +22,8 @@ import { NumberInput } from '@/components/property/NumberInput';
 import { Toggle } from '@/components/property/Toggle';
 import { brl } from '@/components/property/format';
 import { patchDeal } from '@/components/property/save-deal';
+import { analyzeRentalDeal } from '@/lib/calculations/rental';
+import { calculateProjections } from '@/lib/calculations/projections';
 
 interface Props {
   deal: SavedDeal;
@@ -55,6 +57,7 @@ function defaults(deal: SavedDeal): DealInput {
     revenue: {
       monthlyRent: 0,
       vacancyRate: 0.05,
+      rentIncludesCondoIptu: true,
       ipcaIndexed: false,
       annualIpcaRate: 0.05,
       dailyRate: 0,
@@ -113,9 +116,10 @@ export default function PlanilhaContent({ deal }: Props) {
     (inp.acquisitionCosts.registro ?? 0) +
     (inp.acquisitionCosts.avaliacao ?? 0);
 
+  const landlordPaysCondoIptu = inp.revenue.rentIncludesCondoIptu ?? true;
   const operatingExpensesMonthly =
-    (inp.expenses.condo ?? 0) +
-    (inp.expenses.iptu ?? 0) / 12 +
+    (landlordPaysCondoIptu ? (inp.expenses.condo ?? 0) : 0) +
+    (landlordPaysCondoIptu ? (inp.expenses.iptu ?? 0) / 12 : 0) +
     (inp.revenue.monthlyRent ?? 0) *
       ((inp.expenses.managementPercent ?? 0) + (inp.expenses.maintenancePercent ?? 0));
 
@@ -124,14 +128,26 @@ export default function PlanilhaContent({ deal }: Props) {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const analysis = analyzeRentalDeal(inp);
+      const projections = calculateProjections(
+        inp,
+        inp.projections?.holdPeriodYears ?? 10,
+        inp.projections?.appreciationRate ?? 0.05
+      );
+      const results = {
+        ...analysis,
+        projections,
+      };
+
       await patchDeal(deal.id, {
         price: inp.purchasePrice,
         condo_fee: inp.expenses.condo,
         iptu: inp.expenses.iptu,
         property_type: inp.propertyType,
         inputs: inp,
+        results_cache: results,
       });
-      toast.success('Planilha salva. Recalculando análise…');
+      toast.success('Planilha salva. Análise atualizada.');
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao salvar');
@@ -233,7 +249,15 @@ export default function PlanilhaContent({ deal }: Props) {
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {(v) =>
+                          v === 'SAC'
+                            ? 'SAC (parcelas decrescentes)'
+                            : v === 'PRICE'
+                              ? 'Price (parcelas fixas)'
+                              : v
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="SAC">SAC (parcelas decrescentes)</SelectItem>
@@ -256,7 +280,21 @@ export default function PlanilhaContent({ deal }: Props) {
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {(v) =>
+                          v === 'SFH'
+                            ? 'SFH (até R$1,5M, teto 12% a.a.)'
+                            : v === 'SFI'
+                              ? 'SFI (sem teto)'
+                              : v === 'MCMV'
+                                ? 'MCMV (subsidiado)'
+                                : v === 'consorcio'
+                                  ? 'Consórcio'
+                                  : v === 'outro'
+                                    ? 'Outro'
+                                    : v
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="SFH">SFH (até R$1,5M, teto 12% a.a.)</SelectItem>
@@ -435,7 +473,21 @@ export default function PlanilhaContent({ deal }: Props) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {(v) =>
+                      v === 'residential'
+                        ? 'Aluguel Residencial'
+                        : v === 'airbnb'
+                          ? 'Airbnb / Temporada'
+                          : v === 'flip'
+                            ? 'Reforma e Venda'
+                            : v === 'multifamily'
+                              ? 'Multifamiliar'
+                              : v === 'commercial'
+                                ? 'Comercial'
+                                : v
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="residential">Aluguel Residencial</SelectItem>
@@ -476,7 +528,7 @@ export default function PlanilhaContent({ deal }: Props) {
             ) : (
               <>
                 <FormRow label="Aluguel Mensal Bruto">
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <NumberInput
                       prefix="R$"
                       value={inp.revenue.monthlyRent}
@@ -490,6 +542,20 @@ export default function PlanilhaContent({ deal }: Props) {
                     >
                       Ver comparáveis de aluguel →
                     </Link>
+                    <div className="rounded border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2.5">
+                      <Toggle
+                        on={inp.revenue.rentIncludesCondoIptu ?? true}
+                        onChange={(on) =>
+                          setNested('revenue', 'rentIncludesCondoIptu', on)
+                        }
+                        label="Aluguel inclui condomínio e IPTU"
+                        description={
+                          (inp.revenue.rentIncludesCondoIptu ?? true)
+                            ? 'O proprietário paga condomínio e IPTU — entram como despesas operacionais.'
+                            : 'O locatário paga condomínio e IPTU diretamente — não entram nas despesas do proprietário.'
+                        }
+                      />
+                    </div>
                   </div>
                 </FormRow>
                 <FormRow

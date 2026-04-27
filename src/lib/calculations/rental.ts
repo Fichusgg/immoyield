@@ -39,10 +39,18 @@ export function analyzeRentalDeal(inputs: DealInputs) {
 
   const monthlyGrossRent = effectiveMonthlyRevenue(inputs);
 
+  // When the rent advertised already includes condomínio + IPTU, the landlord
+  // pays them out of the rent → they count as operating expenses. When it
+  // doesn't (tenant pays the syndic / city directly), they're outside the
+  // landlord's books and must be excluded from the deal economics.
+  const landlordPaysCondoIptu = inputs.revenue.rentIncludesCondoIptu ?? true;
+  const condoExpense = landlordPaysCondoIptu ? inputs.expenses.condo : 0;
+  const iptuExpense = landlordPaysCondoIptu ? inputs.expenses.iptu : 0;
+
   const managementFee = inputs.revenue.monthlyRent * inputs.expenses.managementPercent;
   const monthlyOpExpenses =
-    inputs.expenses.condo +
-    inputs.expenses.iptu +
+    condoExpense +
+    iptuExpense +
     managementFee +
     inputs.revenue.monthlyRent * inputs.expenses.maintenancePercent;
 
@@ -74,8 +82,8 @@ export function analyzeRentalDeal(inputs: DealInputs) {
           inputs.revenue.monthlyRent > 0
             ? inputs.revenue.monthlyRent
             : (inputs.revenue.dailyRate ?? 0) * 30 * (inputs.revenue.occupancyRate ?? 0.65),
-        condo: inputs.expenses.condo,
-        iptu: inputs.expenses.iptu,
+        condo: condoExpense,
+        iptu: iptuExpense,
         managementFee,
         vacancyRate: inputs.revenue.vacancyRate,
       })
@@ -145,15 +153,15 @@ export function analyzeRentalDeal(inputs: DealInputs) {
       const insurance = period ? (period.remainingBalance * insurancePctYear) / 12 : 0;
       const noiM =
         rent * (1 - inputs.revenue.vacancyRate) -
-        (inputs.expenses.condo +
-          inputs.expenses.iptu +
+        (condoExpense +
+          iptuExpense +
           rent * inputs.expenses.managementPercent +
           rent * inputs.expenses.maintenancePercent);
       const irM = applyIR
         ? computeRentalIR({
             grossMonthlyRent: rent,
-            condo: inputs.expenses.condo,
-            iptu: inputs.expenses.iptu,
+            condo: condoExpense,
+            iptu: iptuExpense,
             managementFee: rent * inputs.expenses.managementPercent,
             vacancyRate: inputs.revenue.vacancyRate,
           }).monthlyIR

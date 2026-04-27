@@ -72,6 +72,10 @@ export const dealSchema = z.object({
     // Aluguel / Comercial
     monthlyRent: z.number().min(0),
     vacancyRate: z.number().min(0).max(1),
+    // True = the rent figure already includes condomínio + IPTU (landlord
+    // collects an all-in amount and pays them). False = tenant pays condo/IPTU
+    // directly to the syndic / city, so they're NOT a landlord expense.
+    rentIncludesCondoIptu: z.boolean().default(true),
     // IPCA indexation (legacy, kept for back-compat)
     ipcaIndexed: z.boolean().default(false),
     annualIpcaRate: z.number().min(0).max(0.5).default(0.05),

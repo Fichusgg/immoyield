@@ -48,7 +48,9 @@ export function UnitSelect({
           className
         )}
       >
-        <SelectValue />
+        <SelectValue>
+          {(v) => options.find((o) => o.value === v)?.label ?? v}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
