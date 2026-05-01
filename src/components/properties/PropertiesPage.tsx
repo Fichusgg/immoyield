@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { SavedDeal, deleteDeal } from '@/lib/supabase/deals';
 import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
@@ -101,6 +102,20 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
   useEffect(() => {
     load();
   }, [load]);
+
+  // ── Auto-open wizard when arriving with `?wizard=1` ──────────────────────
+  // The hero calculator seeds the deal store and links here. Open the wizard
+  // immediately, *without* resetting — so the seeded values pre-fill the form.
+  // We strip the param afterward so a refresh won't re-trigger the open.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  useEffect(() => {
+    if (searchParams.get('wizard') !== '1') return;
+    setShowEntryChoice(false);
+    setShowUrlImport(false);
+    setShowWizard(true);
+    router.replace('/propriedades');
+  }, [searchParams, router]);
 
   // ── Derived data ──────────────────────────────────────────────────────────
   const countByCategory = (cat: Category) =>

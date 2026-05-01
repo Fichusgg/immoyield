@@ -1,6 +1,10 @@
 import { DealInputs, effectiveMonthlyRevenue } from './types';
 import { calculateAmortization } from './financing';
-import { computeRentalIR, capitalGainTax, type RentalTaxResult } from './taxes';
+import {
+  computeRentalIR,
+  computeSaleTax,
+  type RentalTaxResult,
+} from './taxes';
 import { irr, monthlyToAnnual } from './irr';
 
 /** Sum of explicit closing costs, falling back to legacy `cartorio`. */
@@ -73,9 +77,11 @@ export function analyzeRentalDeal(inputs: DealInputs) {
   const firstInstallment = schedule.length > 0 ? schedule[0].installment : 0;
   const monthlyDebtService = firstInstallment + insuranceMonth1;
 
-  // ── Imposto de Renda sobre aluguel (PF: Carnê-Leão) ───────────────────────
+  // ── Imposto sobre receita de aluguel (PF: Carnê-Leão · PJ: Lucro Presumido)
   const regime = inputs.taxation?.regime ?? 'PF';
-  const applyIR = regime === 'PF' && inputs.propertyType !== 'flip';
+  const taxedRegime: 'PF' | 'PJ' | null =
+    regime === 'PF' || regime === 'PJ' ? regime : null;
+  const applyIR = taxedRegime !== null && inputs.propertyType !== 'flip';
   const rentalTax: RentalTaxResult | null = applyIR
     ? computeRentalIR({
         grossMonthlyRent:
@@ -86,6 +92,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
         iptu: iptuExpense,
         managementFee,
         vacancyRate: inputs.revenue.vacancyRate,
+        regime: taxedRegime,
       })
     : null;
 
@@ -98,6 +105,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
     capitalGainTax: number;
     netProfit: number;
     roi: number;
+    annualizedRoi: number;
     holdingMonths: number;
   } | null = null;
 
@@ -112,12 +120,20 @@ export function analyzeRentalDeal(inputs: DealInputs) {
     const acquisitionTotal = totalInitialInvestment + holdingFinancingCosts;
     const grossProfit = arv - acquisitionTotal - sellingCosts;
 
-    const capTax = capitalGainTax({
-      gain: grossProfit,
-      reinvestWithin180Days: inputs.taxation?.reinvestWithin180Days,
-    });
+    const capTax = taxedRegime
+      ? computeSaleTax({
+          salePrice: arv,
+          gain: grossProfit,
+          regime: taxedRegime,
+          reinvestWithin180Days: inputs.taxation?.reinvestWithin180Days,
+        }).tax
+      : 0;
     const netProfit = grossProfit - capTax;
     const roi = cashOutlay > 0 ? (netProfit / cashOutlay) * 100 : 0;
+    const annualizedRoi =
+      holdingMonths > 0 && cashOutlay > 0 && netProfit > -cashOutlay
+        ? (Math.pow(1 + netProfit / cashOutlay, 12 / holdingMonths) - 1) * 100
+        : 0;
 
     flipMetrics = {
       salePrice: arv,
@@ -125,6 +141,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
       capitalGainTax: capTax,
       netProfit,
       roi,
+      annualizedRoi,
       holdingMonths,
     };
   }
@@ -157,13 +174,14 @@ export function analyzeRentalDeal(inputs: DealInputs) {
           iptuExpense +
           rent * inputs.expenses.managementPercent +
           rent * inputs.expenses.maintenancePercent);
-      const irM = applyIR
+      const irM = applyIR && taxedRegime
         ? computeRentalIR({
             grossMonthlyRent: rent,
             condo: condoExpense,
             iptu: iptuExpense,
             managementFee: rent * inputs.expenses.managementPercent,
             vacancyRate: inputs.revenue.vacancyRate,
+            regime: taxedRegime,
           }).monthlyIR
         : 0;
       cashflows.push(noiM - installment - insurance - irM);
@@ -174,10 +192,14 @@ export function analyzeRentalDeal(inputs: DealInputs) {
     const sellingCostPct = inputs.expenses.sellingCostPercent ?? 0.06;
     const saleNet = propertyValue * (1 - sellingCostPct);
     const gain = Math.max(0, propertyValue - inputs.purchasePrice);
-    const cgt = capitalGainTax({
-      gain,
-      reinvestWithin180Days: inputs.taxation?.reinvestWithin180Days,
-    });
+    const cgt = taxedRegime
+      ? computeSaleTax({
+          salePrice: propertyValue,
+          gain,
+          regime: taxedRegime,
+          reinvestWithin180Days: inputs.taxation?.reinvestWithin180Days,
+        }).tax
+      : 0;
     const exit = saleNet - remainingBalance - cgt;
     cashflows[cashflows.length - 1] += exit;
 
@@ -195,19 +217,69 @@ export function analyzeRentalDeal(inputs: DealInputs) {
   const effectiveRent = grossRent - vacancyLoss;
   const operatingExpenses = monthlyOpExpenses;
 
+  // ── Yields (gross = pre-tax, net = post-tax) ──────────────────────────────
+  // Annualised over the purchase price, expressed as % a.a. and % a.m.
+  const annualGrossRent = grossRent * 12;
+  const annualNetRent = annualGrossRent - (rentalTax?.annualIR ?? 0);
+  const grossYieldAnnualPct =
+    inputs.purchasePrice > 0 ? (annualGrossRent / inputs.purchasePrice) * 100 : 0;
+  const netYieldAnnualPct =
+    inputs.purchasePrice > 0 ? (annualNetRent / inputs.purchasePrice) * 100 : 0;
+  const grossYieldMonthlyPct = grossYieldAnnualPct / 12;
+  const netYieldMonthlyPct = netYieldAnnualPct / 12;
+
+  // Cash-on-Cash, gross vs net of tax. The legacy `cashOnCash` already nets
+  // tax via `monthlyCashFlow`; expose it explicitly under the new name and
+  // also surface the pre-tax variant for the side-by-side display.
+  const monthlyCashFlowPreTax = noi - monthlyDebtService;
+  const cashOnCashGrossPct =
+    cashOutlay > 0 ? ((monthlyCashFlowPreTax * 12) / cashOutlay) * 100 : 0;
+  const cashOnCashNetPct =
+    cashOutlay > 0 ? ((monthlyCashFlow * 12) / cashOutlay) * 100 : 0;
+
+  // Rental ROI over the configured hold period (default 5 yrs).
+  const rentalHoldYears = Math.max(
+    1,
+    Math.min(30, inputs.projections?.holdPeriodYears ?? 5),
+  );
+  let rentalRoiPct: number | null = null;
+  let rentalRoiAnnualizedPct: number | null = null;
+  if (inputs.propertyType !== 'flip' && cashOutlay > 0) {
+    const cumulativeCashFlow = monthlyCashFlow * 12 * rentalHoldYears;
+    const horizonMonths = Math.min(rentalHoldYears * 12, schedule.length);
+    const remainingAtHorizon =
+      horizonMonths > 0
+        ? schedule[horizonMonths - 1]?.remainingBalance ?? 0
+        : loanAmount;
+    const equityBuildUp = loanAmount - remainingAtHorizon;
+    const totalReturn = cumulativeCashFlow + equityBuildUp;
+    rentalRoiPct = (totalReturn / cashOutlay) * 100;
+    rentalRoiAnnualizedPct =
+      totalReturn > -cashOutlay
+        ? (Math.pow(1 + totalReturn / cashOutlay, 1 / rentalHoldYears) - 1) * 100
+        : null;
+  }
+
+  const taxRegimeOut: 'PF' | 'PJ' | 'isento' | null =
+    rentalTax?.regime ?? (regime === 'isento' ? 'isento' : taxedRegime);
+
   return {
     metrics: {
       capRate: ((noi * 12) / inputs.purchasePrice) * 100,
       cashOnCash: cashOutlay > 0 ? ((monthlyCashFlow * 12) / cashOutlay) * 100 : 0,
       cashOnCashOutOfPocket:
         outOfPocketCash > 0 ? ((monthlyCashFlow * 12) / outOfPocketCash) * 100 : 0,
+      cashOnCashGrossPct,
+      cashOnCashNetPct,
       totalInvestment: totalInitialInvestment,
       loanAmount,
       cashOutlay,
       fgtsAmount,
       outOfPocketCash,
       monthlyNOI: noi,
+      annualNOI: noi * 12,
       monthlyCashFlow,
+      monthlyCashFlowPreTax,
       grossMonthlyRent: grossRent,
       vacancyLoss,
       effectiveRent,
@@ -218,6 +290,14 @@ export function analyzeRentalDeal(inputs: DealInputs) {
       annualIR: rentalTax?.annualIR ?? 0,
       effectiveIRRate: rentalTax?.effectiveRate ?? 0,
       marginalIRRate: rentalTax?.marginalRate ?? 0,
+      taxRegime: taxRegimeOut,
+      grossYieldAnnualPct,
+      netYieldAnnualPct,
+      grossYieldMonthlyPct,
+      netYieldMonthlyPct,
+      rentalRoiPct,
+      rentalRoiAnnualizedPct,
+      rentalHoldYears,
       irrAnnual,
       modality: inputs.financing.modality ?? null,
     },

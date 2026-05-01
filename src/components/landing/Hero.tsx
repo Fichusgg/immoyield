@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
+import { HeroCalculator } from './HeroCalculator';
 
 const SAGE = '#4A7C59';
 const SAGE_DIM = '#3D6B4F';
@@ -82,60 +83,8 @@ export default function Hero() {
           
         </div>
 
-        {/* RIGHT — layered mockup, warm palette */}
-        <motion.div
-          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
-          className="relative h-[360px] md:col-span-6 md:h-[460px] lg:h-[520px]"
-        >
-          {/* Desktop (back) */}
-          <div
-            className="absolute right-[-5%] top-1/2 w-[105%] -translate-y-1/2 border border-[#E2E0DA] bg-[#FAFAF8] p-3"
-            style={{ boxShadow: '0 20px 40px -12px rgba(28,43,32,0.08)' }}
-          >
-            <div className="flex items-center gap-1.5 pb-2">
-              <span className="h-2 w-2 rounded-full bg-[#E2E0DA]" />
-              <span className="h-2 w-2 rounded-full bg-[#E2E0DA]" />
-              <span className="h-2 w-2 rounded-full bg-[#E2E0DA]" />
-            </div>
-            <div className="aspect-[16/10] w-full bg-[#F0EFEB] p-4">
-              <div className="grid h-full grid-cols-12 gap-3">
-                <div className="col-span-3 space-y-2">
-                  <div className="h-2.5 w-3/4 bg-[#E2E0DA]" />
-                  <div className="h-2.5 w-1/2 bg-[#E2E0DA]" />
-                  <div className="h-2.5 w-2/3 bg-[#E2E0DA]" />
-                  <div className="h-2.5 w-1/2 bg-[#E2E0DA]" />
-                </div>
-                <div className="col-span-9 space-y-3">
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="h-14 bg-[#EBF3EE]" />
-                    <div className="h-14 bg-[#FAFAF8]" />
-                    <div className="h-14 bg-[#FAFAF8]" />
-                  </div>
-                  <div className="h-20 bg-[#FAFAF8]" />
-                  <div className="h-14 bg-[#FAFAF8]" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile (front) */}
-          <div
-            className="absolute bottom-2 left-2 z-10 w-[28%] min-w-[130px] border border-[#E2E0DA] bg-[#FAFAF8] p-2"
-            style={{ boxShadow: '0 20px 40px -12px rgba(28,43,32,0.12)', borderRadius: 28 }}
-          >
-            <div className="aspect-[9/19] w-full bg-[#F0EFEB] p-3" style={{ borderRadius: 22 }}>
-              <div className="mx-auto mt-1 h-1 w-10 rounded bg-[#E2E0DA]" />
-              <div className="mt-3 h-2 w-2/3 bg-[#E2E0DA]" />
-              <div className="mt-2 h-2 w-1/2 bg-[#E2E0DA]" />
-              <div className="mt-3 h-16 bg-[#EBF3EE]" />
-              <div className="mt-2 h-2 w-3/4 bg-[#E2E0DA]" />
-              <div className="mt-2 h-2 w-2/3 bg-[#E2E0DA]" />
-              <div className="mt-4 h-7 bg-[#4A7C59]" />
-            </div>
-          </div>
-        </motion.div>
+        {/* RIGHT — interactive mini-calculator (replaces the static mockup) */}
+        <HeroCalculator />
       </div>
     </section>
   );

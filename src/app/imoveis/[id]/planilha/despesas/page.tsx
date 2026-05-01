@@ -15,10 +15,6 @@ export default async function DespesasPage({ params }: Props) {
     <div className="flex min-h-dvh flex-col bg-[#F8F7F4]">
       <TopNav
         userEmail={userEmail}
-        breadcrumb={[
-          { label: 'Imóveis', href: '/propriedades' },
-          { label: deal.title },
-        ]}
       />
       <main className="flex-1">
         <PropertyWorkspace deal={deal}>

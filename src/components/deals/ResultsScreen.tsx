@@ -32,7 +32,9 @@ interface Metrics {
   cashOnCash: number;
   totalInvestment: number;
   monthlyNOI: number;
+  annualNOI?: number;
   monthlyCashFlow: number;
+  monthlyCashFlowPreTax?: number;
   loanAmount: number;
   cashOutlay: number;
   grossMonthlyRent?: number;
@@ -45,6 +47,16 @@ interface Metrics {
   annualIR?: number;
   effectiveIRRate?: number;
   marginalIRRate?: number;
+  taxRegime?: 'PF' | 'PJ' | 'isento' | null;
+  grossYieldAnnualPct?: number;
+  netYieldAnnualPct?: number;
+  grossYieldMonthlyPct?: number;
+  netYieldMonthlyPct?: number;
+  cashOnCashGrossPct?: number;
+  cashOnCashNetPct?: number;
+  rentalRoiPct?: number | null;
+  rentalRoiAnnualizedPct?: number | null;
+  rentalHoldYears?: number;
   irrAnnual?: number | null;
   fgtsAmount?: number;
   outOfPocketCash?: number;
@@ -72,6 +84,7 @@ interface FlipMetrics {
   capitalGainTax: number;
   netProfit: number;
   roi: number;
+  annualizedRoi?: number;
   holdingMonths: number;
 }
 
@@ -215,6 +228,7 @@ const KPICard = ({
   label,
   value,
   sub,
+  secondary,
   highlight,
   positive,
   negative,
@@ -222,6 +236,8 @@ const KPICard = ({
   label: string;
   value: string;
   sub?: string;
+  /** Smaller value next to `value` — for "gross vs net" comparisons. */
+  secondary?: { label: string; value: string };
   highlight?: boolean;
   positive?: boolean;
   negative?: boolean;
@@ -242,19 +258,29 @@ const KPICard = ({
     >
       {label}
     </span>
-    <span
-      className={`font-mono text-2xl font-black tracking-tight tabular-nums ${
-        highlight
-          ? 'text-[#4A7C59]'
-          : positive
+    <div className="flex items-baseline gap-2">
+      <span
+        className={`font-mono text-2xl font-black tracking-tight tabular-nums ${
+          highlight
             ? 'text-[#4A7C59]'
-            : negative
-              ? 'text-[#DC2626]'
-              : 'text-[#1C2B20]'
-      }`}
-    >
-      {value}
-    </span>
+            : positive
+              ? 'text-[#4A7C59]'
+              : negative
+                ? 'text-[#DC2626]'
+                : 'text-[#1C2B20]'
+        }`}
+      >
+        {value}
+      </span>
+      {secondary && (
+        <span
+          title={secondary.label}
+          className="font-mono text-xs font-semibold tabular-nums text-[#9CA3AF]"
+        >
+          ({secondary.value} {secondary.label})
+        </span>
+      )}
+    </div>
     {sub && (
       <span className={`text-xs ${highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'}`}>{sub}</span>
     )}
@@ -601,55 +627,83 @@ export default function ResultsScreen({
         </div>
       )}
 
-      {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <KPICard
-          label="Fluxo de Caixa"
-          value={fmt(metrics.monthlyCashFlow)}
-          sub="mensal, líquido de IR"
-          positive={cashFlowPositive}
-          negative={!cashFlowPositive}
-        />
-        <KPICard
-          label="Cap Rate"
-          value={fmtPct(metrics.capRate)}
-          sub="retorno bruto anual"
-          highlight
-        />
-        <KPICard
-          label="Cash-on-Cash"
-          value={fmtPct(metrics.cashOnCash)}
-          sub="retorno sobre capital próprio"
-          positive={metrics.cashOnCash >= 0}
-          negative={metrics.cashOnCash < 0}
-        />
-        <KPICard
-          label="TIR (5 anos)"
-          value={
-            metrics.irrAnnual != null && Number.isFinite(metrics.irrAnnual)
-              ? fmtPct(metrics.irrAnnual)
-              : '—'
-          }
-          sub="com saída e ganho de capital"
-          positive={(metrics.irrAnnual ?? 0) >= CDI_RATE}
-          negative={(metrics.irrAnnual ?? 0) < 0}
-        />
-        <KPICard
-          label="NOI Mensal"
-          value={fmt(metrics.monthlyNOI)}
-          sub="resultado operacional"
-        />
-        <KPICard
-          label="IR Aluguel"
-          value={fmt(metrics.monthlyIR ?? 0)}
-          sub={
-            (metrics.monthlyIR ?? 0) > 0
-              ? `Carnê-Leão · alíq. marg. ${fmtPct((metrics.marginalIRRate ?? 0) * 100)}`
-              : 'Isento na faixa atual'
-          }
-          negative={(metrics.monthlyIR ?? 0) > 0}
-        />
-      </div>
+      {/* ── Regime banner ─────────────────────────────────────────────────── */}
+      {(() => {
+        const regime = metrics.taxRegime ?? inputs.taxation?.regime ?? 'PF';
+        const regimeLabel =
+          regime === 'PJ'
+            ? 'CNPJ · Lucro Presumido'
+            : regime === 'isento'
+              ? 'Isento'
+              : 'CPF · Carnê-Leão';
+        return (
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="border border-[#E2E0DA] bg-[#FAFAF8] px-2.5 py-1 font-mono font-semibold text-[#6B7280]">
+              Regime: <span className="text-[#1C2B20]">{regimeLabel}</span>
+            </span>
+            {regime !== 'isento' && (metrics.effectiveIRRate ?? 0) > 0 && (
+              <span className="border border-[#E2E0DA] bg-[#FAFAF8] px-2.5 py-1 font-mono font-semibold text-[#6B7280]">
+                Alíquota efetiva sobre receita:{' '}
+                <span className="text-[#1C2B20]">
+                  {fmtPct((metrics.effectiveIRRate ?? 0) * 100)}
+                </span>
+              </span>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* ── KPI Strip — Rentabilidade + Fluxo + ROI ──────────────────────── */}
+      {(() => {
+        const taxedRegime = (metrics.taxRegime ?? inputs.taxation?.regime ?? 'PF') !== 'isento';
+        return (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <KPICard
+              label="Fluxo de Caixa"
+              value={fmt(metrics.monthlyCashFlow)}
+              sub="mensal, líquido de imposto"
+              positive={cashFlowPositive}
+              negative={!cashFlowPositive}
+            />
+            <KPICard
+              label="Rentabilidade Anual"
+              value={fmtPct(metrics.netYieldAnnualPct ?? 0)}
+              secondary={
+                taxedRegime
+                  ? { label: 'sem imp.', value: fmtPct(metrics.grossYieldAnnualPct ?? 0) }
+                  : undefined
+              }
+              sub="receita / preço de compra"
+              highlight
+            />
+            <KPICard
+              label="Rentabilidade Mensal"
+              value={fmtPct(metrics.netYieldMonthlyPct ?? 0)}
+              secondary={
+                taxedRegime
+                  ? { label: 'sem imp.', value: fmtPct(metrics.grossYieldMonthlyPct ?? 0) }
+                  : undefined
+              }
+              sub="anual ÷ 12"
+            />
+            <KPICard
+              label={`ROI ${metrics.rentalHoldYears ?? 5}a`}
+              value={
+                metrics.rentalRoiPct != null && Number.isFinite(metrics.rentalRoiPct)
+                  ? fmtPct(metrics.rentalRoiPct)
+                  : '—'
+              }
+              sub={
+                metrics.rentalRoiAnnualizedPct != null
+                  ? `anualizado: ${fmtPct(metrics.rentalRoiAnnualizedPct)}`
+                  : 'fluxo cumulativo + equity'
+              }
+              positive={(metrics.rentalRoiPct ?? 0) >= 0}
+              negative={(metrics.rentalRoiPct ?? 0) < 0}
+            />
+          </div>
+        );
+      })()}
 
       {/* ── ImmoScore full breakdown ─────────────────────────────────────────── */}
       <div className={`border p-5 ${scoreLabel.bg} ${scoreLabel.border}`}>

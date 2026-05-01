@@ -6,6 +6,7 @@ import {
   BarChart2,
   TrendingUp,
   Award,
+  Sliders,
   DollarSign,
   Thermometer,
   type LucideIcon,
@@ -33,6 +34,7 @@ export const PROPERTY_NAV: PropertyNavItem[] = [
   { slug: 'mapa', label: 'Mapa', icon: MapPin, comingSoon: true },
 
   { slug: 'analise', label: 'Análise', icon: BarChart2, group: 'ANÁLISE' },
+  { slug: 'simulador', label: 'Simulador', icon: Sliders },
   { slug: 'projecoes', label: 'Projeções', icon: TrendingUp },
   { slug: 'score', label: 'ImmoScore', icon: Award },
 

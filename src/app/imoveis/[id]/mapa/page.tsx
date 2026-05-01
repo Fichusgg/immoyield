@@ -23,20 +23,11 @@ export default async function MapaPage({ params }: Props) {
     <div className="flex min-h-dvh flex-col bg-[#F8F7F4]">
       <TopNav
         userEmail={userEmail}
-        breadcrumb={[
-          { label: 'Imóveis', href: '/propriedades' },
-          { label: deal.title },
-        ]}
       />
       <main className="flex-1">
         <PropertyWorkspace deal={deal}>
           <PlaceholderPage
             title="Mapa"
-            breadcrumb={[
-              { label: 'Imóveis', href: '/propriedades' },
-              { label: deal.title, href: `/imoveis/${deal.id}/analise` },
-              { label: 'Mapa' },
-            ]}
             helper={
               address
                 ? `Endereço cadastrado: ${address}`

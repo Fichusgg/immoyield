@@ -480,7 +480,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           type="submit"
           className="bg-[#4A7C59] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F]"
         >
-          Próximo: Projeções →
+          Próximo: Revisar →
         </button>
       </div>
     </form>

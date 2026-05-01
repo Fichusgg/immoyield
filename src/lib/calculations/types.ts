@@ -97,6 +97,18 @@ export interface DealInputs {
     /** Reinvestir em imóvel residencial em 180 dias isenta ganho de capital. */
     reinvestWithin180Days?: boolean;
   };
+  /**
+   * Long-term projection knobs. `holdPeriodYears` doubles as the horizon for
+   * the rental ROI metric exposed in the analysis surface.
+   */
+  projections?: {
+    appreciationRate?: number;
+    incomeGrowthRate?: number;
+    expenseGrowthRate?: number;
+    holdPeriodYears?: number;
+    sellingCostPercent?: number;
+    depreciationPeriodYears?: number;
+  };
 }
 
 export interface AmortizationPeriod {

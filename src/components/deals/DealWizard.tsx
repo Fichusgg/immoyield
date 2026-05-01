@@ -4,7 +4,6 @@ import { useDealStore } from '@/store/useDealStore';
 import { DadosImovel } from './tabs/DadosImovel';
 import { CompraECustos } from './tabs/CompraECustos';
 import { ReceitasEDespesas } from './tabs/ReceitasEDespesas';
-import { ProjecoesLongoPrazo } from './tabs/ProjecoesLongoPrazo';
 import { ProjecoesTab } from './tabs/ProjecoesTab';
 import ResultsScreen, { AnalysisResult } from './ResultsScreen';
 import { createClient } from '@/lib/supabase/client';
@@ -12,13 +11,33 @@ import { DealInput } from '@/lib/validations/deal';
 import { useState, useEffect } from 'react';
 import { PROPERTY_TYPE_LABELS } from '@/lib/validations/deal';
 
-const ALL_TABS = [
-  { id: 0, label: 'Dados', sub: 'Descrição e endereço' },
-  { id: 1, label: 'Compra', sub: 'Valor e financiamento' },
-  { id: 2, label: 'Receitas', sub: 'Aluguel e despesas' },
-  { id: 3, label: 'Projeções', sub: 'Valorização e horizonte' },
-  { id: 4, label: 'Revisar', sub: 'Confirmar e calcular' },
-];
+// Tab IDs are stable across strategies — only the middle tab's label/sub
+// changes per strategy. Projeções (long-term valorization) lives on the
+// per-deal Planilha and isn't part of the wizard.
+const TAB_IDS = { dados: 0, compra: 1, receita: 2, revisar: 4 } as const;
+
+interface TabDef {
+  id: number;
+  label: string;
+  sub: string;
+}
+
+function buildTabs(propertyType: string): TabDef[] {
+  const isAirbnb = propertyType === 'airbnb';
+  const isFlip = propertyType === 'flip';
+  const middle: TabDef = isFlip
+    ? { id: TAB_IDS.receita, label: 'Reforma & Venda', sub: 'ARV, prazo e custo de venda' }
+    : isAirbnb
+      ? { id: TAB_IDS.receita, label: 'Aluguel', sub: 'Diária e ocupação' }
+      : { id: TAB_IDS.receita, label: 'Aluguel', sub: 'Mensal e despesas' };
+
+  return [
+    { id: TAB_IDS.dados, label: 'Dados', sub: 'Descrição e endereço' },
+    { id: TAB_IDS.compra, label: 'Compra', sub: 'Valor e financiamento' },
+    middle,
+    { id: TAB_IDS.revisar, label: 'Revisar', sub: 'Confirmar e calcular' },
+  ];
+}
 
 interface Benchmarks {
   cdi: number;
@@ -75,11 +94,12 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
   }, []);
 
   const propertyType = formData.propertyType ?? 'residential';
-  const isReforma = propertyType === 'flip';
 
+  // Projeções (id 3) is no longer a tab. If a persisted draft state has the
+  // user parked there, bounce them forward to Revisar.
   useEffect(() => {
-    if (isReforma && activeTab === 3) setActiveTab(4);
-  }, [isReforma, activeTab, setActiveTab]);
+    if (activeTab === 3) setActiveTab(4);
+  }, [activeTab, setActiveTab]);
 
   const calculateDeal = async () => {
     setLoading(true);
@@ -124,7 +144,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
   }
 
   const propertyLabel = PROPERTY_TYPE_LABELS[propertyType];
-  const TABS = isReforma ? ALL_TABS.filter((t) => t.id !== 3) : ALL_TABS;
+  const TABS = buildTabs(propertyType);
   const prefillCss = buildPrefillCss(prefilledFields);
 
   return (
@@ -189,11 +209,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
       </div>
 
       {/* ── Tab strip ───────────────────────────────────────────────────────── */}
-      <div
-        className={`mb-6 grid border border-[#E2E0DA] bg-[#FAFAF8] ${
-          isReforma ? 'grid-cols-4' : 'grid-cols-5'
-        }`}
-      >
+      <div className="mb-6 grid grid-cols-4 border border-[#E2E0DA] bg-[#FAFAF8]">
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
           const completed = activeTab > tab.id;
@@ -238,15 +254,12 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
         {activeTab === 2 && (
           <ReceitasEDespesas
             onBack={() => setActiveTab(1)}
-            onNext={() => setActiveTab(isReforma ? 4 : 3)}
+            onNext={() => setActiveTab(4)}
           />
-        )}
-        {activeTab === 3 && !isReforma && (
-          <ProjecoesLongoPrazo onBack={() => setActiveTab(2)} onNext={() => setActiveTab(4)} />
         )}
         {activeTab === 4 && (
           <ProjecoesTab
-            onBack={() => setActiveTab(isReforma ? 2 : 3)}
+            onBack={() => setActiveTab(2)}
             onCalculate={calculateDeal}
             loading={loading}
             apiError={apiError}

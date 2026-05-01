@@ -3,7 +3,7 @@ import { ComingSoonPanel } from './ComingSoonPanel';
 
 interface Props {
   title: string;
-  breadcrumb: BreadcrumbItem[];
+  breadcrumb?: BreadcrumbItem[];
   description: React.ReactNode;
   /** Optional preview content rendered behind the "Em Breve" overlay. */
   preview?: React.ReactNode;

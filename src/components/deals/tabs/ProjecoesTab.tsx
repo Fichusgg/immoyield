@@ -19,10 +19,10 @@ const fmt = (v: number) =>
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 
 export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) {
-  const { formData } = useDealStore();
+  const { formData, updateFormData } = useDealStore();
   const isReforma = formData.propertyType === 'flip';
   const isAirbnb = formData.propertyType === 'airbnb';
-  const proj = formData.projections;
+  const regime = formData.taxation?.regime ?? 'PF';
 
   return (
     <div className="space-y-7">
@@ -90,40 +90,40 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
                 { label: 'IPTU', value: fmt(formData.expenses?.iptu ?? 0) },
               ].map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
 
-        {/* Projeções de Longo Prazo */}
-        {proj && !isReforma && (
-          <>
-            <SectionHeader label="Projeções de Longo Prazo" />
-            {[
-              {
-                label: 'Valorização anual',
-                value: pct(proj.appreciationRate ?? 0.05),
-              },
-              {
-                label: 'Crescimento da receita',
-                value: pct(proj.incomeGrowthRate ?? 0.05),
-              },
-              {
-                label: 'Crescimento das despesas',
-                value: pct(proj.expenseGrowthRate ?? 0.05),
-              },
-              {
-                label: 'Período de retenção',
-                value: `${proj.holdPeriodYears ?? 10} anos`,
-              },
-              {
-                label: 'Custo de venda',
-                value: pct(proj.sellingCostPercent ?? 0.08),
-              },
-              {
-                label: 'Vida útil (depreciação)',
-                value: `${proj.depreciationPeriodYears ?? 25} anos`,
-              },
-            ].map((r) => (
-              <Row key={r.label} label={r.label} value={r.value} />
+        {/* Tributação — sempre visível, controla CPF vs CNPJ */}
+        <SectionHeader label="Tributação" />
+        <div className="flex items-center justify-between gap-4 bg-[#FAFAF8] px-4 py-3">
+          <div>
+            <p className="text-sm text-[#1C2B20]">Regime tributário</p>
+            <p className="font-mono text-[10px] text-[#9CA3AF]">
+              CPF: Carnê-Leão até 27,5%. CNPJ: Lucro Presumido (~11,33%).
+            </p>
+          </div>
+          <div className="flex gap-1.5 border border-[#E2E0DA] bg-white p-0.5">
+            {(['PF', 'PJ'] as const).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() =>
+                  updateFormData({
+                    taxation: {
+                      regime: opt,
+                      reinvestWithin180Days:
+                        formData.taxation?.reinvestWithin180Days ?? false,
+                    },
+                  })
+                }
+                className={`px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide uppercase transition-colors ${
+                  regime === opt
+                    ? 'bg-[#4A7C59] text-white'
+                    : 'text-[#6B7280] hover:bg-[#F0EFEB]'
+                }`}
+              >
+                {opt === 'PF' ? 'CPF' : 'CNPJ'}
+              </button>
             ))}
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
       {apiError && (

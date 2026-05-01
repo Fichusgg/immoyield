@@ -1,10 +1,28 @@
-// Brazilian tax engine: Carnê-Leão (IR on rental income for PF)
-// and capital gains (ganho de capital) on sale.
+// Brazilian tax engine for real-estate analysis.
 //
-// Tabela progressiva mensal do IRPF (vigente a partir de 05/2024).
-// Fonte: Receita Federal — IN/RFB.
-// Brackets are applied to (monthly rental - allowed deductions) for PF
-// declarando no carnê-leão. PJ has a different regime and is out of scope here.
+// Two regimes supported:
+//
+//   • PF (Pessoa Física / CPF) — Carnê-Leão progressive table on rental income
+//     and ganho de capital on sale (15% up to R$5M, escalating brackets above).
+//
+//   • PJ (Pessoa Jurídica / CNPJ) — Lucro Presumido. 32% presumption on rental
+//     revenue, then IRPJ 15% + CSLL 9% on the presumed base, plus PIS 0.65%
+//     and COFINS 3% on gross revenue. IRPJ "adicional" of 10% applies to the
+//     presumed base that exceeds R$20k/month. Sale revenue follows the same
+//     formula when the property is held by a holding/locadora.
+//
+// All rates and brackets below should be reviewed annually — refresh after
+// each Receita Federal update (typically published in May).
+
+import type { TaxRegime } from './types';
+
+/** Subset of TaxRegime that triggers actual tax math. 'isento' returns zero. */
+export type TaxedRegime = Exclude<TaxRegime, 'isento'>;
+
+// ── PF — Carnê-Leão (rental income) ─────────────────────────────────────────
+//
+// Tabela progressiva mensal do IRPF — vigente desde 05/2024.
+// Fonte: Receita Federal (IN/RFB). REVIEW ANNUALLY.
 
 export interface IRBracket {
   upTo: number;      // upper bound of monthly income (BRL); Infinity for top bracket
@@ -50,12 +68,83 @@ export function allowableRentalDeductionsMonthly(args: {
   return (args.condo ?? 0) + (args.iptu ?? 0) + (args.managementFee ?? 0);
 }
 
+// ── PJ — Lucro Presumido ────────────────────────────────────────────────────
+//
+// Vigente em 2024-2026. REVIEW ANNUALLY.
+
+export const LUCRO_PRESUMIDO = {
+  /** Presumption percentage applied to gross revenue for IRPJ + CSLL base. */
+  presumptionPercent: 0.32,
+  /** Federal income tax on the presumed base. */
+  irpjRate: 0.15,
+  /** Adicional IRPJ on presumed base exceeding the monthly threshold. */
+  irpjAdicionalRate: 0.10,
+  irpjAdicionalMonthlyThreshold: 20_000,
+  /** Social contribution on the presumed base. */
+  csllRate: 0.09,
+  /** PIS on gross revenue (cumulative, regime presumido). */
+  pisRate: 0.0065,
+  /** COFINS on gross revenue (cumulative, regime presumido). */
+  cofinsRate: 0.03,
+} as const;
+
+export interface LucroPresumidoBreakdown {
+  monthlyTax: number;
+  /** Effective rate as fraction of gross monthly revenue. */
+  effectiveRate: number;
+  components: {
+    irpj: number;
+    irpjAdicional: number;
+    csll: number;
+    pis: number;
+    cofins: number;
+  };
+}
+
+/**
+ * Calcula a carga tributária mensal sob Lucro Presumido.
+ * Aplica-se tanto a receita de aluguel quanto a receita de venda quando a
+ * pessoa jurídica é uma holding/locadora cujo objeto inclui a atividade.
+ */
+export function lucroPresumidoMonthly(grossMonthlyRevenue: number): LucroPresumidoBreakdown {
+  if (grossMonthlyRevenue <= 0) {
+    return {
+      monthlyTax: 0,
+      effectiveRate: 0,
+      components: { irpj: 0, irpjAdicional: 0, csll: 0, pis: 0, cofins: 0 },
+    };
+  }
+
+  const presumedBase = grossMonthlyRevenue * LUCRO_PRESUMIDO.presumptionPercent;
+  const irpj = presumedBase * LUCRO_PRESUMIDO.irpjRate;
+  const irpjAdicional =
+    Math.max(0, presumedBase - LUCRO_PRESUMIDO.irpjAdicionalMonthlyThreshold) *
+    LUCRO_PRESUMIDO.irpjAdicionalRate;
+  const csll = presumedBase * LUCRO_PRESUMIDO.csllRate;
+  const pis = grossMonthlyRevenue * LUCRO_PRESUMIDO.pisRate;
+  const cofins = grossMonthlyRevenue * LUCRO_PRESUMIDO.cofinsRate;
+  const total = irpj + irpjAdicional + csll + pis + cofins;
+
+  return {
+    monthlyTax: total,
+    effectiveRate: total / grossMonthlyRevenue,
+    components: { irpj, irpjAdicional, csll, pis, cofins },
+  };
+}
+
+// TODO: Lucro Real / Simples Nacional — only Lucro Presumido is modelled.
+
+// ── Unified rental tax interface ────────────────────────────────────────────
+
 export interface RentalTaxResult {
   taxableMonthly: number;
   monthlyIR: number;
   annualIR: number;
-  effectiveRate: number;   // annualIR / (12 * grossRent)  (pode ser 0 se isento)
-  marginalRate: number;    // alíquota da faixa de incidência
+  /** Effective tax rate as fraction of gross monthly rent. */
+  effectiveRate: number;
+  /** Marginal rate of the bracket hit (PF) or effective rate (PJ). */
+  marginalRate: number;
+  regime: TaxedRegime;
 }
 
 export function computeRentalIR(args: {
@@ -64,8 +153,24 @@ export function computeRentalIR(args: {
   iptu: number;
   managementFee: number;
   vacancyRate: number; // 0..1
+  regime?: TaxedRegime;
 }): RentalTaxResult {
+  const regime = args.regime ?? 'PF';
   const effectiveRent = args.grossMonthlyRent * (1 - args.vacancyRate);
+
+  if (regime === 'PJ') {
+    const breakdown = lucroPresumidoMonthly(effectiveRent);
+    return {
+      taxableMonthly: effectiveRent,
+      monthlyIR: breakdown.monthlyTax,
+      annualIR: breakdown.monthlyTax * 12,
+      effectiveRate:
+        args.grossMonthlyRent > 0 ? breakdown.monthlyTax / args.grossMonthlyRent : 0,
+      marginalRate: breakdown.effectiveRate,
+      regime: 'PJ',
+    };
+  }
+
   const deductions = allowableRentalDeductionsMonthly(args);
   const taxable = Math.max(0, effectiveRent - deductions);
   const monthlyIR = carneLeaoMonthly(taxable);
@@ -81,8 +186,11 @@ export function computeRentalIR(args: {
     effectiveRate:
       args.grossMonthlyRent > 0 ? monthlyIR / args.grossMonthlyRent : 0,
     marginalRate: bracket.rate,
+    regime: 'PF',
   };
 }
+
+// ── Capital gain on sale ────────────────────────────────────────────────────
 
 /**
  * Ganho de capital na venda de imóvel residencial (PF).
@@ -109,4 +217,42 @@ export function capitalGainTax(args: {
     20_000_000 * 0.20 +
     (g - 30_000_000) * 0.225
   );
+}
+
+export interface SaleTaxResult {
+  tax: number;
+  /** Effective tax rate against the chosen base (gain for PF, gross sale for PJ). */
+  effectiveRate: number;
+  regime: TaxedRegime;
+}
+
+/**
+ * Tax on a real-estate sale.
+ *  • PF: ganho de capital (incidência sobre o lucro)
+ *  • PJ Lucro Presumido: incidência sobre a receita bruta da venda
+ */
+export function computeSaleTax(args: {
+  salePrice: number;
+  gain: number;
+  regime?: TaxedRegime;
+  reinvestWithin180Days?: boolean;
+}): SaleTaxResult {
+  const regime = args.regime ?? 'PF';
+  if (regime === 'PJ') {
+    const breakdown = lucroPresumidoMonthly(args.salePrice);
+    return {
+      tax: breakdown.monthlyTax,
+      effectiveRate: breakdown.effectiveRate,
+      regime: 'PJ',
+    };
+  }
+  const tax = capitalGainTax({
+    gain: args.gain,
+    reinvestWithin180Days: args.reinvestWithin180Days,
+  });
+  return {
+    tax,
+    effectiveRate: args.gain > 0 ? tax / args.gain : 0,
+    regime: 'PF',
+  };
 }

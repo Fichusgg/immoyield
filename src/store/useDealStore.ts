@@ -55,6 +55,10 @@ const defaultFormData: DeepPartial<DealInput> = {
     sellingCostPercent: 0.08,
     depreciationPeriodYears: 25,
   },
+  taxation: {
+    regime: 'PF',
+    reinvestWithin180Days: false,
+  },
 };
 
 export const useDealStore = create<DealState>()(
@@ -97,6 +101,9 @@ export const useDealStore = create<DealState>()(
             projections: data.projections
               ? { ...state.formData.projections, ...data.projections }
               : state.formData.projections,
+            taxation: data.taxation
+              ? { ...state.formData.taxation, ...data.taxation }
+              : state.formData.taxation,
           },
         })),
 

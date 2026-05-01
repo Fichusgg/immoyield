@@ -80,6 +80,10 @@ function defaults(deal: SavedDeal): DealInput {
       sellingCostPercent: 0.08,
       depreciationPeriodYears: 25,
     },
+    taxation: {
+      regime: 'PF',
+      reinvestWithin180Days: false,
+    },
   };
 }
 
@@ -90,6 +94,11 @@ export default function PlanilhaContent({ deal }: Props) {
 
   const seed = deal.inputs ?? defaults(deal);
   const [inp, setInp] = React.useState<DealInput>(seed);
+
+  // ── Strategy-driven visibility ────────────────────────────────────────────
+  const isFlip = inp.propertyType === 'flip';
+  const isAirbnb = inp.propertyType === 'airbnb';
+  const isRental = !isFlip;
 
   // ── Field setters — keep the React update tight ──────────────────────
   const setRoot = <K extends keyof DealInput>(key: K, value: DealInput[K]) =>
@@ -203,26 +212,28 @@ export default function PlanilhaContent({ deal }: Props) {
               onChange={(v) => setRoot('purchasePrice', typeof v === 'number' ? v : 0)}
             />
           </FormRow>
-          <FormRow
-            label="Valor Pós-Reforma (ARV)"
-            help="Valor estimado do imóvel após reformas. Se não houver reforma, é o valor de mercado atual."
-          >
-            <div className="space-y-1">
-              <NumberInput
-                prefix="R$"
-                value={inp.revenue.afterRepairValue ?? 0}
-                onChange={(v) =>
-                  setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
-                }
-              />
-              <Link
-                href={`/imoveis/${deal.id}/comps-vendas`}
-                className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
-              >
-                Ver comparáveis de venda →
-              </Link>
-            </div>
-          </FormRow>
+          {isFlip && (
+            <FormRow
+              label="Valor Pós-Reforma (ARV)"
+              help="Valor estimado do imóvel após reformas — base para o cálculo do lucro da venda."
+            >
+              <div className="space-y-1">
+                <NumberInput
+                  prefix="R$"
+                  value={inp.revenue.afterRepairValue ?? 0}
+                  onChange={(v) =>
+                    setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
+                  }
+                />
+                <Link
+                  href={`/imoveis/${deal.id}/comps-vendas`}
+                  className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
+                >
+                  Ver comparáveis de venda →
+                </Link>
+              </div>
+            </FormRow>
+          )}
         </FormCard>
 
         {/* ── Financiamento ───────────────────────────────────────────── */}
@@ -454,11 +465,11 @@ export default function PlanilhaContent({ deal }: Props) {
           </FormCard>
         </div>
 
-        {/* ── Receita ─────────────────────────────────────────────────── */}
+        {/* ── Estratégia (controla a visibilidade das seções abaixo) ──── */}
         <div>
-          <SectionHeading label="Receita" />
+          <SectionHeading label="Estratégia" />
           <FormCard>
-            <FormRow label="Estratégia">
+            <FormRow label="Tipo de operação" help="Define quais campos e métricas aparecem abaixo.">
               <Select
                 value={inp.propertyType}
                 onValueChange={(v) => {
@@ -498,89 +509,210 @@ export default function PlanilhaContent({ deal }: Props) {
                 </SelectContent>
               </Select>
             </FormRow>
+          </FormCard>
+        </div>
 
-            {inp.propertyType === 'airbnb' ? (
-              <>
-                <FormRow label="Diária Média">
-                  <NumberInput
-                    prefix="R$"
-                    value={inp.revenue.dailyRate ?? 0}
-                    onChange={(v) =>
-                      setNested('revenue', 'dailyRate', typeof v === 'number' ? v : 0)
-                    }
-                  />
-                </FormRow>
-                <FormRow label="Taxa de Ocupação">
-                  <NumberInput
-                    decimals={1}
-                    suffix="%"
-                    value={(inp.revenue.occupancyRate ?? 0) * 100}
-                    onChange={(v) =>
-                      setNested(
-                        'revenue',
-                        'occupancyRate',
-                        typeof v === 'number' ? v / 100 : 0
-                      )
-                    }
-                  />
-                </FormRow>
-              </>
-            ) : (
-              <>
-                <FormRow label="Aluguel Mensal Bruto">
-                  <div className="space-y-2">
+        {/* ── Receita (Aluguel / Airbnb) — escondida em flip ─────────── */}
+        {isRental && (
+          <div>
+            <SectionHeading label="Receita" />
+            <FormCard>
+              {isAirbnb ? (
+                <>
+                  <FormRow label="Diária Média">
                     <NumberInput
                       prefix="R$"
-                      value={inp.revenue.monthlyRent}
+                      value={inp.revenue.dailyRate ?? 0}
                       onChange={(v) =>
-                        setNested('revenue', 'monthlyRent', typeof v === 'number' ? v : 0)
+                        setNested('revenue', 'dailyRate', typeof v === 'number' ? v : 0)
                       }
                     />
-                    <Link
-                      href={`/imoveis/${deal.id}/comps-aluguel`}
-                      className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
-                    >
-                      Ver comparáveis de aluguel →
-                    </Link>
-                    <div className="rounded border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2.5">
-                      <Toggle
-                        on={inp.revenue.rentIncludesCondoIptu ?? true}
-                        onChange={(on) =>
-                          setNested('revenue', 'rentIncludesCondoIptu', on)
-                        }
-                        label="Aluguel inclui condomínio e IPTU"
-                        description={
-                          (inp.revenue.rentIncludesCondoIptu ?? true)
-                            ? 'O proprietário paga condomínio e IPTU — entram como despesas operacionais.'
-                            : 'O locatário paga condomínio e IPTU diretamente — não entram nas despesas do proprietário.'
+                  </FormRow>
+                  <FormRow label="Taxa de Ocupação">
+                    <NumberInput
+                      decimals={1}
+                      suffix="%"
+                      value={(inp.revenue.occupancyRate ?? 0) * 100}
+                      onChange={(v) =>
+                        setNested(
+                          'revenue',
+                          'occupancyRate',
+                          typeof v === 'number' ? v / 100 : 0
+                        )
+                      }
+                    />
+                  </FormRow>
+                </>
+              ) : (
+                <>
+                  <FormRow label="Aluguel Mensal Bruto">
+                    <div className="space-y-2">
+                      <NumberInput
+                        prefix="R$"
+                        value={inp.revenue.monthlyRent}
+                        onChange={(v) =>
+                          setNested('revenue', 'monthlyRent', typeof v === 'number' ? v : 0)
                         }
                       />
+                      <Link
+                        href={`/imoveis/${deal.id}/comps-aluguel`}
+                        className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
+                      >
+                        Ver comparáveis de aluguel →
+                      </Link>
+                      <div className="rounded border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2.5">
+                        <Toggle
+                          on={inp.revenue.rentIncludesCondoIptu ?? true}
+                          onChange={(on) =>
+                            setNested('revenue', 'rentIncludesCondoIptu', on)
+                          }
+                          label="Aluguel inclui condomínio e IPTU"
+                          description={
+                            (inp.revenue.rentIncludesCondoIptu ?? true)
+                              ? 'O proprietário paga condomínio e IPTU — entram como despesas operacionais.'
+                              : 'O locatário paga condomínio e IPTU diretamente — não entram nas despesas do proprietário.'
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
-                </FormRow>
-                <FormRow
-                  label="Taxa de Vacância"
-                  help="Percentual do tempo em que o imóvel fica desocupado."
-                >
+                  </FormRow>
+                  <FormRow
+                    label="Taxa de Vacância"
+                    help="Percentual do tempo em que o imóvel fica desocupado."
+                  >
+                    <NumberInput
+                      decimals={1}
+                      suffix="%"
+                      value={(inp.revenue.vacancyRate ?? 0) * 100}
+                      onChange={(v) =>
+                        setNested(
+                          'revenue',
+                          'vacancyRate',
+                          typeof v === 'number' ? v / 100 : 0
+                        )
+                      }
+                    />
+                  </FormRow>
+                </>
+              )}
+            </FormCard>
+          </div>
+        )}
+
+        {/* ── Venda & Saída (apenas para Reforma e Venda) ─────────────── */}
+        {isFlip && (
+          <div>
+            <SectionHeading label="Venda & Saída" />
+            <FormCard>
+              <FormRow
+                label="Valor Pós-Reforma (ARV)"
+                help="Preço esperado de revenda após reformas."
+              >
+                <div className="space-y-1">
                   <NumberInput
-                    decimals={1}
-                    suffix="%"
-                    value={(inp.revenue.vacancyRate ?? 0) * 100}
+                    prefix="R$"
+                    value={inp.revenue.afterRepairValue ?? 0}
                     onChange={(v) =>
-                      setNested(
-                        'revenue',
-                        'vacancyRate',
-                        typeof v === 'number' ? v / 100 : 0
-                      )
+                      setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
                     }
                   />
-                </FormRow>
-              </>
+                  <Link
+                    href={`/imoveis/${deal.id}/comps-vendas`}
+                    className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
+                  >
+                    Ver comparáveis de venda →
+                  </Link>
+                </div>
+              </FormRow>
+              <FormRow label="Prazo da Operação" help="Tempo entre a compra e a venda.">
+                <NumberInput
+                  suffix="meses"
+                  value={inp.revenue.holdingMonths ?? 6}
+                  onChange={(v) =>
+                    setNested('revenue', 'holdingMonths', typeof v === 'number' ? v : 6)
+                  }
+                />
+              </FormRow>
+              <FormRow
+                label="Custo de Venda"
+                help="Comissão de corretor + taxas de transferência. Padrão de mercado ≈ 6%."
+              >
+                <NumberInput
+                  decimals={2}
+                  suffix="%"
+                  value={(inp.expenses.sellingCostPercent ?? 0.06) * 100}
+                  onChange={(v) =>
+                    setNested(
+                      'expenses',
+                      'sellingCostPercent',
+                      typeof v === 'number' ? v / 100 : 0,
+                    )
+                  }
+                />
+              </FormRow>
+            </FormCard>
+          </div>
+        )}
+
+        {/* ── Tributação ──────────────────────────────────────────────── */}
+        <div>
+          <SectionHeading label="Tributação" />
+          <FormCard>
+            <FormRow
+              label="Regime Tributário"
+              help="CPF aplica Carnê-Leão (alíquotas progressivas até 27,5%); CNPJ usa Lucro Presumido (≈ 11,33% efetivo sobre receita bruta)."
+            >
+              <Select
+                value={inp.taxation?.regime ?? 'PF'}
+                onValueChange={(v) => {
+                  if (v === 'PF' || v === 'PJ' || v === 'isento') {
+                    setRoot('taxation', {
+                      regime: v,
+                      reinvestWithin180Days: inp.taxation?.reinvestWithin180Days ?? false,
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(v) =>
+                      v === 'PF'
+                        ? 'CPF — Pessoa Física'
+                        : v === 'PJ'
+                          ? 'CNPJ — Pessoa Jurídica (Lucro Presumido)'
+                          : v === 'isento'
+                            ? 'Isento (sem incidência)'
+                            : v
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PF">CPF — Pessoa Física</SelectItem>
+                  <SelectItem value="PJ">CNPJ — Pessoa Jurídica (Lucro Presumido)</SelectItem>
+                  <SelectItem value="isento">Isento (sem incidência)</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormRow>
+            {isFlip && (inp.taxation?.regime ?? 'PF') === 'PF' && (
+              <div className="px-5 pb-4">
+                <Toggle
+                  on={inp.taxation?.reinvestWithin180Days ?? false}
+                  onChange={(on) =>
+                    setRoot('taxation', {
+                      regime: inp.taxation?.regime ?? 'PF',
+                      reinvestWithin180Days: on,
+                    })
+                  }
+                  label="Reinvestir em 180 dias (isenção do ganho de capital)"
+                  description="Lei 11.196/2005, art. 39 — venda residencial reinvestida em outro imóvel residencial dentro de 180 dias é isenta."
+                />
+              </div>
             )}
           </FormCard>
         </div>
 
-        {/* ── Despesas Operacionais (resumo + edit link) ──────────────── */}
+        {/* ── Despesas Operacionais (apenas para aluguel/airbnb) ──────── */}
+        {isRental && (
         <div>
           <SectionHeading label="Despesas Operacionais" />
           <div className="flex items-center justify-between border border-[#E2E0DA] bg-[#FAFAF8] px-5 py-4">
@@ -601,8 +733,10 @@ export default function PlanilhaContent({ deal }: Props) {
             </Link>
           </div>
         </div>
+        )}
 
-        {/* ── Projeções de Longo Prazo ────────────────────────────────── */}
+        {/* ── Projeções de Longo Prazo (apenas aluguel/airbnb) ────────── */}
+        {isRental && (
         <div>
           <SectionHeading label="Projeções de Longo Prazo" />
           <FormCard>
@@ -672,6 +806,7 @@ export default function PlanilhaContent({ deal }: Props) {
             </FormRow>
           </FormCard>
         </div>
+        )}
 
         {/* ── Save / Reset bar ────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">

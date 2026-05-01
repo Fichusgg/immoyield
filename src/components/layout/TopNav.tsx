@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LogOut,
-  ChevronRight,
   HelpCircle,
   Settings,
   Bell,
@@ -12,15 +11,8 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-interface BreadcrumbItem {
-  label: string;
-  href?: string;
-}
-
 interface TopNavProps {
   userEmail?: string;
-  /** Optional secondary breadcrumb shown after the primary nav links. */
-  breadcrumb?: BreadcrumbItem[];
 }
 
 const PRIMARY_NAV: { href: string; label: string; comingSoon?: boolean }[] = [
@@ -29,7 +21,7 @@ const PRIMARY_NAV: { href: string; label: string; comingSoon?: boolean }[] = [
   { href: '/buscar-bancos', label: 'Buscar Bancos', comingSoon: true },
 ];
 
-export default function TopNav({ userEmail, breadcrumb }: TopNavProps) {
+export default function TopNav({ userEmail }: TopNavProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -78,27 +70,6 @@ export default function TopNav({ userEmail, breadcrumb }: TopNavProps) {
           );
         })}
       </nav>
-
-      {/* ── Optional breadcrumb ───────────────────────────────────────── */}
-      {breadcrumb && breadcrumb.length > 0 && (
-        <div className="ml-2 flex items-center gap-1">
-          {breadcrumb.map((crumb, i) => (
-            <span key={i} className="flex items-center gap-1">
-              <ChevronRight size={12} className="text-[#D0CEC8]" />
-              {crumb.href ? (
-                <Link
-                  href={crumb.href}
-                  className="font-mono text-[11px] text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
-                >
-                  {crumb.label}
-                </Link>
-              ) : (
-                <span className="font-mono text-[11px] text-[#6B7280]">{crumb.label}</span>
-              )}
-            </span>
-          ))}
-        </div>
-      )}
 
       {/* ── Right cluster ─────────────────────────────────────────────── */}
       <div className="ml-auto flex items-center gap-1">
