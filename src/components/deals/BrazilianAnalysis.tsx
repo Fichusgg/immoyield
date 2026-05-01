@@ -318,13 +318,21 @@ function Field({
           />
         ) : (
           <input
-            type="number"
-            value={value}
-            min={min}
-            max={max}
-            step={step ?? 1}
-            onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-            className="w-full min-w-0 bg-transparent text-sm font-medium text-[#1c2b20] outline-none tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            type="text"
+            inputMode="decimal"
+            value={editing ? draft : String(value)}
+            onFocus={() => { setEditing(true); setDraft(String(value)); }}
+            onChange={(e) => setDraft(e.target.value.replace(/[^\d.,\-]/g, ''))}
+            onBlur={() => {
+              setEditing(false);
+              const cleaned = draft.replace(/\./g, '').replace(',', '.');
+              let n = parseFloat(cleaned);
+              if (!Number.isFinite(n)) n = 0;
+              if (typeof min === 'number' && n < min) n = min;
+              if (typeof max === 'number' && n > max) n = max;
+              onChange(n);
+            }}
+            className="w-full min-w-0 bg-transparent text-sm font-medium text-[#1c2b20] outline-none tabular-nums"
           />
         )}
         {suffix && <span className="text-xs text-[#a3a3a1] shrink-0">{suffix}</span>}

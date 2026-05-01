@@ -175,6 +175,7 @@ export default function ProjecoesContent({ deal }: Props) {
           help="Crescimento médio do valor do imóvel ao ano. Histórico SP/RJ: 4–7%."
         >
           <NumberInput
+            percent
             decimals={2}
             suffix="% a.a."
             value={appreciationPct}
@@ -186,6 +187,7 @@ export default function ProjecoesContent({ deal }: Props) {
           help="Comissão de corretagem, IR sobre ganho, certidões. Tipicamente 6–8%."
         >
           <NumberInput
+            percent
             decimals={2}
             suffix="% do preço"
             value={sellingCostPct}

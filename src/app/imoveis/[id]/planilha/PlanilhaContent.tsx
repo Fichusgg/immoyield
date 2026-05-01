@@ -327,6 +327,7 @@ export default function PlanilhaContent({ deal }: Props) {
                 </FormRow>
                 <FormRow label="Taxa de Juros">
                   <NumberInput
+                    percent
                     decimals={2}
                     suffix="% a.a."
                     value={inp.financing.interestRateYear}
@@ -358,6 +359,7 @@ export default function PlanilhaContent({ deal }: Props) {
                   help="DFI + MIP em % a.a. sobre saldo devedor (típico 0,30% a 0,60%)."
                 >
                   <NumberInput
+                    percent
                     decimals={2}
                     suffix="% a.a."
                     value={(inp.financing.insurancePercentYear ?? 0.005) * 100}
@@ -384,6 +386,7 @@ export default function PlanilhaContent({ deal }: Props) {
               help="Imposto sobre a transmissão. Tipicamente 2% a 3% do valor do imóvel."
             >
               <NumberInput
+                percent
                 decimals={2}
                 suffix="%"
                 value={(inp.acquisitionCosts.itbiPercent ?? 0) * 100}
@@ -530,6 +533,7 @@ export default function PlanilhaContent({ deal }: Props) {
                   </FormRow>
                   <FormRow label="Taxa de Ocupação">
                     <NumberInput
+                      percent
                       decimals={1}
                       suffix="%"
                       value={(inp.revenue.occupancyRate ?? 0) * 100}
@@ -581,6 +585,7 @@ export default function PlanilhaContent({ deal }: Props) {
                     help="Percentual do tempo em que o imóvel fica desocupado."
                   >
                     <NumberInput
+                      percent
                       decimals={1}
                       suffix="%"
                       value={(inp.revenue.vacancyRate ?? 0) * 100}
@@ -638,6 +643,7 @@ export default function PlanilhaContent({ deal }: Props) {
                 help="Comissão de corretor + taxas de transferência. Padrão de mercado ≈ 6%."
               >
                 <NumberInput
+                  percent
                   decimals={2}
                   suffix="%"
                   value={(inp.expenses.sellingCostPercent ?? 0.06) * 100}
@@ -742,6 +748,7 @@ export default function PlanilhaContent({ deal }: Props) {
           <FormCard>
             <FormRow label="Valorização Anual">
               <NumberInput
+                percent
                 decimals={2}
                 suffix="% a.a."
                 value={(inp.projections?.appreciationRate ?? 0.05) * 100}
@@ -755,6 +762,7 @@ export default function PlanilhaContent({ deal }: Props) {
             </FormRow>
             <FormRow label="Crescimento de Receita">
               <NumberInput
+                percent
                 decimals={2}
                 suffix="% a.a."
                 value={(inp.projections?.incomeGrowthRate ?? 0.05) * 100}
@@ -768,6 +776,7 @@ export default function PlanilhaContent({ deal }: Props) {
             </FormRow>
             <FormRow label="Crescimento de Despesas">
               <NumberInput
+                percent
                 decimals={2}
                 suffix="% a.a."
                 value={(inp.projections?.expenseGrowthRate ?? 0.05) * 100}
@@ -781,6 +790,7 @@ export default function PlanilhaContent({ deal }: Props) {
             </FormRow>
             <FormRow label="Custos de Venda">
               <NumberInput
+                percent
                 decimals={2}
                 suffix="% do preço"
                 value={(inp.projections?.sellingCostPercent ?? 0.08) * 100}

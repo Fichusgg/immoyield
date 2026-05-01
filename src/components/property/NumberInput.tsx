@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface Props
   extends Omit<
     React.ComponentProps<'input'>,
-    'type' | 'value' | 'onChange' | 'prefix'
+    'type' | 'value' | 'onChange' | 'prefix' | 'min' | 'max'
   > {
   value: number | '';
   onChange: (v: number | '') => void;
@@ -16,30 +16,68 @@ interface Props
   /** Left-attached unit tab — e.g. "R$", "€". */
   prefix?: React.ReactNode;
   decimals?: number;
+  /** Clamp value to 0..100. Implies decimals=2 unless overridden. */
+  percent?: boolean;
+  min?: number;
+  max?: number;
 }
 
 /**
- * Numeric input with optional left/right unit tabs (DealCheck "% / Per Year"
- * style). Emits raw numbers, not strings — empty string only when the field
- * is blank.
+ * Numeric input with optional unit tabs.
+ *
+ * Behavior:
+ * - Free typing while focused — only digits, comma, dot, minus accepted.
+ * - Reformat on blur, never mid-typing (no caret jumping).
+ * - Scroll wheel and ↑/↓ arrows never change the value.
  */
 export function NumberInput({
   value,
   onChange,
   suffix,
   prefix,
-  decimals = 0,
+  decimals,
+  percent,
+  min,
+  max,
   className,
+  onBlur,
+  onFocus,
+  onKeyDown,
+  onWheel,
   ...rest
 }: Props) {
-  const [text, setText] = React.useState(() =>
-    value === '' ? '' : formatNumeric(value, decimals)
-  );
+  const effectiveDecimals = decimals ?? (percent ? 2 : 0);
+  const effectiveMin = min ?? (percent ? 0 : undefined);
+  const effectiveMax = max ?? (percent ? 100 : undefined);
 
-  // Sync external value -> internal text on prop change.
+  const [text, setText] = React.useState(() =>
+    value === '' ? '' : formatNumeric(value, effectiveDecimals)
+  );
+  const focusedRef = React.useRef(false);
+
+  // Sync external value -> internal text only when not focused (avoids caret jumps).
   React.useEffect(() => {
-    setText(value === '' ? '' : formatNumeric(value, decimals));
-  }, [value, decimals]);
+    if (focusedRef.current) return;
+    setText(value === '' ? '' : formatNumeric(value, effectiveDecimals));
+  }, [value, effectiveDecimals]);
+
+  const commit = (raw: string) => {
+    if (raw.trim() === '' || raw === '-') {
+      onChange('');
+      setText('');
+      return;
+    }
+    let n = parseLocaleNumber(raw);
+    if (n === undefined) {
+      // Couldn't parse — restore last valid value
+      setText(value === '' ? '' : formatNumeric(value, effectiveDecimals));
+      return;
+    }
+    if (effectiveMin !== undefined && n < effectiveMin) n = effectiveMin;
+    if (effectiveMax !== undefined && n > effectiveMax) n = effectiveMax;
+    onChange(n);
+    setText(formatNumeric(n, effectiveDecimals));
+  };
 
   return (
     <div className="flex items-stretch">
@@ -53,17 +91,31 @@ export function NumberInput({
         type="text"
         inputMode="decimal"
         value={text}
+        onFocus={(e) => {
+          focusedRef.current = true;
+          onFocus?.(e);
+        }}
         onChange={(e) => {
-          const raw = e.target.value;
-          setText(raw);
-          if (raw === '' || raw === '-') {
-            onChange('');
-            return;
+          // Accept only: digits, dot, comma, minus. Block letters / 'e'.
+          const sanitized = e.target.value.replace(/[^\d.,\-]/g, '');
+          setText(sanitized);
+        }}
+        onBlur={(e) => {
+          focusedRef.current = false;
+          commit(e.target.value);
+          onBlur?.(e);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
+          if (e.key === 'Enter') {
+            commit((e.target as HTMLInputElement).value);
           }
-          // Accept pt-BR comma decimals
-          const normalized = raw.replace(/\./g, '').replace(',', '.');
-          const n = Number(normalized);
-          if (!Number.isNaN(n)) onChange(n);
+          onKeyDown?.(e);
+        }}
+        onWheel={(e) => {
+          // Defocus so wheel scrolls the page, not the value.
+          (e.target as HTMLInputElement).blur();
+          onWheel?.(e);
         }}
         className={cn(
           'font-mono tabular-nums',
@@ -86,4 +138,33 @@ function formatNumeric(v: number, decimals: number): string {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(v);
+}
+
+/**
+ * Parse a pt-BR / loose numeric string. Treat the LAST `,` or `.` as the
+ * decimal separator if any digits follow it; otherwise treat all as thousands.
+ */
+function parseLocaleNumber(raw: string): number | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  const negative = trimmed.startsWith('-');
+  const body = negative ? trimmed.slice(1) : trimmed;
+  if (!/[\d.,]/.test(body)) return undefined;
+
+  const lastComma = body.lastIndexOf(',');
+  const lastDot = body.lastIndexOf('.');
+  const sepIndex = Math.max(lastComma, lastDot);
+
+  let intPart: string;
+  let decPart = '';
+  if (sepIndex === -1) {
+    intPart = body.replace(/\D/g, '');
+  } else {
+    intPart = body.slice(0, sepIndex).replace(/\D/g, '');
+    decPart = body.slice(sepIndex + 1).replace(/\D/g, '');
+  }
+  if (!intPart && !decPart) return undefined;
+  const n = Number(`${intPart || '0'}.${decPart || '0'}`);
+  if (!Number.isFinite(n)) return undefined;
+  return negative ? -n : n;
 }

@@ -11,36 +11,31 @@ function formatNumberBR(value: number, decimals: number) {
   }).format(value);
 }
 
-function parseCurrencyLike(raw: string, decimals: number): number | undefined {
+function parseLocaleNumber(raw: string, decimals: number): number | undefined {
   const trimmed = raw.trim();
   if (!trimmed) return undefined;
-
-  if (decimals === 0) {
-    // pt-BR: '.' thousands, ',' decimals — ignore anything after ',' (cents).
-    const beforeDecimal = trimmed.split(',')[0] ?? '';
-    const digits = beforeDecimal.replace(/\D/g, '');
-    if (!digits) return undefined;
-    const n = Number(digits);
-    return Number.isFinite(n) ? n : undefined;
-  }
+  if (!/[\d.,]/.test(trimmed)) return undefined;
 
   const lastComma = trimmed.lastIndexOf(',');
   const lastDot = trimmed.lastIndexOf('.');
   const sepIndex = Math.max(lastComma, lastDot);
 
+  let intPart: string;
+  let decPart = '';
   if (sepIndex === -1) {
-    const digits = trimmed.replace(/\D/g, '');
-    if (!digits) return undefined;
-    const n = Number(digits);
-    return Number.isFinite(n) ? n / 10 ** decimals : undefined;
+    intPart = trimmed.replace(/\D/g, '');
+  } else {
+    intPart = trimmed.slice(0, sepIndex).replace(/\D/g, '');
+    decPart = trimmed.slice(sepIndex + 1).replace(/\D/g, '');
   }
+  if (!intPart && !decPart) return undefined;
 
-  const intDigits = trimmed.slice(0, sepIndex).replace(/\D/g, '');
-  const decDigitsRaw = trimmed.slice(sepIndex + 1).replace(/\D/g, '');
-  const decDigits = decDigitsRaw.padEnd(decimals, '0').slice(0, decimals);
-  const allDigits = `${intDigits || '0'}${decDigits}`;
-  const n = Number(allDigits);
-  return Number.isFinite(n) ? n / 10 ** decimals : undefined;
+  if (decimals === 0) {
+    const n = Number(intPart || '0');
+    return Number.isFinite(n) ? n : undefined;
+  }
+  const n = Number(`${intPart || '0'}.${decPart || '0'}`);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 export function CurrencyInput({
@@ -48,15 +43,25 @@ export function CurrencyInput({
   onValueChange,
   decimals = 0,
   className,
+  onFocus,
+  onBlur,
+  onKeyDown,
+  onWheel,
   ...props
 }: Omit<React.ComponentProps<'input'>, 'value' | 'onChange' | 'type'> & {
   value?: number;
   onValueChange: (value: number | undefined) => void;
   decimals?: number;
 }) {
-  const [display, setDisplay] = React.useState('');
+  const [display, setDisplay] = React.useState(() =>
+    typeof value === 'number' && Number.isFinite(value)
+      ? formatNumberBR(value, decimals)
+      : ''
+  );
+  const focusedRef = React.useRef(false);
 
   React.useEffect(() => {
+    if (focusedRef.current) return;
     if (typeof value !== 'number' || !Number.isFinite(value)) {
       setDisplay('');
       return;
@@ -65,22 +70,30 @@ export function CurrencyInput({
   }, [value, decimals]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    const nextValue = parseCurrencyLike(raw, decimals);
-    onValueChange(nextValue);
-
-    if (nextValue === undefined) {
-      setDisplay(raw.replace(/[^\d.,]/g, ''));
-      return;
-    }
-
-    setDisplay(formatNumberBR(nextValue, decimals));
+    // Free typing — only digits, comma, dot, minus.
+    const sanitized = e.target.value.replace(/[^\d.,\-]/g, '');
+    setDisplay(sanitized);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    props.onBlur?.(e);
-    if (typeof value !== 'number' || !Number.isFinite(value)) return;
-    setDisplay(formatNumberBR(value, decimals));
+  const commit = (raw: string) => {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      onValueChange(undefined);
+      setDisplay('');
+      return;
+    }
+    const parsed = parseLocaleNumber(trimmed, decimals);
+    if (parsed === undefined) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        setDisplay(formatNumberBR(value, decimals));
+      } else {
+        setDisplay('');
+        onValueChange(undefined);
+      }
+      return;
+    }
+    onValueChange(parsed);
+    setDisplay(formatNumberBR(parsed, decimals));
   };
 
   return (
@@ -88,7 +101,24 @@ export function CurrencyInput({
       {...props}
       value={display}
       onChange={handleChange}
-      onBlur={handleBlur}
+      onFocus={(e) => {
+        focusedRef.current = true;
+        onFocus?.(e);
+      }}
+      onBlur={(e) => {
+        focusedRef.current = false;
+        commit(e.target.value);
+        onBlur?.(e);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
+        if (e.key === 'Enter') commit((e.target as HTMLInputElement).value);
+        onKeyDown?.(e);
+      }}
+      onWheel={(e) => {
+        (e.target as HTMLInputElement).blur();
+        onWheel?.(e);
+      }}
       type="text"
       inputMode={props.inputMode ?? (decimals === 0 ? 'numeric' : 'decimal')}
       className={cn(className)}

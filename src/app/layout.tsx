@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from '@/components/ui/sonner';
+import { NumberInputGuard } from '@/components/NumberInputGuard';
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
       className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">
+        <NumberInputGuard />
         {children}
         <Toaster position="bottom-right" />
       </body>

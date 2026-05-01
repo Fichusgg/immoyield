@@ -21,14 +21,20 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, Minus, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 import type { SavedDeal } from '@/lib/supabase/deals';
 import type { DealInput } from '@/lib/validations/deal';
 import { analyzeRentalDeal } from '@/lib/calculations/rental';
+import { calculateProjections } from '@/lib/calculations/projections';
 import { computeImmoScore, getScoreLabel } from '@/lib/scoring';
 import { PageHeader } from '@/components/property/PageHeader';
 import { SectionHeading } from '@/components/property/SectionHeading';
 import { FormCard } from '@/components/property/FormCard';
+import { FormRow } from '@/components/property/FormRow';
+import { NumberInput } from '@/components/property/NumberInput';
+import { patchDeal } from '@/components/property/save-deal';
 import { brl, pct } from '@/components/property/format';
 
 interface Props {
@@ -130,14 +136,17 @@ export default function SimuladorContent({ deal }: Props) {
       </>
     );
   }
-  return <SimuladorBody baseInputs={deal.inputs} />;
+  return <SimuladorBody deal={deal} baseInputs={deal.inputs} />;
 }
 
 interface BodyProps {
+  deal: SavedDeal;
   baseInputs: DealInput;
 }
 
-function SimuladorBody({ baseInputs }: BodyProps) {
+function SimuladorBody({ deal, baseInputs }: BodyProps) {
+  const router = useRouter();
+  const [saving, setSaving] = React.useState(false);
   const baseline = React.useMemo(() => makeBaselineScenario(baseInputs), [baseInputs]);
   const [scenario, setScenario] = React.useState<Scenario>(baseline);
 
@@ -150,6 +159,30 @@ function SimuladorBody({ baseInputs }: BodyProps) {
     scenario.vacancyPct !== baseline.vacancyPct ||
     scenario.downPaymentPct !== baseline.downPaymentPct ||
     scenario.interestPct !== baseline.interestPct;
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const inp = applyScenario(baseInputs, scenario);
+      const analysis = analyzeRentalDeal(inp);
+      const projections = calculateProjections(
+        inp,
+        inp.projections?.holdPeriodYears ?? 10,
+        inp.projections?.appreciationRate ?? 0.05,
+      );
+      await patchDeal(deal.id, {
+        price: inp.purchasePrice,
+        inputs: inp,
+        results_cache: { ...analysis, projections },
+      });
+      toast.success('Salvo com novos valores.');
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao salvar');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // ── Live calculation ─────────────────────────────────────────────────────
   const scenarioResult = React.useMemo(
@@ -300,49 +333,52 @@ function SimuladorBody({ baseInputs }: BodyProps) {
 
       {/* ── Two-column body: sliders | targets ──────────────────────────── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-        {/* LEFT — sliders */}
+        {/* LEFT — parameter inputs */}
         <div>
           <SectionHeading label="Ajuste os parâmetros" />
-          <FormCard className="space-y-1 p-5">
-            <SimSlider
+          <FormCard>
+            <SimField
               label="Preço de compra"
               value={scenario.purchasePrice}
               baseline={baseline.purchasePrice}
-              display={brl(scenario.purchasePrice)}
+              prefix="R$"
               onChange={(v) => set('purchasePrice', v)}
-              range={{ min: 50_000, max: Math.max(3_000_000, baseline.purchasePrice * 2), step: 5_000 }}
             />
-            <SimSlider
+            <SimField
               label="Aluguel mensal"
               value={scenario.monthlyRent}
               baseline={baseline.monthlyRent}
-              display={`${brl(scenario.monthlyRent)}/mês`}
+              prefix="R$"
+              suffix="/mês"
               onChange={(v) => set('monthlyRent', v)}
-              range={{ min: 500, max: Math.max(50_000, baseline.monthlyRent * 3), step: 50 }}
             />
-            <SimSlider
+            <SimField
               label="Taxa de vacância"
               value={scenario.vacancyPct}
               baseline={baseline.vacancyPct}
-              display={`${scenario.vacancyPct.toFixed(1).replace('.', ',')}%`}
+              suffix="%"
+              decimals={1}
+              percent
               onChange={(v) => set('vacancyPct', v)}
-              range={{ min: 0, max: 30, step: 0.5 }}
             />
-            <SimSlider
+            <SimField
               label="Entrada"
               value={scenario.downPaymentPct}
               baseline={baseline.downPaymentPct}
-              display={`${scenario.downPaymentPct.toFixed(0)}% · ${brl((scenario.downPaymentPct / 100) * scenario.purchasePrice)}`}
+              suffix="%"
+              decimals={0}
+              percent
+              hint={`= ${brl((scenario.downPaymentPct / 100) * scenario.purchasePrice)}`}
               onChange={(v) => set('downPaymentPct', v)}
-              range={{ min: 10, max: 100, step: 1 }}
             />
-            <SimSlider
+            <SimField
               label="Juros do financiamento"
               value={scenario.interestPct}
               baseline={baseline.interestPct}
-              display={`${scenario.interestPct.toFixed(1).replace('.', ',')}% a.a.`}
+              suffix="% a.a."
+              decimals={2}
+              percent
               onChange={(v) => set('interestPct', v)}
-              range={{ min: 5, max: 18, step: 0.1 }}
             />
           </FormCard>
 
@@ -392,6 +428,27 @@ function SimuladorBody({ baseInputs }: BodyProps) {
             Cálculos consideram financiamento, IR (regime do deal), vacância e despesas operacionais.
           </p>
         </div>
+      </div>
+
+      {/* ── Save / Reset bar ────────────────────────────────────────────── */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#E2E0DA] pt-5">
+        <button
+          type="button"
+          onClick={() => setScenario(baseline)}
+          disabled={!dirty}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-4 py-2 text-xs font-medium text-[#6B7280] transition-colors hover:border-[#4A7C59] hover:text-[#4A7C59] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <RotateCcw size={12} />
+          Restaurar valores reais
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={!dirty || saving}
+          className="rounded-full bg-[#4A7C59] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? 'Salvando…' : 'Salvar novos valores'}
+        </button>
       </div>
     </>
   );
@@ -535,63 +592,57 @@ function TargetRow({
   );
 }
 
-// ── Slider primitive — visualises baseline tick under the track ───────────
+// ── Parameter field — NumberInput row with baseline drift indicator ───────
 
-function SimSlider({
+function SimField({
   label,
   value,
   baseline,
-  display,
+  prefix,
+  suffix,
+  decimals = 0,
+  hint,
   onChange,
-  range,
+  percent,
 }: {
   label: string;
   value: number;
   baseline: number;
-  display: string;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+  decimals?: number;
+  hint?: string;
   onChange: (v: number) => void;
-  range: { min: number; max: number; step: number };
+  percent?: boolean;
 }) {
-  const filledPct = ((value - range.min) / (range.max - range.min)) * 100;
-  const baselineClamped = Math.max(range.min, Math.min(range.max, baseline));
-  const baselinePct = ((baselineClamped - range.min) / (range.max - range.min)) * 100;
-  const drift = Math.abs(value - baseline) > range.step / 2;
+  const drift = Math.abs(value - baseline) > 1e-3;
 
   return (
-    <div className="py-2.5">
-      <div className="mb-1.5 flex items-baseline justify-between gap-2">
-        <span className="text-[11px] font-semibold tracking-[0.04em] text-[#6B7280]">
+    <FormRow
+      label={
+        <span className="inline-flex items-center gap-2">
           {label}
           {drift && (
-            <span className="ml-2 rounded-sm bg-[#FFFBEB] px-1 py-0.5 font-mono text-[9px] font-bold tracking-wide text-[#B45309] uppercase">
+            <span className="rounded-sm bg-[#FFFBEB] px-1 py-0.5 font-mono text-[9px] font-bold tracking-wide text-[#B45309] uppercase">
               alterado
             </span>
           )}
         </span>
-        <span className="font-mono text-xs font-semibold tabular-nums text-[#1C2B20]">
-          {display}
-        </span>
-      </div>
-      <div className="relative">
-        <input
-          type="range"
-          min={range.min}
-          max={range.max}
-          step={range.step}
+      }
+    >
+      <div className="space-y-1">
+        <NumberInput
           value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="hero-calc-slider w-full cursor-pointer appearance-none bg-transparent"
-          style={{ ['--filled' as string]: `${filledPct}%` }}
-          aria-label={label}
+          onChange={(v) => onChange(typeof v === 'number' ? v : 0)}
+          prefix={prefix}
+          suffix={suffix}
+          decimals={decimals}
+          percent={percent}
         />
-        {/* Baseline tick */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute top-1/2 h-2.5 w-px -translate-y-1/2 bg-[#9CA3AF]"
-          style={{ left: `${baselinePct}%` }}
-          title={`Valor real: ${display}`}
-        />
+        {hint && (
+          <p className="font-mono text-[10px] text-[#9CA3AF]">{hint}</p>
+        )}
       </div>
-    </div>
+    </FormRow>
   );
 }
