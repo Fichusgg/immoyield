@@ -7,6 +7,7 @@ import { safeNextPath } from '@/lib/auth/safe-redirect';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from "next/image";
 
 export default function AuthPage() {
   const supabase = useMemo(() => createClient(), []);
@@ -53,10 +54,16 @@ export default function AuthPage() {
         {/* Logo */}
         <div className="mb-10 flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
-              I
-            </div>
-            <span className="text-base font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
+            <Image
+              src="/immoyield_logo_dark.png"
+              alt="ImmoYield logo"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <span className="text-base font-bold tracking-tight text-[#1C2B20]">
+              ImmoYield
+            </span>
           </Link>
           <span className="border border-[#A8C5B2] bg-[#EBF3EE] px-2 py-0.5 font-mono text-[10px] font-semibold text-[#4A7C59]">
             beta

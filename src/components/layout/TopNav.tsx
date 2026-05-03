@@ -9,6 +9,7 @@ import {
   ArrowUpCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import Image from 'next/image';
 
 interface TopNavProps {
   userEmail?: string;
@@ -30,11 +31,15 @@ export default function TopNav({ userEmail }: TopNavProps) {
 
   return (
     <header className="flex h-12 shrink-0 items-center border-b border-[#E2E0DA] bg-[#FAFAF8] px-6">
-      {/* ── Brand ─────────────────────────────────────────────────────── */}
+      {/* ── Logo ─────────────────────────────────────────────────────── */}
       <Link href="/" className="mr-8 flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
-          I
-        </div>
+        <Image
+          src="/immoyield_logo_dark.png"
+          alt="ImmoYield logo"
+          width={28}
+          height={28}
+          className="object-contain"
+        />
         <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
       </Link>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from "next/image";
 
 const SAGE = '#4A7C59';
 const SAGE_DIM = '#3D6B4F';
@@ -27,17 +28,18 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span
-            className="grid h-7 w-7 place-items-center text-xs font-black text-white"
-            style={{ backgroundColor: SAGE }}
-          >
-            I
-          </span>
-          <span className="text-base font-bold tracking-tight text-[#1C2B20]">
-            ImmoYield
-          </span>
-        </Link>
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/immoyield_logo_dark.png"
+              alt="ImmoYield logo"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <span className="text-base font-bold tracking-tight text-[#1C2B20]">
+              ImmoYield
+            </span>
+          </Link>
 
         {/* Center nav */}
         <nav className="hidden items-center gap-10 md:flex" aria-label="Principal">

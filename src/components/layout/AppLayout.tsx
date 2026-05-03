@@ -6,6 +6,7 @@ import { Plus, LogOut, Home, CalendarDays, Wrench, Building2, Store } from 'luci
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const TYPE_ICONS: Record<PropertyType, React.ElementType> = {
   residential: Home,
@@ -48,12 +49,18 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
       {/* ── Top nav bar ───────────────────────────────────────────────────────── */}
       <header className="flex h-12 shrink-0 items-center border-b border-[#E2E0DA] bg-[#FAFAF8] px-6">
         {/* Logo */}
-        <Link href="/" className="mr-8 flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
-            I
-          </div>
-          <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
-        </Link>
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/immoyield_logo_dark.png"
+              alt="ImmoYield logo"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <span className="text-base font-bold tracking-tight text-[#1C2B20]">
+              ImmoYield
+            </span>
+          </Link>
 
         {/* Nav links with bottom-border active indicator */}
         <nav className="flex h-full items-center">

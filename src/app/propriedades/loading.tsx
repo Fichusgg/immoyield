@@ -1,12 +1,18 @@
+import Image from "next/image";
+
 export default function PropriedadesLoading() {
   return (
     <div className="flex h-screen flex-col bg-[#F8F7F4]">
-      {/* Top nav placeholder */}
+      {/* Logo */}
       <div className="flex h-12 shrink-0 items-center border-b border-[#E2E0DA] bg-[#FAFAF8] px-6">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center bg-[#4A7C59] font-mono text-xs font-black text-white">
-            I
-          </div>
+          <Image
+            src="/immoyield_logo_dark.png"
+            alt="ImmoYield logo"
+            width={28}
+            height={28}
+            className="object-contain"
+          />
           <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
         </div>
       </div>
