@@ -38,6 +38,7 @@ export const dealSchema = z.object({
       address: z
         .object({
           streetAddress: z.string().max(200).optional(),
+          neighborhood: z.string().max(100).optional(),
           city: z.string().max(100).optional(),
           region: z.string().max(100).optional(),
           postalCode: z.string().max(30).optional(),

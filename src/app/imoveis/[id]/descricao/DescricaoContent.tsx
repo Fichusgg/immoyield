@@ -20,6 +20,7 @@ import { FormCard } from '@/components/property/FormCard';
 import { FormRow } from '@/components/property/FormRow';
 import { NumberInput } from '@/components/property/NumberInput';
 import { patchDeal } from '@/components/property/save-deal';
+import { normalizeState, normalizeType } from '@/components/property/format';
 
 const TIPO_OPTIONS = [
   { value: 'apartment', label: 'Apartamento' },
@@ -52,6 +53,7 @@ export default function DescricaoContent({ deal }: Props) {
   );
 
   const [street, setStreet] = React.useState(deal.street ?? '');
+  const [neighborhood, setNeighborhood] = React.useState(deal.neighborhood ?? '');
   const [city, setCity] = React.useState(deal.city ?? '');
   const [state, setState] = React.useState(deal.state ?? '');
   const [zip, setZip] = React.useState(deal.zip_code ?? '');
@@ -79,7 +81,7 @@ export default function DescricaoContent({ deal }: Props) {
   const [notes, setNotes] = React.useState(deal.notes ?? '');
 
   const copyAddress = () => {
-    const a = [street, city, state, zip].filter(Boolean).join(', ');
+    const a = [street, neighborhood, city, state, zip].filter(Boolean).join(', ');
     if (!a) {
       toast.info('Endereço vazio');
       return;
@@ -91,6 +93,17 @@ export default function DescricaoContent({ deal }: Props) {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // ── Defensive normalization ──────────────────────────────────────────
+      // Postgres column `state` is `char(2)`; longer values will reject the
+      // entire UPDATE. Coerce common Brazilian state full-names to UF here
+      // so users typing "São Paulo" instead of "SP" don't lose the save.
+      const normalizedState = normalizeState(state);
+      // Postgres `type` has a CHECK constraint allowing only:
+      //   apartment | house | commercial | land | other
+      // The dropdown also exposes 'condo', 'townhouse', 'multifamily' for UI
+      // labels; map those to the closest allowed value before write.
+      const normalizedType = normalizeType(tipo);
+
       const nextInputs = deal.inputs
         ? {
             ...deal.inputs,
@@ -109,6 +122,7 @@ export default function DescricaoContent({ deal }: Props) {
               mlsNumber,
               address: {
                 streetAddress: street,
+                neighborhood,
                 city,
                 region: state,
                 postalCode: zip,
@@ -119,10 +133,11 @@ export default function DescricaoContent({ deal }: Props) {
 
       await patchDeal(deal.id, {
         title,
-        type: tipo,
+        type: normalizedType,
         street,
+        neighborhood,
         city,
-        state,
+        state: normalizedState,
         zip_code: zip,
         bedrooms: parseIntSafe(bedrooms),
         bathrooms: parseIntSafe(bathrooms),
@@ -216,6 +231,13 @@ export default function DescricaoContent({ deal }: Props) {
           <FormCard>
             <FormRow label="Logradouro">
               <Input value={street} onChange={(e) => setStreet(e.target.value)} />
+            </FormRow>
+            <FormRow label="Bairro">
+              <Input
+                value={neighborhood}
+                onChange={(e) => setNeighborhood(e.target.value)}
+                placeholder="ex: Vila Madalena"
+              />
             </FormRow>
             <FormRow label="Cidade">
               <Input value={city} onChange={(e) => setCity(e.target.value)} />

@@ -168,6 +168,11 @@ export function mapToWizardForm(scraped: ScrapedProperty): MappedWizardForm {
     mark('property.address.streetAddress');
   }
 
+  if (scraped.address?.neighborhood) {
+    address.neighborhood = scraped.address.neighborhood;
+    mark('property.address.neighborhood');
+  }
+
   if (scraped.address?.city) {
     address.city = scraped.address.city;
     mark('property.address.city');

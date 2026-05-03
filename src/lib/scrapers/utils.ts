@@ -16,24 +16,64 @@ import type { PropertyType } from './types';
 // ZAP / VivaReal embed __NEXT_DATA__ in the HTML, so render=false is sufficient
 // and faster.
 //
+/**
+ * Thrown when ScraperAPI returns its account-level quota-exhausted 403.
+ * Distinct from a target-site block — retrying with `premium=true` here
+ * would only burn more credits we don't have.
+ */
+export class ScraperQuotaExhaustedError extends Error {
+  constructor() {
+    super(
+      'ScraperAPI quota exhausted for this billing cycle. Upgrade plan or wait for next cycle.',
+    );
+    this.name = 'ScraperQuotaExhaustedError';
+  }
+}
+
+const QUOTA_PHRASE = 'exhausted the API Credits';
+
 export async function fetchHtml(url: string, render = false): Promise<string> {
   const scraperApiKey = process.env.SCRAPERAPI_KEY;
 
-  let requestUrl = url;
+  const buildRequestUrl = (premium: boolean): string =>
+    scraperApiKey
+      ? `https://api.scraperapi.com/?api_key=${scraperApiKey}` +
+        `&url=${encodeURIComponent(url)}&country_code=br` +
+        `&render=${render ? 'true' : 'false'}` +
+        (premium ? '&premium=true' : '')
+      : url;
+
   const config: AxiosRequestConfig = {
     timeout: render ? 35000 : 20000,
     headers: BROWSER_HEADERS,
+    // Don't throw on non-2xx so we can read the body and decide.
+    validateStatus: () => true,
   };
 
-  if (scraperApiKey) {
-    requestUrl =
-      `https://api.scraperapi.com/?api_key=${scraperApiKey}` +
-      `&url=${encodeURIComponent(url)}&country_code=br` +
-      `&render=${render ? 'true' : 'false'}`;
-  }
+  const send = async (premium: boolean): Promise<string> => {
+    const r = await axios.get(buildRequestUrl(premium), config);
+    if (r.status === 403 && typeof r.data === 'string' && r.data.includes(QUOTA_PHRASE)) {
+      throw new ScraperQuotaExhaustedError();
+    }
+    if (r.status >= 200 && r.status < 300) return r.data as string;
+    const err = new Error(`Request failed with status code ${r.status}`);
+    (err as Error & { response?: { status: number } }).response = { status: r.status };
+    throw err;
+  };
 
-  const response = await axios.get(requestUrl, config);
-  return response.data as string;
+  try {
+    return await send(false);
+  } catch (e) {
+    if (e instanceof ScraperQuotaExhaustedError) throw e;
+    const status =
+      (e as { response?: { status?: number } })?.response?.status;
+    // Target site temporarily blocked the proxy IP — retry once with
+    // ScraperAPI's premium pool. Skip if we know the account is out of credits.
+    if (scraperApiKey && (status === 403 || status === 429)) {
+      return await send(true);
+    }
+    throw e;
+  }
 }
 
 // ─── Standard browser-like headers (helps for direct fetches in dev) ─────────

@@ -25,6 +25,7 @@ const stepSchema = z.object({
 
     address: z.object({
       streetAddress: z.string().optional(),
+      neighborhood: z.string().optional(),
       city: z.string().optional(),
       region: z.string().optional(),
       postalCode: z.string().optional(),
@@ -75,6 +76,7 @@ export function DadosImovel({ onNext }: Props) {
         mlsNumber: formData.property?.mlsNumber ?? '',
         address: {
           streetAddress: formData.property?.address?.streetAddress ?? '',
+          neighborhood: formData.property?.address?.neighborhood ?? '',
           city: formData.property?.address?.city ?? '',
           region: formData.property?.address?.region ?? '',
           postalCode: formData.property?.address?.postalCode ?? '',
@@ -317,6 +319,22 @@ export function DadosImovel({ onNext }: Props) {
               </div>
 
               <div className="flex flex-col gap-1.5">
+                <label htmlFor="neighborhood" className={labelClass}>
+                  Bairro
+                </label>
+                <input
+                  id="neighborhood"
+                  {...register('property.address.neighborhood')}
+                  placeholder="ex. Vila Madalena"
+                  className={fieldClass}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 py-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
                 <label htmlFor="city" className={labelClass}>
                   Cidade
                 </label>
@@ -327,11 +345,7 @@ export function DadosImovel({ onNext }: Props) {
                   className={fieldClass}
                 />
               </div>
-            </div>
-          </div>
 
-          <div className="px-5 py-4">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="region" className={labelClass}>
                   Estado
