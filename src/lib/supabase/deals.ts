@@ -133,6 +133,7 @@ export interface RentalComp {
 export interface RentalAnalysisFilters {
   scope: 'bairro' | 'cidade';
   areaTolerancePct: number;        // e.g. 0.20 for ±20%
+  bedroomTolerance: number;        // e.g. 0 for exact, 1 for ±1
   bathTolerance: number;           // e.g. 1 for ±1
   yearTolerance: number;           // e.g. 15 for ±15 years
   priceBandMatch: boolean;         // Tier 3 toggle
@@ -162,6 +163,8 @@ export interface RentalAnalysisSnapshot {
   summary: string;
   /** Comp ids the user manually excluded (still in `rentals`, just not counted). */
   excludedIds: string[];
+  /** Comp ids the user forced into the analysis despite filter rejection. */
+  forceIncludedIds?: string[];
   filters: RentalAnalysisFilters;
   /** Ordered log of relaxation steps actually applied during the last run. */
   relaxationLog: string[];

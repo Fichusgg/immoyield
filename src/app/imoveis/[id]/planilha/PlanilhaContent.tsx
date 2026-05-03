@@ -14,6 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { PageHeader } from '@/components/property/PageHeader';
 import { SectionHeading } from '@/components/property/SectionHeading';
 import { FormCard } from '@/components/property/FormCard';
@@ -24,6 +32,7 @@ import { brl } from '@/components/property/format';
 import { patchDeal } from '@/components/property/save-deal';
 import { analyzeRentalDeal } from '@/lib/calculations/rental';
 import { calculateProjections } from '@/lib/calculations/projections';
+import { EXPENSE_PRESETS } from '@/lib/calculations/types';
 
 interface Props {
   deal: SavedDeal;
@@ -68,9 +77,9 @@ function defaults(deal: SavedDeal): DealInput {
     expenses: {
       condo: deal.condo_fee ?? 0,
       iptu: deal.iptu ?? 0,
-      managementPercent: 0.1,
-      maintenancePercent: 0.03,
-      sellingCostPercent: 0.06,
+      managementPercent: EXPENSE_PRESETS.managementPercent,
+      maintenancePercent: EXPENSE_PRESETS.maintenancePercent,
+      sellingCostPercent: EXPENSE_PRESETS.sellingCostPercent,
     },
     projections: {
       appreciationRate: 0.05,
@@ -94,6 +103,11 @@ export default function PlanilhaContent({ deal }: Props) {
 
   const seed = deal.inputs ?? defaults(deal);
   const [inp, setInp] = React.useState<DealInput>(seed);
+  const baselineRef = React.useRef(seed);
+  const dirty = React.useMemo(
+    () => JSON.stringify(inp) !== JSON.stringify(baselineRef.current),
+    [inp],
+  );
 
   // ── Strategy-driven visibility ────────────────────────────────────────────
   const isFlip = inp.propertyType === 'flip';
@@ -134,7 +148,7 @@ export default function PlanilhaContent({ deal }: Props) {
 
   const sqft = deal.area ?? null;
 
-  const handleSave = async () => {
+  const handleSave = React.useCallback(async (): Promise<boolean> => {
     setSaving(true);
     try {
       const analysis = analyzeRentalDeal(inp);
@@ -156,12 +170,74 @@ export default function PlanilhaContent({ deal }: Props) {
         inputs: inp,
         results_cache: results,
       });
+      baselineRef.current = inp;
       toast.success('Planilha salva. Análise atualizada.');
       router.refresh();
+      return true;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao salvar');
+      return false;
     } finally {
       setSaving(false);
+    }
+  }, [deal.id, inp, router]);
+
+  // ── Save-before-leave guard ─────────────────────────────────────────────
+  // Browser close / refresh / cross-origin nav: native beforeunload prompt.
+  React.useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [dirty]);
+
+  // Intra-app navigation: intercept link clicks while dirty and show the
+  // Salvar / Sair sem salvar / Cancelar dialog.
+  const [pendingHref, setPendingHref] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: MouseEvent) => {
+      if (e.defaultPrevented) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest('a');
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      let url: URL;
+      try {
+        url = new URL(href, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname) return;
+
+      e.preventDefault();
+      setPendingHref(url.pathname + url.search + url.hash);
+    };
+    document.addEventListener('click', handler, true);
+    return () => document.removeEventListener('click', handler, true);
+  }, [dirty]);
+
+  const handleSaveAndLeave = async () => {
+    const ok = await handleSave();
+    if (ok && pendingHref) {
+      const target = pendingHref;
+      setPendingHref(null);
+      router.push(target);
+    }
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    baselineRef.current = inp;
+    if (pendingHref) {
+      const target = pendingHref;
+      setPendingHref(null);
+      router.push(target);
     }
   };
 
@@ -217,21 +293,13 @@ export default function PlanilhaContent({ deal }: Props) {
               label="Valor Pós-Reforma (ARV)"
               help="Valor estimado do imóvel após reformas — base para o cálculo do lucro da venda."
             >
-              <div className="space-y-1">
-                <NumberInput
-                  prefix="R$"
-                  value={inp.revenue.afterRepairValue ?? 0}
-                  onChange={(v) =>
-                    setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
-                  }
-                />
-                <Link
-                  href={`/imoveis/${deal.id}/comps-vendas`}
-                  className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
-                >
-                  Ver comparáveis de venda →
-                </Link>
-              </div>
+              <NumberInput
+                prefix="R$"
+                value={inp.revenue.afterRepairValue ?? 0}
+                onChange={(v) =>
+                  setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
+                }
+              />
             </FormRow>
           )}
         </FormCard>
@@ -476,13 +544,7 @@ export default function PlanilhaContent({ deal }: Props) {
               <Select
                 value={inp.propertyType}
                 onValueChange={(v) => {
-                  if (
-                    v === 'residential' ||
-                    v === 'airbnb' ||
-                    v === 'flip' ||
-                    v === 'multifamily' ||
-                    v === 'commercial'
-                  )
+                  if (v === 'residential' || v === 'airbnb' || v === 'flip')
                     setRoot('propertyType', v);
                 }}
               >
@@ -490,25 +552,19 @@ export default function PlanilhaContent({ deal }: Props) {
                   <SelectValue>
                     {(v) =>
                       v === 'residential'
-                        ? 'Aluguel Residencial'
+                        ? 'Aluguel de Longo Prazo'
                         : v === 'airbnb'
                           ? 'Airbnb / Temporada'
                           : v === 'flip'
                             ? 'Reforma e Venda'
-                            : v === 'multifamily'
-                              ? 'Multifamiliar'
-                              : v === 'commercial'
-                                ? 'Comercial'
-                                : v
+                            : v
                     }
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="residential">Aluguel Residencial</SelectItem>
+                  <SelectItem value="residential">Aluguel de Longo Prazo</SelectItem>
                   <SelectItem value="airbnb">Airbnb / Temporada</SelectItem>
                   <SelectItem value="flip">Reforma e Venda</SelectItem>
-                  <SelectItem value="multifamily">Multifamiliar</SelectItem>
-                  <SelectItem value="commercial">Comercial</SelectItem>
                 </SelectContent>
               </Select>
             </FormRow>
@@ -613,21 +669,13 @@ export default function PlanilhaContent({ deal }: Props) {
                 label="Valor Pós-Reforma (ARV)"
                 help="Preço esperado de revenda após reformas."
               >
-                <div className="space-y-1">
-                  <NumberInput
-                    prefix="R$"
-                    value={inp.revenue.afterRepairValue ?? 0}
-                    onChange={(v) =>
-                      setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
-                    }
-                  />
-                  <Link
-                    href={`/imoveis/${deal.id}/comps-vendas`}
-                    className="inline-block text-[11px] font-medium text-[#4A7C59] hover:underline"
-                  >
-                    Ver comparáveis de venda →
-                  </Link>
-                </div>
+                <NumberInput
+                  prefix="R$"
+                  value={inp.revenue.afterRepairValue ?? 0}
+                  onChange={(v) =>
+                    setNested('revenue', 'afterRepairValue', typeof v === 'number' ? v : 0)
+                  }
+                />
               </FormRow>
               <FormRow label="Prazo da Operação" help="Tempo entre a compra e a venda.">
                 <NumberInput
@@ -847,6 +895,46 @@ export default function PlanilhaContent({ deal }: Props) {
           .
         </p>
       </div>
+
+      <Dialog
+        open={pendingHref !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingHref(null);
+        }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Alterações não salvas</DialogTitle>
+            <DialogDescription>
+              Você tem alterações não salvas. Deseja salvar antes de sair?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setPendingHref(null)}
+              className="rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-4 py-2 text-sm font-medium text-[#1C2B20] transition-colors hover:border-[#D0CEC8]"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleLeaveWithoutSaving}
+              className="rounded-full border border-[#DC2626]/30 bg-transparent px-4 py-2 text-sm font-medium text-[#DC2626] transition-colors hover:bg-[#FEE2E2]"
+            >
+              Sair sem salvar
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveAndLeave}
+              disabled={saving}
+              className="rounded-full bg-[#4A7C59] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3D6B4F] disabled:opacity-60"
+            >
+              {saving ? 'Salvando…' : 'Salvar'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

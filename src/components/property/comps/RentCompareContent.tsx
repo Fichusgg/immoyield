@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Sparkles,
-  ArrowDownToLine,
+  Check,
   ExternalLink,
   Search,
   Plus,
@@ -42,12 +42,11 @@ import {
   listingToRentalComp,
   DEFAULT_FILTERS,
 } from '@/lib/rent-compare';
-import type { RentalListing } from '@/lib/rent-compare/types';
+import type { ExcludedListing, ExclusionReason, RentalListing } from '@/lib/rent-compare/types';
 import type { RentalAnalysisFilters } from '@/lib/supabase/deals';
 import { PageHeader } from '../PageHeader';
 import { SectionHeading } from '../SectionHeading';
 import { FormCard } from '../FormCard';
-import { KpiCard } from '../KpiCard';
 import { brl, num } from '../format';
 import { patchDeal } from '../save-deal';
 import { AddCompDialog } from './AddCompDialog';
@@ -88,11 +87,15 @@ export function RentCompareContent({ deal }: Props) {
 
   const [listings, setListings] = React.useState<RentalListing[]>(initialListings);
 
-  const [filters, setFilters] = React.useState<RentalAnalysisFilters>(
-    deal.comps?.rentalAnalysis?.filters ?? DEFAULT_FILTERS,
-  );
+  const [filters, setFilters] = React.useState<RentalAnalysisFilters>(() => ({
+    ...DEFAULT_FILTERS,
+    ...(deal.comps?.rentalAnalysis?.filters ?? {}),
+  }));
   const [excludedIds, setExcludedIds] = React.useState<string[]>(
     deal.comps?.rentalAnalysis?.excludedIds ?? [],
+  );
+  const [forceIncludedIds, setForceIncludedIds] = React.useState<string[]>(
+    deal.comps?.rentalAnalysis?.forceIncludedIds ?? [],
   );
   const [sources, setSources] = React.useState<string[]>(
     deal.comps?.rentalAnalysis?.sources ?? [],
@@ -119,8 +122,9 @@ export function RentCompareContent({ deal }: Props) {
       listings,
       filters,
       excludedIds,
+      forceIncludedIds,
     });
-  }, [subject, listings, filters, excludedIds]);
+  }, [subject, listings, filters, excludedIds, forceIncludedIds]);
 
   const userExcluded = React.useMemo(
     () => listings.filter((l) => excludedIds.includes(l.id)),
@@ -193,14 +197,60 @@ export function RentCompareContent({ deal }: Props) {
 
       // Merge with existing listings: keep manual entries (source 'manual'),
       // replace auto-imported ones with the fresh batch.
-      setListings((prev) => {
-        const manual = prev.filter((l) => l.source === 'manual');
-        return [...manual, ...data.listings];
-      });
+      const manualPrev = listings.filter((l) => l.source === 'manual');
+      const nextListings = [...manualPrev, ...data.listings];
+      // Reset exclusions when sources change — old excluded ids may not exist now.
+      const nextExcluded = excludedIds.filter((id) =>
+        nextListings.some((l) => l.id === id),
+      );
+      const nextForced = forceIncludedIds.filter((id) =>
+        nextListings.some((l) => l.id === id),
+      );
+
+      setListings(nextListings);
       setSources(data.sources);
       setLastFetchedAt(data.fetchedAt);
-      // Reset exclusions when sources change — old excluded ids may not exist now.
-      setExcludedIds((prev) => prev.filter((id) => data.listings.some((l) => l.id === id)));
+      setExcludedIds(nextExcluded);
+      setForceIncludedIds(nextForced);
+
+      // Auto-persist so reopening the tab restores the comps without re-scraping.
+      if (subject) {
+        try {
+          const a = analyzeRentComps({
+            subject,
+            listings: nextListings,
+            filters,
+            excludedIds: nextExcluded,
+            forceIncludedIds: nextForced,
+          });
+          const rentals: RentalComp[] = nextListings.map(listingToRentalComp);
+          await patchDeal(deal.id, {
+            comps: {
+              sales: deal.comps?.sales ?? [],
+              rentals,
+              rentalAnalysis: {
+                runAt: data.fetchedAt,
+                sources: data.sources,
+                cacheHit: data.cacheHit,
+                suggestedRent: a.score.suggestedRent,
+                iqrLow: a.score.iqrLow,
+                iqrHigh: a.score.iqrHigh,
+                pricePerM2Median: a.score.pricePerM2Median,
+                confidence: a.score.confidence,
+                confidenceReason: a.score.confidenceReason,
+                summary: a.summary,
+                excludedIds: nextExcluded,
+                forceIncludedIds: nextForced,
+                filters,
+                relaxationLog: a.filterResult.relaxationLog,
+              },
+            },
+          });
+        } catch (persistErr) {
+          // Surface only in console — user can still save manually if this fails.
+          console.warn('Falha ao persistir Rent Compare:', persistErr);
+        }
+      }
 
       if (data.listings.length === 0) {
         toast.info('Nenhum comparável encontrado nas fontes disponíveis.');
@@ -219,9 +269,19 @@ export function RentCompareContent({ deal }: Props) {
   // ── Manual exclude / restore ───────────────────────────────────────────────
   const exclude = (id: string) => {
     setExcludedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setForceIncludedIds((prev) => prev.filter((x) => x !== id));
   };
   const restore = (id: string) => {
     setExcludedIds((prev) => prev.filter((x) => x !== id));
+  };
+
+  // ── Force-include a filter-rejected comp ──────────────────────────────────
+  const forceInclude = (id: string) => {
+    setForceIncludedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setExcludedIds((prev) => prev.filter((x) => x !== id));
+  };
+  const removeForceInclude = (id: string) => {
+    setForceIncludedIds((prev) => prev.filter((x) => x !== id));
   };
 
   // ── Manual add (fallback path) ─────────────────────────────────────────────
@@ -272,6 +332,7 @@ export function RentCompareContent({ deal }: Props) {
             confidenceReason: analysis.score.confidenceReason,
             summary: analysis.summary,
             excludedIds,
+            forceIncludedIds,
             filters,
             relaxationLog: analysis.filterResult.relaxationLog,
           },
@@ -414,81 +475,102 @@ export function RentCompareContent({ deal }: Props) {
       />
 
       {/* ── Subject summary ──────────────────────────────────────────────── */}
-      <FormCard className="mb-5 p-4">
-        <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[#E2E0DA] pb-3">
+        <span className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
           Imóvel em análise
-        </p>
-        <p className="mt-1 text-sm font-semibold text-[#1C2B20]">
+        </span>
+        <span className="text-sm font-semibold text-[#1C2B20]">
           {subject.bucket === 'house' ? 'Casa' : 'Apartamento'} · {subject.bedrooms}Q
-          {subject.bathrooms != null ? `/${subject.bathrooms}B` : ''} · {num(subject.area)} m²
-          {' · '}
+          {subject.bathrooms != null ? `/${subject.bathrooms}B` : ''} · {num(subject.area)} m² ·{' '}
           {subject.neighborhood}, {subject.city}
           {subject.state ? `/${subject.state}` : ''}
-        </p>
-        {lastFetchedAt && (
-          <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
-            Última busca:{' '}
-            {new Date(lastFetchedAt).toLocaleString('pt-BR', {
-              day: '2-digit',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-            {sources.length > 0 && ` · ${sources.join(', ')}`}
-          </p>
-        )}
-      </FormCard>
+        </span>
+        {lastFetchedAt && (() => {
+          const ageDays = (Date.now() - new Date(lastFetchedAt).getTime()) / 86_400_000;
+          const stale = ageDays > 7;
+          return (
+            <span
+              className={`ml-auto font-mono text-[10px] ${
+                stale ? 'text-[#B45309]' : 'text-[#9CA3AF]'
+              }`}
+            >
+              Última busca:{' '}
+              {new Date(lastFetchedAt).toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+              {sources.length > 0 && ` · ${sources.join(', ')}`}
+              {stale && ' · resultados desatualizados, considere atualizar'}
+            </span>
+          );
+        })()}
+      </div>
 
-      {/* ── Recommendation panel ─────────────────────────────────────────── */}
+      {/* ── Hero recommendation ──────────────────────────────────────────── */}
       {score && score.count > 0 && (
         <>
-          <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <KpiCard
-              label="Aluguel sugerido"
-              value={brl(score.suggestedRent)}
-              sub={`mediana ponderada · ${score.count} comp${score.count === 1 ? '' : 's'}`}
-              tone="positive"
-            />
-            <KpiCard
-              label="Faixa de mercado"
-              value={`${brl(score.iqrLow)} – ${brl(score.iqrHigh)}`}
-              sub="P25 – P75"
-            />
-            <KpiCard
-              label="Mediana R$/m²"
-              value={brl(score.pricePerM2Median)}
-              sub={`× ${num(subject.area)} m² do imóvel`}
-            />
-            <KpiCard
-              label="Confiança"
-              value={score.confidence.toUpperCase()}
-              sub={score.confidenceReason}
-              tone={
-                score.confidence === 'alta'
-                  ? 'positive'
-                  : score.confidence === 'baixa'
-                  ? 'negative'
-                  : 'neutral'
-              }
-            />
-          </div>
-
-          <div
-            className={`mb-5 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between ${confidenceTone}`}
-          >
-            <div className="flex items-start gap-2.5">
-              <Sparkles size={16} className="mt-0.5 shrink-0" />
-              <p className="text-sm leading-relaxed">{analysis?.summary}</p>
+          <div className="mb-3 grid grid-cols-1 gap-0 border border-[#E2E0DA] bg-[#FAFAF8] lg:grid-cols-[1.4fr_1fr]">
+            {/* Left: hero suggested rent */}
+            <div className="flex flex-col justify-between gap-5 border-b border-[#E2E0DA] bg-[#EBF3EE] p-6 lg:border-r lg:border-b-0">
+              <div>
+                <p className="text-[10px] font-semibold tracking-[0.12em] text-[#4A7C59] uppercase">
+                  Aluguel sugerido de mercado
+                </p>
+                <p className="mt-1.5 font-mono text-[40px] font-bold leading-none tracking-tight text-[#1C2B20]">
+                  {brl(score.suggestedRent)}
+                  <span className="ml-1 text-base font-medium text-[#9CA3AF]">/mês</span>
+                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 border px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase ${confidenceTone}`}
+                  >
+                    Confiança {score.confidence}
+                  </span>
+                  <span className="font-mono text-[11px] text-[#6B7280]">
+                    {score.count} comp{score.count === 1 ? '' : 's'} · mediana ponderada
+                  </span>
+                </div>
+                <div className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-[#3F4A45]">
+                  <Sparkles size={14} className="mt-0.5 shrink-0 text-[#4A7C59]" />
+                  <p>{analysis?.summary}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleApplyAsRent}
+                disabled={saving || !deal.inputs}
+                className="inline-flex w-full items-center justify-center gap-1.5 bg-[#4A7C59] px-4 py-2.5 text-[11px] font-semibold tracking-[0.12em] text-white uppercase transition-colors hover:bg-[#3D6B4F] disabled:opacity-60 sm:w-auto sm:self-start"
+              >
+                <Check size={12} />
+                Aplicar como aluguel
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleApplyAsRent}
-              disabled={saving || !deal.inputs}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#4A7C59] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3D6B4F] disabled:opacity-60"
-            >
-              <ArrowDownToLine size={12} />
-              Aplicar como aluguel
-            </button>
+
+            {/* Right: supporting stats */}
+            <div className="grid grid-cols-2 gap-px bg-[#E2E0DA]">
+              <StatCell
+                label="Faixa de mercado"
+                value={`${brl(score.iqrLow)} – ${brl(score.iqrHigh)}`}
+                sub="Percentil 25 – 75"
+              />
+              <StatCell
+                label="Mediana R$/m²"
+                value={brl(score.pricePerM2Median)}
+                sub={`× ${num(subject.area)} m² do imóvel`}
+              />
+              <StatCell
+                label="Comparáveis usados"
+                value={String(score.count)}
+                sub={`${userExcluded.length} excluído${userExcluded.length === 1 ? '' : 's'}`}
+              />
+              <StatCell
+                label="Confiança"
+                value={score.confidence.toUpperCase()}
+                sub={score.confidenceReason}
+              />
+            </div>
           </div>
 
           {analysis && analysis.filterResult.relaxationLog.length > 0 && (
@@ -507,10 +589,22 @@ export function RentCompareContent({ deal }: Props) {
       )}
 
       {/* ── Filter controls ──────────────────────────────────────────────── */}
-      <FormCard className="mb-5 p-4">
-        <p className="mb-3 text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
-          Filtros
-        </p>
+      <details className="mb-5 border border-[#E2E0DA] bg-[#FAFAF8] [&_summary::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-2.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase select-none transition-colors hover:bg-[#F0EFEB]">
+          <span className="flex items-center gap-2">
+            Filtros
+            <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] tracking-wide text-[#9CA3AF]">
+              {filters.scope === 'bairro' ? 'Bairro' : 'Cidade'} · ±
+              {Math.round(filters.areaTolerancePct * 100)}% área ·{' '}
+              {filters.bedroomTolerance === 0
+                ? 'mesmo nº quartos'
+                : `±${filters.bedroomTolerance}Q`}{' '}
+              · ±{filters.bathTolerance}B · ±{filters.yearTolerance}a
+            </span>
+          </span>
+          <ChevronDown size={12} className="transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-[#E2E0DA] p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <ScopeRadio
             value={filters.scope}
@@ -523,6 +617,20 @@ export function RentCompareContent({ deal }: Props) {
             max={0.40}
             step={0.05}
             onChange={(v) => setFilters((f) => ({ ...f, areaTolerancePct: v }))}
+          />
+          <ToleranceSlider
+            label={
+              filters.bedroomTolerance === 0
+                ? `Quartos: exato (${subject.bedrooms}Q)`
+                : `Tolerância de quartos: ±${filters.bedroomTolerance}`
+            }
+            value={filters.bedroomTolerance}
+            min={0}
+            max={2}
+            step={1}
+            onChange={(v) =>
+              setFilters((f) => ({ ...f, bedroomTolerance: Math.round(v) }))
+            }
           />
           <ToleranceSlider
             label={`Tolerância de banheiros: ±${filters.bathTolerance}`}
@@ -570,7 +678,8 @@ export function RentCompareContent({ deal }: Props) {
             Restaurar padrão
           </button>
         </div>
-      </FormCard>
+        </div>
+      </details>
 
       {/* ── Comp table ───────────────────────────────────────────────────── */}
       <SectionHeading
@@ -590,12 +699,41 @@ export function RentCompareContent({ deal }: Props) {
         }
       />
 
-      {listings.length === 0 ? (
-        <FormCard className="mb-5 border-dashed py-10 text-center">
-          <p className="text-sm text-[#6B7280]">
-            Clique em <strong className="text-[#1C2B20]">Buscar Comparáveis</strong> para
-            puxar anúncios e aluguéis fechados recentes.
-          </p>
+      {searching ? (
+        <SearchProgress />
+      ) : listings.length === 0 ? (
+        <FormCard className="mb-5 border-dashed">
+          <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center border border-[#D6E4DB] bg-[#E5EFE8] text-[#4A7C59]">
+              <Search size={20} />
+            </div>
+            <p className="text-base font-bold text-[#1C2B20]">
+              Encontre comparáveis automaticamente
+            </p>
+            <p className="max-w-md text-sm text-[#6B7280]">
+              Vamos buscar anúncios ativos e aluguéis fechados recentemente em portais
+              brasileiros para imóveis parecidos com o seu.
+            </p>
+            <button
+              type="button"
+              onClick={handleSearch}
+              disabled={searching}
+              className="mt-2 inline-flex items-center gap-1.5 bg-[#4A7C59] px-5 py-2 text-[11px] font-semibold tracking-[0.12em] text-white uppercase transition-colors hover:bg-[#3D6B4F] disabled:opacity-60"
+            >
+              <Search size={12} />
+              Buscar comparáveis
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(null);
+                setAddDialogOpen(true);
+              }}
+              className="text-xs text-[#9CA3AF] underline transition-colors hover:text-[#6B7280]"
+            >
+              ou adicionar manualmente
+            </button>
+          </div>
         </FormCard>
       ) : kept.length === 0 ? (
         <FormCard className="mb-5 border-dashed py-10 text-center">
@@ -686,6 +824,7 @@ export function RentCompareContent({ deal }: Props) {
                   const ppm = l.area && l.area > 0 ? l.monthlyRent / l.area : 0;
                   const dateLabel = l.leasedAt ?? l.listedAt;
                   const isManual = l.source === 'manual';
+                  const isForced = forceIncludedIds.includes(l.id);
                   return (
                     <tr key={l.id} className="border-b border-[#F0EFEB] last:border-0">
                       <td className="px-4 py-3 text-[#1C2B20]">
@@ -703,6 +842,14 @@ export function RentCompareContent({ deal }: Props) {
                             >
                               <ExternalLink size={11} />
                             </a>
+                          )}
+                          {isForced && (
+                            <span
+                              title="Incluído manualmente apesar dos filtros"
+                              className="rounded bg-[#EBF3EE] px-1.5 py-0.5 font-mono text-[8px] font-semibold tracking-wide text-[#4A7C59] uppercase"
+                            >
+                              Forçado
+                            </span>
                           )}
                         </div>
                         <p className="mt-0.5 line-clamp-1 max-w-[260px] text-[10px] text-[#9CA3AF]">
@@ -867,6 +1014,14 @@ export function RentCompareContent({ deal }: Props) {
           )}
         </div>
       )}
+
+      {/* ── Rejected by filters ───────────────────────────────────────────── */}
+      <RejectedSection
+        excluded={analysis?.filterResult.excluded ?? []}
+        forceIncludedIds={forceIncludedIds}
+        onInclude={forceInclude}
+        onUninclude={removeForceInclude}
+      />
 
       {/* ── Save bar ─────────────────────────────────────────────────────── */}
       {analysis && score && score.count > 0 && (
@@ -1098,6 +1253,363 @@ function ToleranceSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-[#4A7C59]"
       />
+    </div>
+  );
+}
+
+const REASON_LABELS: Record<ExclusionReason, string> = {
+  'bucket-mismatch': 'Tipo diferente',
+  'bedrooms-mismatch': 'Quartos diferentes',
+  'bathrooms-out-of-range': 'Banheiros fora da tolerância',
+  'area-out-of-range': 'Área fora da tolerância',
+  'year-out-of-range': 'Ano fora da tolerância',
+  'furnished': 'Mobiliado',
+  'short-term': 'Temporada / Airbnb',
+  'rent-outlier': 'Aluguel atípico',
+  'price-band-mismatch': 'Faixa de preço diferente',
+  'wrong-bairro': 'Outro bairro',
+  'wrong-city': 'Outra cidade',
+  'missing-rent': 'Sem aluguel',
+  'missing-area': 'Sem área',
+};
+
+const HIDDEN_REASONS: ExclusionReason[] = ['missing-rent', 'missing-area'];
+
+function RejectedSection({
+  excluded,
+  forceIncludedIds,
+  onInclude,
+  onUninclude,
+}: {
+  excluded: ExcludedListing[];
+  forceIncludedIds: string[];
+  onInclude: (id: string) => void;
+  onUninclude: (id: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [reasonFilter, setReasonFilter] = React.useState<ExclusionReason | 'todos'>(
+    'todos',
+  );
+
+  const visible = React.useMemo(
+    () => excluded.filter((e) => !HIDDEN_REASONS.includes(e.reason)),
+    [excluded],
+  );
+  const reasonCounts = React.useMemo(() => {
+    const counts: Partial<Record<ExclusionReason, number>> = {};
+    for (const e of visible) {
+      counts[e.reason] = (counts[e.reason] ?? 0) + 1;
+    }
+    return counts;
+  }, [visible]);
+
+  const filtered = React.useMemo(
+    () =>
+      reasonFilter === 'todos'
+        ? visible
+        : visible.filter((e) => e.reason === reasonFilter),
+    [visible, reasonFilter],
+  );
+
+  if (visible.length === 0 && forceIncludedIds.length === 0) return null;
+
+  return (
+    <div className="mb-5">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-2 border border-[#E2E0DA] bg-[#FAFAF8] px-4 py-2.5 text-left transition-colors hover:bg-[#F0EFEB]"
+      >
+        <span className="flex items-center gap-2 text-xs font-semibold text-[#1C2B20]">
+          Rejeitados pelos filtros ({visible.length})
+          {forceIncludedIds.length > 0 && (
+            <span className="rounded bg-[#EBF3EE] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#4A7C59] uppercase">
+              {forceIncludedIds.length} incluído{forceIncludedIds.length === 1 ? '' : 's'} manualmente
+            </span>
+          )}
+        </span>
+        {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {open && (
+        <div className="mt-1 border border-[#E2E0DA] bg-[#FAFAF8]">
+          {/* Reason filter chips */}
+          {Object.keys(reasonCounts).length > 1 && (
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-[#E2E0DA] px-3 py-2">
+              <ReasonChip
+                label={`Todos (${visible.length})`}
+                active={reasonFilter === 'todos'}
+                onClick={() => setReasonFilter('todos')}
+              />
+              {(Object.entries(reasonCounts) as [ExclusionReason, number][]).map(
+                ([r, count]) => (
+                  <ReasonChip
+                    key={r}
+                    label={`${REASON_LABELS[r]} (${count})`}
+                    active={reasonFilter === r}
+                    onClick={() => setReasonFilter(r)}
+                  />
+                ),
+              )}
+            </div>
+          )}
+
+          {filtered.length === 0 ? (
+            <p className="px-4 py-6 text-center text-xs text-[#9CA3AF]">
+              Nenhum item para este filtro.
+            </p>
+          ) : (
+            <ul className="divide-y divide-[#F0EFEB]">
+              {filtered.map(({ listing: l, reason, detail }) => {
+                const ppm = l.area && l.area > 0 ? l.monthlyRent / l.area : 0;
+                const forced = forceIncludedIds.includes(l.id);
+                return (
+                  <li
+                    key={l.id}
+                    className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 ${
+                      forced ? '' : 'opacity-80'
+                    }`}
+                  >
+                    {/* Address + reason */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="line-clamp-1 max-w-[280px] text-xs font-semibold text-[#1C2B20]">
+                          {l.street ?? l.neighborhood ?? l.city ?? '—'}
+                        </span>
+                        {l.url && (
+                          <a
+                            href={l.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label="Abrir anúncio"
+                            className="text-[#9CA3AF] transition-colors hover:text-[#4A7C59]"
+                          >
+                            <ExternalLink size={11} />
+                          </a>
+                        )}
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-full border border-[#FCD34D] bg-[#FEF3C7] px-2 py-0.5 font-mono text-[9px] font-semibold text-[#92400E] uppercase">
+                          {REASON_LABELS[reason]}
+                        </span>
+                        <span className="font-mono text-[10px] text-[#9CA3AF]">{detail}</span>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex shrink-0 items-center gap-4 font-mono text-xs tabular-nums text-[#6B7280]">
+                      <span>
+                        <span className="text-[#1C2B20]">{brl(l.monthlyRent)}</span>
+                        {l.area ? <span className="text-[#9CA3AF]"> / {num(l.area)}m²</span> : ''}
+                      </span>
+                      {ppm > 0 && (
+                        <span className="text-[#4A7C59]">{brl(ppm)}/m²</span>
+                      )}
+                      <span className="text-[#9CA3AF]">
+                        {l.bedrooms ?? '–'}Q / {l.bathrooms ?? '–'}B
+                      </span>
+                    </div>
+
+                    {/* Action */}
+                    {forced ? (
+                      <button
+                        type="button"
+                        onClick={() => onUninclude(l.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#A8C5B2] bg-[#EBF3EE] px-2.5 py-1 text-[10px] font-semibold text-[#4A7C59] transition-colors hover:bg-[#A8C5B2]"
+                      >
+                        <XIcon size={10} />
+                        Remover inclusão
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onInclude(l.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#D0CEC8] bg-[#FAFAF8] px-2.5 py-1 text-[10px] font-semibold text-[#6B7280] transition-colors hover:border-[#4A7C59] hover:text-[#4A7C59]"
+                      >
+                        <Plus size={10} />
+                        Incluir mesmo assim
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReasonChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold transition-colors ${
+        active
+          ? 'border-[#4A7C59] bg-[#4A7C59] text-white'
+          : 'border-[#D0CEC8] bg-[#FAFAF8] text-[#6B7280] hover:border-[#4A7C59] hover:text-[#4A7C59]'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SearchProgress() {
+  const [elapsed, setElapsed] = React.useState(0);
+
+  React.useEffect(() => {
+    const startedAt = Date.now();
+    const tick = () => setElapsed((Date.now() - startedAt) / 1000);
+    const id = window.setInterval(tick, 80);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Asymptotic progress: ramps fast, plateaus near 90%.
+  const tau = 4.5;
+  const target = 90 * (1 - Math.exp(-elapsed / tau));
+  const progress = Math.min(99, target + (elapsed > 12 ? 2 : 0));
+
+  // Step timeline (seconds → label).
+  const STEPS: { at: number; label: string; portal?: string }[] = [
+    { at: 0.0, label: 'Conectando aos portais imobiliários' },
+    { at: 1.2, label: 'Buscando anúncios', portal: 'VivaReal' },
+    { at: 3.5, label: 'Buscando anúncios', portal: 'QuintoAndar' },
+    { at: 6.0, label: 'Filtrando por similaridade ao seu imóvel' },
+    { at: 8.5, label: 'Calculando mediana e faixa de mercado' },
+  ];
+
+  const activeIdx = STEPS.reduce(
+    (acc, s, i) => (elapsed >= s.at ? i : acc),
+    0,
+  );
+
+  return (
+    <div className="mb-5 border border-[#E2E0DA] bg-[#FAFAF8] p-6">
+      <div className="flex items-center gap-3">
+        <span className="relative flex h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A8C5B2] opacity-75" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-[#4A7C59]" />
+        </span>
+        <p className="text-sm font-bold text-[#1C2B20]">
+          Buscando comparáveis de aluguel…
+        </p>
+        <span className="ml-auto font-mono text-xs text-[#9CA3AF] tabular-nums">
+          {Math.floor(elapsed)}s
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mt-4 h-1.5 w-full overflow-hidden bg-[#F0EFEB]">
+        <div
+          className="h-full bg-[#4A7C59] transition-[width] duration-150 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="mt-1.5 flex items-center justify-between font-mono text-[10px] text-[#9CA3AF] tabular-nums">
+        <span>{Math.round(progress)}%</span>
+        <span>geralmente leva 5–15 segundos</span>
+      </div>
+
+      {/* Step list */}
+      <ul className="mt-5 space-y-2.5">
+        {STEPS.map((s, i) => {
+          const status =
+            i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'pending';
+          return (
+            <li
+              key={i}
+              className={`flex items-center gap-2.5 text-xs transition-opacity ${
+                status === 'pending' ? 'text-[#9CA3AF] opacity-60' : 'text-[#1C2B20]'
+              }`}
+            >
+              <span
+                className={`flex h-4 w-4 shrink-0 items-center justify-center border ${
+                  status === 'done'
+                    ? 'border-[#4A7C59] bg-[#4A7C59] text-white'
+                    : status === 'active'
+                      ? 'border-[#4A7C59] bg-white text-[#4A7C59]'
+                      : 'border-[#D0CEC8] bg-[#F0EFEB] text-[#9CA3AF]'
+                }`}
+                aria-hidden
+              >
+                {status === 'done' ? (
+                  <svg
+                    width="9"
+                    height="9"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                ) : status === 'active' ? (
+                  <span className="block h-1.5 w-1.5 animate-pulse rounded-full bg-[#4A7C59]" />
+                ) : null}
+              </span>
+              <span className={status === 'done' ? 'line-through decoration-[#A8C5B2]' : ''}>
+                {s.label}
+                {s.portal && (
+                  <span className="ml-1.5 rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#4A7C59] uppercase">
+                    {s.portal}
+                  </span>
+                )}
+              </span>
+              {status === 'active' && (
+                <span className="ml-1 inline-flex gap-0.5">
+                  <Dot delay={0} />
+                  <Dot delay={150} />
+                  <Dot delay={300} />
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function Dot({ delay }: { delay: number }) {
+  return (
+    <span
+      className="block h-1 w-1 animate-bounce rounded-full bg-[#4A7C59]"
+      style={{ animationDelay: `${delay}ms` }}
+    />
+  );
+}
+
+function StatCell({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="bg-[#FAFAF8] p-4">
+      <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+        {label}
+      </p>
+      <p className="mt-1.5 font-mono text-lg font-bold leading-tight tracking-tight text-[#1C2B20]">
+        {value}
+      </p>
+      {sub && <p className="mt-1 text-[11px] leading-snug text-[#6B7280]">{sub}</p>}
     </div>
   );
 }

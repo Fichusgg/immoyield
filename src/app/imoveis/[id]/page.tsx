@@ -8,7 +8,7 @@ interface Props {
  * Default property route → Análise.
  * The full property workspace lives in nested sub-routes
  * (descricao, planilha, fotos, mapa, analise, projecoes,
- *  comps-vendas, comps-aluguel) — see src/components/property/sidebar-nav.ts.
+ *  comps-aluguel) — see src/components/property/sidebar-nav.ts.
  */
 export default async function ImoveisIndexPage({ params }: Props) {
   const { id } = await params;

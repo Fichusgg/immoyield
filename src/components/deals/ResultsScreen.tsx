@@ -114,7 +114,7 @@ interface ResultsScreenProps {
   hideSaveButton?: boolean;
   isAuthenticated?: boolean;
   benchmarks?: Benchmarks;
-  onSaved?: () => void;
+  onSaved?: (dealId: string | null) => void;
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -467,7 +467,7 @@ export default function ResultsScreen({
       const savedId = typeof insertedId === 'string' ? insertedId : null;
       setSavedDealId(savedId);
       setSavedOk(true);
-      onSaved?.();
+      onSaved?.(savedId);
     } catch (e) {
       if (e instanceof Error) {
         console.error('[deals.save] failed', { message: e.message, name: e.name, stack: e.stack });

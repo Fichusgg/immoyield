@@ -16,6 +16,7 @@ import { UnitSelect, RENT_PERCENT_OPTIONS } from '@/components/property/UnitSele
 import { Toggle } from '@/components/property/Toggle';
 import { brl } from '@/components/property/format';
 import { patchDeal } from '@/components/property/save-deal';
+import { EXPENSE_PRESETS } from '@/lib/calculations/types';
 
 interface Props {
   deal: SavedDeal;
@@ -62,14 +63,14 @@ export default function DespesasContent({ deal }: Props) {
       {
         id: 'mgmt',
         label: 'Administração',
-        amount: (e?.managementPercent ?? 0.1) * 100,
+        amount: (e?.managementPercent ?? EXPENSE_PRESETS.managementPercent) * 100,
         unit: 'pctRent' as const,
         bound: 'managementPercent' as const,
       },
       {
         id: 'maint',
         label: 'Manutenção',
-        amount: (e?.maintenancePercent ?? 0.03) * 100,
+        amount: (e?.maintenancePercent ?? EXPENSE_PRESETS.maintenancePercent) * 100,
         unit: 'pctRent' as const,
         bound: 'maintenancePercent' as const,
       },
@@ -95,7 +96,13 @@ export default function DespesasContent({ deal }: Props) {
     setSaving(true);
     try {
       const next = { ...deal.inputs! };
-      if (!next.expenses) next.expenses = { condo: 0, iptu: 0, managementPercent: 0.1, maintenancePercent: 0.03, sellingCostPercent: 0.06 };
+      if (!next.expenses) next.expenses = {
+        condo: 0,
+        iptu: 0,
+        managementPercent: EXPENSE_PRESETS.managementPercent,
+        maintenancePercent: EXPENSE_PRESETS.maintenancePercent,
+        sellingCostPercent: EXPENSE_PRESETS.sellingCostPercent,
+      };
       for (const r of rows) {
         if (!r.bound) continue;
         if (r.bound === 'iptu') next.expenses.iptu = r.amount;

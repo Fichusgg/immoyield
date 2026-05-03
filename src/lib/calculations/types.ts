@@ -1,5 +1,19 @@
 export type AmortizationSystem = 'SAC' | 'PRICE';
 
+/**
+ * Default expense ratios applied as form presets (decimal, not %).
+ * Centralized so wizards, planilha, and calculation paths agree.
+ *
+ * Ranges align with typical Brazilian rental practice:
+ *   - Administração: 6–10% of rent (8% is a conservative midpoint)
+ *   - Manutenção:    2–4% of rent  (3% is a conservative midpoint)
+ */
+export const EXPENSE_PRESETS = {
+  managementPercent: 0.08,
+  maintenancePercent: 0.03,
+  sellingCostPercent: 0.06,
+} as const;
+
 export type FinancingModality = 'SFH' | 'SFI' | 'MCMV' | 'consorcio' | 'outro';
 
 export type TaxRegime = 'PF' | 'PJ' | 'isento';

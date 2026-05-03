@@ -12,6 +12,7 @@ import {
   Info,
 } from 'lucide-react';
 import type { SavedDeal } from '@/lib/supabase/deals';
+import { EXPENSE_PRESETS } from '@/lib/calculations/types';
 
 // ─── Market Reference Data (2025 / April 2026) ───────────────────────────────
 // Sources: Banco Central do Brasil, FipeZap, ABECIP, JLL, SECOVI-SP
@@ -370,8 +371,8 @@ export default function BrazilianAnalysis({ deal, defaultOpen = false, heading }
   const defaultCondo    = deal.condo_fee ?? deal.inputs?.expenses?.condo ?? 0;
   const defaultIptu     = (deal.iptu ?? deal.inputs?.expenses?.iptu ?? 0) * 12;
   const defaultVacancy  = deal.inputs?.revenue?.vacancyRate ?? 0.09;
-  const defaultMgmt     = deal.inputs?.expenses?.managementPercent ?? 0.10;
-  const defaultMaint    = deal.inputs?.expenses?.maintenancePercent ?? 0.005;
+  const defaultMgmt     = deal.inputs?.expenses?.managementPercent ?? EXPENSE_PRESETS.managementPercent;
+  const defaultMaint    = deal.inputs?.expenses?.maintenancePercent ?? EXPENSE_PRESETS.maintenancePercent;
   const defaultBroker   = 5;
   const defaultDP       = 20;
   const defaultItbi     = cityLookup(city, CITY_ITBI, 'rate', 0.03) * 100;

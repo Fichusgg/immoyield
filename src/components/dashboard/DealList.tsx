@@ -14,8 +14,6 @@ const PROPERTY_DESCRIPTIONS: Record<PropertyType, string> = {
   residential: 'Imóveis para aluguel de longo prazo e geração de renda passiva.',
   airbnb: 'Locação de curta temporada para maximizar rendimento por diária.',
   flip: 'Compra, reforma e venda para lucro no curto prazo.',
-  multifamily: 'Edifícios com múltiplas unidades para escala na renda.',
-  commercial: 'Imóveis comerciais com contratos de longo prazo.',
 };
 
 export default function DealList() {

@@ -11,8 +11,6 @@ const TYPE_ICONS: Record<PropertyType, React.ElementType> = {
   residential: Home,
   airbnb: CalendarDays,
   flip: Wrench,
-  multifamily: Building2,
-  commercial: Store,
 };
 
 interface AppLayoutProps {

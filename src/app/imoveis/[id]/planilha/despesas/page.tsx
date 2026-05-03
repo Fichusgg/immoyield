@@ -12,11 +12,11 @@ export default async function DespesasPage({ params }: Props) {
   const { deal, userEmail } = await loadDealForWorkspace(id, 'planilha/despesas');
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#F8F7F4]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#F8F7F4]">
       <TopNav
         userEmail={userEmail}
       />
-      <main className="flex-1">
+      <main className="min-h-0 flex-1">
         <PropertyWorkspace deal={deal}>
           <DespesasContent deal={deal} />
         </PropertyWorkspace>

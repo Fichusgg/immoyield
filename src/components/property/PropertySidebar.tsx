@@ -61,7 +61,7 @@ export function PropertySidebar({ deal }: Props) {
   };
 
   return (
-    <aside className="sticky top-4 w-[270px] shrink-0 self-start">
+    <aside className="h-full w-[270px] shrink-0 overflow-y-auto">
       <Link
         href="/propriedades"
         className="mb-3 flex items-center gap-1.5 text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"

@@ -34,6 +34,7 @@ import { SectionHeading } from '@/components/property/SectionHeading';
 import { FormCard } from '@/components/property/FormCard';
 import { FormRow } from '@/components/property/FormRow';
 import { NumberInput } from '@/components/property/NumberInput';
+import { Toggle } from '@/components/property/Toggle';
 import { patchDeal } from '@/components/property/save-deal';
 import { brl, pct } from '@/components/property/format';
 
@@ -49,6 +50,7 @@ interface Scenario {
   purchasePrice: number;
   monthlyRent: number;
   vacancyPct: number;       // 0..100
+  financingEnabled: boolean;
   downPaymentPct: number;   // 0..100
   interestPct: number;      // % a.a.
 }
@@ -58,6 +60,7 @@ function makeBaselineScenario(inp: DealInput): Scenario {
     purchasePrice: inp.purchasePrice,
     monthlyRent: inp.revenue.monthlyRent,
     vacancyPct: (inp.revenue.vacancyRate ?? 0.05) * 100,
+    financingEnabled: inp.financing.enabled ?? false,
     downPaymentPct:
       inp.purchasePrice > 0
         ? (inp.financing.downPayment / inp.purchasePrice) * 100
@@ -77,7 +80,7 @@ function applyScenario(base: DealInput, s: Scenario): DealInput {
     },
     financing: {
       ...base.financing,
-      enabled: true,
+      enabled: s.financingEnabled,
       downPayment: s.purchasePrice * (s.downPaymentPct / 100),
       interestRateYear: s.interestPct,
     },
@@ -157,6 +160,7 @@ function SimuladorBody({ deal, baseInputs }: BodyProps) {
     scenario.purchasePrice !== baseline.purchasePrice ||
     scenario.monthlyRent !== baseline.monthlyRent ||
     scenario.vacancyPct !== baseline.vacancyPct ||
+    scenario.financingEnabled !== baseline.financingEnabled ||
     scenario.downPaymentPct !== baseline.downPaymentPct ||
     scenario.interestPct !== baseline.interestPct;
 
@@ -361,25 +365,48 @@ function SimuladorBody({ deal, baseInputs }: BodyProps) {
               percent
               onChange={(v) => set('vacancyPct', v)}
             />
-            <SimField
-              label="Entrada"
-              value={scenario.downPaymentPct}
-              baseline={baseline.downPaymentPct}
-              suffix="%"
-              decimals={0}
-              percent
-              hint={`= ${brl((scenario.downPaymentPct / 100) * scenario.purchasePrice)}`}
-              onChange={(v) => set('downPaymentPct', v)}
-            />
-            <SimField
-              label="Juros do financiamento"
-              value={scenario.interestPct}
-              baseline={baseline.interestPct}
-              suffix="% a.a."
-              decimals={2}
-              percent
-              onChange={(v) => set('interestPct', v)}
-            />
+            <div className="border-t border-[#E2E0DA] px-5 py-4">
+              <Toggle
+                on={scenario.financingEnabled}
+                onChange={(on) =>
+                  setScenario((p) => ({ ...p, financingEnabled: on }))
+                }
+                label="Usar financiamento"
+                description={
+                  scenario.financingEnabled
+                    ? 'Considerar entrada, parcela e juros no cálculo.'
+                    : 'Compra à vista — sem entrada nem parcelas.'
+                }
+              />
+              {scenario.financingEnabled !== baseline.financingEnabled && (
+                <p className="mt-2 inline-block rounded bg-[#FEF3C7] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#92400E] uppercase">
+                  Alterado
+                </p>
+              )}
+            </div>
+            {scenario.financingEnabled && (
+              <>
+                <SimField
+                  label="Entrada"
+                  value={scenario.downPaymentPct}
+                  baseline={baseline.downPaymentPct}
+                  suffix="%"
+                  decimals={0}
+                  percent
+                  hint={`= ${brl((scenario.downPaymentPct / 100) * scenario.purchasePrice)}`}
+                  onChange={(v) => set('downPaymentPct', v)}
+                />
+                <SimField
+                  label="Juros do financiamento"
+                  value={scenario.interestPct}
+                  baseline={baseline.interestPct}
+                  suffix="% a.a."
+                  decimals={2}
+                  percent
+                  onChange={(v) => set('interestPct', v)}
+                />
+              </>
+            )}
           </FormCard>
 
           {/* Bonus: NOI + parcela visible at the bottom for transparency */}
@@ -388,7 +415,9 @@ function SimuladorBody({ deal, baseInputs }: BodyProps) {
             <MiniStat label="Cash-on-Cash" value={pct(m.cashOnCashNetPct ?? m.cashOnCash)} />
             <MiniStat
               label="Parcela / mês"
-              value={brl(m.firstInstallment ?? 0)}
+              value={
+                scenario.financingEnabled ? brl(m.firstInstallment ?? 0) : 'À vista'
+              }
             />
           </div>
         </div>

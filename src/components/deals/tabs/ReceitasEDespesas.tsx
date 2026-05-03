@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDealStore } from '@/store/useDealStore';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { EXPENSE_PRESETS } from '@/lib/calculations/types';
 
 const stepSchema = z.object({
   revenue: z.object({
@@ -65,9 +66,9 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
       expenses: {
         condo: formData.expenses?.condo ?? 0,
         iptu: formData.expenses?.iptu ?? 0,
-        managementPercent: (formData.expenses?.managementPercent ?? 0.1) * 100,
-        maintenancePercent: (formData.expenses?.maintenancePercent ?? 0.05) * 100,
-        sellingCostPercent: (formData.expenses?.sellingCostPercent ?? 0.06) * 100,
+        managementPercent: (formData.expenses?.managementPercent ?? EXPENSE_PRESETS.managementPercent) * 100,
+        maintenancePercent: (formData.expenses?.maintenancePercent ?? EXPENSE_PRESETS.maintenancePercent) * 100,
+        sellingCostPercent: (formData.expenses?.sellingCostPercent ?? EXPENSE_PRESETS.sellingCostPercent) * 100,
       },
     },
   });
@@ -77,8 +78,10 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
   const vacancyRate = useWatch({ control, name: 'revenue.vacancyRate' }) ?? 5;
   const condo = useWatch({ control, name: 'expenses.condo' }) ?? 0;
   const iptu = useWatch({ control, name: 'expenses.iptu' }) ?? 0;
-  const mgmt = useWatch({ control, name: 'expenses.managementPercent' }) ?? 10;
-  const maint = useWatch({ control, name: 'expenses.maintenancePercent' }) ?? 5;
+  const mgmt = useWatch({ control, name: 'expenses.managementPercent' })
+    ?? EXPENSE_PRESETS.managementPercent * 100;
+  const maint = useWatch({ control, name: 'expenses.maintenancePercent' })
+    ?? EXPENSE_PRESETS.maintenancePercent * 100;
   const dailyRate = useWatch({ control, name: 'revenue.dailyRate' }) ?? 0;
   const occupancy = useWatch({ control, name: 'revenue.occupancyRate' }) ?? 65;
 

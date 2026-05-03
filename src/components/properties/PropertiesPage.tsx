@@ -70,6 +70,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
   const [showEntryChoice, setShowEntryChoice] = useState(false);
   const [showUrlImport, setShowUrlImport] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [wizardOpenedFromChoice, setWizardOpenedFromChoice] = useState(false);
 
   const { reset, updateFormData } = useDealStore();
 
@@ -114,6 +115,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
     setShowEntryChoice(false);
     setShowUrlImport(false);
     setShowWizard(true);
+    setWizardOpenedFromChoice(false);
     router.replace('/propriedades');
   }, [searchParams, router]);
 
@@ -142,6 +144,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
     updateFormData({ propertyType: activeCategory });
     setShowEntryChoice(false);
     setShowWizard(true);
+    setWizardOpenedFromChoice(true);
   };
 
   const handleChooseImport = () => {
@@ -153,12 +156,26 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
   const handleImportReady = (_prefilledCount: number) => {
     setShowUrlImport(false);
     setShowWizard(true);
+    setWizardOpenedFromChoice(true);
   };
 
-  const handleWizardDone = () => {
+  const handleWizardBack = () => {
+    setShowWizard(false);
+    if (wizardOpenedFromChoice) {
+      setShowEntryChoice(true);
+    }
+    setWizardOpenedFromChoice(false);
+  };
+
+  const handleWizardDone = (dealId: string | null) => {
     setShowWizard(false);
     setShowEntryChoice(false);
     setShowUrlImport(false);
+    setWizardOpenedFromChoice(false);
+    if (dealId) {
+      router.push(`/imoveis/${dealId}`);
+      return;
+    }
     load();
   };
 
@@ -180,6 +197,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 setShowWizard(false);
                 setShowEntryChoice(false);
                 setShowUrlImport(false);
+                setWizardOpenedFromChoice(false);
                 setSearch('');
               }}
               className={`flex flex-col gap-2 border p-4 text-left transition-colors ${
@@ -333,11 +351,11 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
           /* ── Inline wizard ──────────────────────────────────────────────── */
           <div className="flex-1 p-8">
             <button
-              onClick={() => setShowWizard(false)}
+              onClick={handleWizardBack}
               className="mb-6 flex items-center gap-1.5 text-sm text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
             >
               <ArrowLeft size={14} />
-              Voltar para {activeDef.label}
+              {wizardOpenedFromChoice ? 'Voltar' : `Voltar para ${activeDef.label}`}
             </button>
             <DealWizard benchmarks={benchmarks} onSaved={handleWizardDone} />
           </div>

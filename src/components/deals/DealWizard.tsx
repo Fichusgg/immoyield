@@ -48,7 +48,7 @@ interface Benchmarks {
 interface DealWizardProps {
   benchmarks?: Benchmarks;
   /** Called after user saves a deal from the results screen — used for inline mode */
-  onSaved?: () => void;
+  onSaved?: (dealId: string | null) => void;
 }
 
 /** Maps a prefilled-field key to its input's DOM id (for CSS tinting). */

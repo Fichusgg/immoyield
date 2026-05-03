@@ -141,8 +141,10 @@ function formatNumeric(v: number, decimals: number): string {
 }
 
 /**
- * Parse a pt-BR / loose numeric string. Treat the LAST `,` or `.` as the
- * decimal separator if any digits follow it; otherwise treat all as thousands.
+ * Parse a pt-BR numeric string. Comma is the decimal separator; dots are
+ * thousands separators (matching `Intl.NumberFormat('pt-BR')` output).
+ *
+ * Examples: "4.500" → 4500, "4,5" → 4.5, "1.234,56" → 1234.56
  */
 function parseLocaleNumber(raw: string): number | undefined {
   const trimmed = raw.trim();
@@ -151,20 +153,10 @@ function parseLocaleNumber(raw: string): number | undefined {
   const body = negative ? trimmed.slice(1) : trimmed;
   if (!/[\d.,]/.test(body)) return undefined;
 
-  const lastComma = body.lastIndexOf(',');
-  const lastDot = body.lastIndexOf('.');
-  const sepIndex = Math.max(lastComma, lastDot);
-
-  let intPart: string;
-  let decPart = '';
-  if (sepIndex === -1) {
-    intPart = body.replace(/\D/g, '');
-  } else {
-    intPart = body.slice(0, sepIndex).replace(/\D/g, '');
-    decPart = body.slice(sepIndex + 1).replace(/\D/g, '');
-  }
-  if (!intPart && !decPart) return undefined;
-  const n = Number(`${intPart || '0'}.${decPart || '0'}`);
+  // Strip thousand-separator dots, then convert decimal comma to dot.
+  const normalized = body.replace(/\./g, '').replace(',', '.');
+  if (!/\d/.test(normalized)) return undefined;
+  const n = Number(normalized);
   if (!Number.isFinite(n)) return undefined;
   return negative ? -n : n;
 }

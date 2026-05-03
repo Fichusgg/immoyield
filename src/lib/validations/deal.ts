@@ -4,17 +4,13 @@ export const PROPERTY_TYPES = [
   'residential',
   'airbnb',
   'flip',
-  'multifamily',
-  'commercial',
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
 export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  residential: 'Aluguel',
+  residential: 'Aluguel de Longo Prazo',
   airbnb: 'Airbnb / Temporada',
   flip: 'Reforma e Venda',
-  multifamily: 'Multifamiliar',
-  commercial: 'Comercial',
 };
 
 export const dealSchema = z.object({

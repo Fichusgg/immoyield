@@ -149,6 +149,7 @@ export interface RentCompareResult {
 export const DEFAULT_FILTERS: RentalAnalysisFilters = {
   scope: 'bairro',
   areaTolerancePct: 0.20,
+  bedroomTolerance: 0,
   bathTolerance: 1,
   yearTolerance: 15,
   priceBandMatch: false,

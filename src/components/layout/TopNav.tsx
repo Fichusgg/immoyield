@@ -6,7 +6,6 @@ import {
   LogOut,
   HelpCircle,
   Settings,
-  Bell,
   ArrowUpCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -17,8 +16,6 @@ interface TopNavProps {
 
 const PRIMARY_NAV: { href: string; label: string; comingSoon?: boolean }[] = [
   { href: '/propriedades', label: 'Meus Imóveis' },
-  { href: '/buscar-imoveis', label: 'Buscar Imóveis', comingSoon: true },
-  { href: '/buscar-bancos', label: 'Buscar Bancos', comingSoon: true },
 ];
 
 export default function TopNav({ userEmail }: TopNavProps) {
@@ -74,9 +71,8 @@ export default function TopNav({ userEmail }: TopNavProps) {
       {/* ── Right cluster ─────────────────────────────────────────────── */}
       <div className="ml-auto flex items-center gap-1">
         <IconButton ariaLabel="Importar / Upgrade" icon={<ArrowUpCircle size={15} />} />
-        <IconButton ariaLabel="Notificações" icon={<Bell size={15} />} />
-        <IconButton ariaLabel="Ajuda" icon={<HelpCircle size={15} />} />
-        <IconButton ariaLabel="Configurações" icon={<Settings size={15} />} />
+        <IconLink ariaLabel="Ajuda" href="/ajuda" icon={<HelpCircle size={15} />} />
+        <IconLink ariaLabel="Configurações" href="/configuracoes" icon={<Settings size={15} />} />
 
         {userEmail && (
           <>
@@ -112,5 +108,25 @@ function IconButton({ ariaLabel, icon }: { ariaLabel: string; icon: React.ReactN
     >
       {icon}
     </button>
+  );
+}
+
+function IconLink({
+  ariaLabel,
+  href,
+  icon,
+}: {
+  ariaLabel: string;
+  href: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={ariaLabel}
+      className="flex h-8 w-8 items-center justify-center rounded-md text-[#9CA3AF] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20]"
+    >
+      {icon}
+    </Link>
   );
 }

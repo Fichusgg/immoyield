@@ -19,14 +19,12 @@ export interface MappedWizardForm {
 }
 
 // Translate the scraper's structural property type (apartment/house/...) to
-// the deal-strategy enum used by the form (residential/airbnb/flip/...).
-// We can only auto-pick a strategy for clearly commercial listings — most
-// residential listings can be either rental or airbnb depending on intent,
-// so we leave them on the user's category choice.
+// the deal-strategy enum used by the form. The strategy enum was reduced to
+// residential / airbnb / flip — there's no longer a one-to-one mapping for
+// commercial listings, so we always defer to the user's category choice.
 function mapPropertyTypeToStrategy(
-  type: ScrapedPropertyType | undefined
+  _type: ScrapedPropertyType | undefined
 ): DealPropertyType | undefined {
-  if (type === 'commercial') return 'commercial';
   return undefined;
 }
 

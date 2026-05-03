@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Award,
   Sliders,
-  DollarSign,
   Thermometer,
   type LucideIcon,
 } from 'lucide-react';
@@ -39,15 +38,10 @@ export const PROPERTY_NAV: PropertyNavItem[] = [
   { slug: 'score', label: 'ImmoScore', icon: Award },
 
   {
-    slug: 'comps-vendas',
-    label: 'Comparáveis de Venda',
-    icon: DollarSign,
-    group: 'PESQUISA',
-  },
-  {
     slug: 'comps-aluguel',
     label: 'Comparáveis de Aluguel',
     icon: Thermometer,
+    group: 'PESQUISA',
   },
 ];
 

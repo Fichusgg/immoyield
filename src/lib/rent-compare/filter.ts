@@ -98,12 +98,17 @@ function applyOnce({ subject, listings, filters }: RunOpts): FilterResult {
       );
       continue;
     }
-    if (l.bedrooms != null && l.bedrooms !== subject.bedrooms) {
+    if (
+      l.bedrooms != null &&
+      Math.abs(l.bedrooms - subject.bedrooms) > filters.bedroomTolerance
+    ) {
       excluded.push(
         reject(
           l,
           'bedrooms-mismatch',
-          `${l.bedrooms} quartos vs ${subject.bedrooms} do imóvel`,
+          filters.bedroomTolerance > 0
+            ? `${l.bedrooms} quartos (tolerância ±${filters.bedroomTolerance})`
+            : `${l.bedrooms} quartos vs ${subject.bedrooms} do imóvel`,
         ),
       );
       continue;

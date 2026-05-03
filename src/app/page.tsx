@@ -4,6 +4,8 @@ import Hero from '@/components/landing/Hero';
 import FeatureSection from '@/components/landing/FeatureSection';
 import FadeInSection from '@/components/landing/FadeInSection';
 import FloatingButton from '@/components/landing/FloatingButton';
+import Footer from '@/components/landing/Footer';
+import FaqSection from '@/components/landing/FaqSection';
 import {
   PropertyDataCard,
   InputsCard,
@@ -233,6 +235,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <FaqSection />
+
       {/* Final CTA */}
       <section className="border-b border-[#E2E0DA] py-[100px]">
         <FadeInSection className="mx-auto max-w-[1200px] px-6 text-center">
@@ -260,76 +265,7 @@ export default function Home() {
         </FadeInSection>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#FAFAF8]">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 px-6 py-12 md:grid-cols-4">
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <span
-                className="grid h-7 w-7 place-items-center text-xs font-black text-white"
-                style={{ backgroundColor: SAGE }}
-              >
-                I
-              </span>
-              <span className="font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
-            </div>
-            <p className="mt-3 text-xs text-[#9CA3AF]">
-              Calculadora de investimento imobiliário para o Brasil.
-            </p>
-          </div>
-
-          {[
-            {
-              title: 'Produto',
-              links: [
-                { label: 'Como funciona', href: '#como-funciona' },
-                { label: 'Funcionalidades', href: '#funcionalidades' },
-                { label: 'Preços', href: '#precos' },
-              ],
-            },
-            {
-              title: 'Empresa',
-              links: [
-                { label: 'Quem somos', href: '#' },
-                { label: 'Metodologia', href: '#' },
-                { label: 'Contato', href: '#' },
-              ],
-            },
-            {
-              title: 'Legal',
-              links: [
-                { label: 'Termos de uso', href: '#' },
-                { label: 'Privacidade', href: '#' },
-                { label: 'Aviso de isenção', href: '#' },
-              ],
-            },
-          ].map((col) => (
-            <div key={col.title}>
-              <p className="mb-3 text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
-                {col.title}
-              </p>
-              <ul className="space-y-2">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-xs text-[#6B7280] transition-colors hover:text-[#1C2B20]">
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="border-t border-[#E2E0DA]">
-          <div className="mx-auto max-w-[1200px] px-6 py-4">
-            <p className="text-[10px] leading-relaxed text-[#9CA3AF]">
-              © 2026 ImmoYield. CDI: fonte BACEN SGS, atualizado semanalmente. Cálculos para fins
-              informativos — ImmoYield não compra, vende nem recomenda imóveis e não presta
-              consultoria de investimento.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <FloatingButton />
     </main>

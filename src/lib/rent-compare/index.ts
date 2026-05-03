@@ -20,30 +20,49 @@ export { scoreComps, summarize, computeConfidence } from './score';
 /**
  * One-shot pipeline: filter (with relaxation) → score → summarize.
  * `excludedIds` pre-strips comps the user has manually unchecked.
+ * `forceIncludedIds` bypasses the filter pipeline for specific listings — they
+ * always end up in `kept`, even when they would otherwise be rejected.
  */
 export function analyzeRentComps({
   subject,
   listings,
   filters = DEFAULT_FILTERS,
   excludedIds = [],
+  forceIncludedIds = [],
 }: {
   subject: RentSubject;
   listings: RentalListing[];
   filters?: RentalAnalysisFilters;
   excludedIds?: string[];
+  forceIncludedIds?: string[];
 }): RentCompareResult {
   const excluded = new Set(excludedIds);
-  const candidates = listings.filter((l) => !excluded.has(l.id));
+  const forced = new Set(forceIncludedIds);
+  const candidates = listings.filter((l) => !excluded.has(l.id) && !forced.has(l.id));
+  const forceList = listings.filter((l) => forced.has(l.id) && !excluded.has(l.id));
 
   const filterResult = filterAndRelax({ subject, listings: candidates, filters });
+  // Force-included listings are appended to `kept` and stripped from `excluded`
+  // regardless of why they were originally rejected.
+  const mergedKept = [...filterResult.kept, ...forceList];
+  const mergedExcluded = filterResult.excluded.filter((e) => !forced.has(e.listing.id));
+
   const { score, scored } = scoreComps(
     subject,
-    filterResult.kept,
+    mergedKept,
     filterResult.relaxationLog.length,
   );
   const summary = summarize(subject, scored, score, filterResult.relaxationLog);
 
-  return { filterResult, score, summary };
+  return {
+    filterResult: {
+      ...filterResult,
+      kept: mergedKept,
+      excluded: mergedExcluded,
+    },
+    score,
+    summary,
+  };
 }
 
 // ── Helpers for translating between RentalListing and RentalComp ───────────

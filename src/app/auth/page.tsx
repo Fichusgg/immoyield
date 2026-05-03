@@ -21,9 +21,7 @@ export default function AuthPage() {
       if (redirectingRef.current) return;
       redirectingRef.current = true;
       setLoginSuccess(true);
-      window.setTimeout(() => {
-        router.replace(to);
-      }, 800);
+      router.replace(to);
     },
     [router]
   );
