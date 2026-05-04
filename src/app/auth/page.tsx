@@ -31,7 +31,8 @@ export default function AuthPage() {
     const params = new URLSearchParams(window.location.search);
     const nextPath = safeNextPath(params.get('next'), '/propriedades');
     nextPathRef.current = nextPath;
-    const redirectToUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectToUrl = `${siteUrl}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     queueMicrotask(() => setRedirectTo(redirectToUrl));
 
     supabase.auth.getUser().then(({ data }) => {

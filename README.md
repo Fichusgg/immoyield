@@ -61,6 +61,7 @@ Fill in `.env.local` with your values — see `.env.example` for descriptions.
 | ------------------------------- | ---------- | --------------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Yes        | Your Supabase project URL                                 |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes        | Supabase anonymous (public) key                           |
+| `NEXT_PUBLIC_SITE_URL`          | Yes        | Site URL for auth redirects (e.g., https://yourdomain.com) |
 | `SUPABASE_SERVICE_ROLE_KEY`     | Yes (cron) | Service role key — used by the CDI cron job to bypass RLS |
 | `CRON_SECRET`                   | Yes (cron) | Secret for authenticating `/api/cron/*` requests          |
 
