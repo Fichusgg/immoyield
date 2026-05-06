@@ -10,7 +10,32 @@ const supabaseOrigin = (() => {
   }
 })();
 
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? '';
+const posthogOrigin = (() => {
+  try {
+    return new URL(posthogHost).origin;
+  } catch {
+    return '';
+  }
+})();
+
+// PostHog also serves static assets from a sibling subdomain (us-assets / eu-assets)
+const posthogAssetsOrigin = posthogOrigin.replace('://us.i.', '://us-assets.i.').replace('://eu.i.', '://eu-assets.i.');
+
 const isDev = process.env.NODE_ENV !== 'production';
+
+const connectSrc = [
+  "'self'",
+  supabaseOrigin,
+  supabaseOrigin ? `wss://${supabaseOrigin.replace(/^https?:\/\//, '')}` : '',
+  // Sentry — using tunnelRoute below routes errors through /monitoring on our own domain,
+  // but we still allow direct ingest as a fallback during local dev.
+  isDev ? 'https://*.ingest.sentry.io' : '',
+  isDev ? 'https://*.ingest.us.sentry.io' : '',
+  // PostHog
+  posthogOrigin,
+  posthogAssetsOrigin !== posthogOrigin ? posthogAssetsOrigin : '',
+].filter(Boolean).join(' ');
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -21,7 +46,8 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseOrigin} wss://${supabaseOrigin.replace(/^https?:\/\//, '')}`.trim(),
+  `connect-src ${connectSrc}`,
+  "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -42,11 +68,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  /**
-   * @react-pdf/renderer uses Node APIs (canvas, stream) and must only run
-   * on the client. Marking it as an external for the server bundle prevents
-   * SSR errors while still allowing dynamic import() on the client.
-   */
   serverExternalPackages: ['@react-pdf/renderer'],
   turbopack: {},
   async headers() {
@@ -60,38 +81,18 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
-
   org: 'immoyield',
-
   project: 'javascript-nextjs',
-
-  // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
-  // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  // tunnelRoute: "/monitoring",
+  // Route browser Sentry requests through /monitoring on our own domain
+  // to bypass ad-blockers and keep our CSP tight (no wildcard ingest needed in prod).
+  tunnelRoute: '/monitoring',
 
   webpack: {
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
-
-    // Tree-shaking options for reducing bundle size
     treeshake: {
-      // Automatically tree-shake Sentry logger statements to reduce bundle size
       removeDebugLogging: true,
     },
   },
