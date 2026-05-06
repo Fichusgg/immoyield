@@ -21,6 +21,11 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // Legal pages — public
+  if (pathname.startsWith('/legal/')) {
+    return response;
+  }
+
   // Static files (e.g. images in /public) — no auth gate
   const lastSegment = pathname.split('/').pop() ?? '';
   const isStaticFile = lastSegment.includes('.');
@@ -50,5 +55,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|monitoring).*)'],
 };

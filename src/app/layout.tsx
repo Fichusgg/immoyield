@@ -76,6 +76,8 @@ export const metadata: Metadata = {
 import { Toaster } from '@/components/ui/sonner';
 import { NumberInputGuard } from '@/components/NumberInputGuard';
 import FloatingFeedbackButton from '@/components/feedback/FloatingFeedbackButton';
+import { Providers } from './providers';
+import PostHogPageView from './PostHogPageView';
 
 export default function RootLayout({
   children,
@@ -90,7 +92,10 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">
         <NumberInputGuard />
-        {children}
+        <Providers>
+          <PostHogPageView />
+          {children}
+        </Providers>
         <FloatingFeedbackButton />
         <Toaster position="bottom-right" />
       </body>
