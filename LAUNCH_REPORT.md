@@ -245,7 +245,12 @@ Outstanding (deferred):
 
 ## Phase 7 — Legal pages
 
-_Pending._
+- [src/components/legal/LegalDoc.tsx](src/components/legal/LegalDoc.tsx) — added a top-of-document `[REVIEW NEEDED]` amber banner explaining that placeholder CNPJ + DPO contact still need legal review. Renders on all three legal pages without per-page edits.
+- [src/app/privacidade/page.tsx](src/app/privacidade/page.tsx) and [src/app/termos/page.tsx](src/app/termos/page.tsx) — short-URL aliases that `permanentRedirect` to `/legal/privacidade` and `/legal/termos`. Tester invites and printed materials can use the short forms.
+- The Termos page already includes the substantive equivalent of the required disclaimer ("A ImmoYield não é uma corretora de imóveis, instituição financeira nem consultor de investimentos. As informações exibidas têm caráter exclusivamente informativo… não constituem recomendação de compra, venda ou aluguel.") — no edit needed.
+- Footer links to `/legal/{termos,privacidade,cookies}` are already present in `src/components/landing/Footer.tsx` and render on the marketing site + legal pages.
+
+Owner action before public launch: replace placeholder CNPJ (`XX.XXX.XXX/0001-XX`) and DPO email in the LegalDoc-rendered pages, then remove the `[REVIEW NEEDED]` banner. (One file change per page after legal sign-off.)
 
 ## Phase 8 — Smoke test & final verdict
 

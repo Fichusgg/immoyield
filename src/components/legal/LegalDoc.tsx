@@ -20,6 +20,13 @@ export default function LegalDoc({ eyebrow, title, updatedAt, children }: Props)
         Voltar para o site
       </Link>
 
+      <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] leading-snug text-amber-900">
+        <strong className="font-semibold">[REVIEW NEEDED]</strong> Este documento usa
+        marcadores genéricos (CNPJ, endereço, contatos do DPO) e <em>ainda não foi
+        revisado por advogado</em>. Trate como rascunho LGPD-aderente até validação
+        jurídica antes do lançamento público.
+      </div>
+
       <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
         {eyebrow}
       </p>
