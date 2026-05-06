@@ -14,12 +14,15 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
 };
 
 export const dealSchema = z.object({
-  name: z.string().min(3, 'Nome deve ter ao menos 3 caracteres'),
+  name: z
+    .string()
+    .min(3, 'Nome deve ter ao menos 3 caracteres')
+    .max(200, 'Nome deve ter no máximo 200 caracteres'),
   propertyType: z.enum(PROPERTY_TYPES).default('residential'),
 
   property: z
     .object({
-      shortDescription: z.string().max(1000).optional(),
+      shortDescription: z.string().max(5000).optional(),
       tagsAndLabels: z.string().max(500).optional(),
 
       bedrooms: z.number().int().min(0).max(20).optional(),

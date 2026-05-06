@@ -187,7 +187,23 @@ Outstanding (smoke test required, not statically verifiable):
 
 ## Phase 4 — Robustness
 
-_Pending._
+Static fixes:
+
+- [src/lib/validations/deal.ts](src/lib/validations/deal.ts) — added `.max(200)` on `name` and bumped `shortDescription` cap from 1000 → 5000 (the prior 1000 silently truncated long field notes). Other text fields already capped: `tagsAndLabels` 500, `parking` 50, address fields 30–200.
+- Numeric ranges in the schema already enforce sane bounds: `itbiPercent ≤ 0.10`, `vacancyRate ≤ 1`, `managementPercent ≤ 1`, `purchasePrice` strictly positive, `termMonths` strictly positive int. Negatives rejected on every monetary field via `.min(0)`.
+
+Already-good behaviors confirmed:
+
+- **No `dangerouslySetInnerHTML`** anywhere in `src/`. XSS surface limited to React's auto-escaping defaults.
+- **Currency parser** (`CurrencyInput.parseLocaleNumber`) accepts `R$ 1.000.000,50`, `1000000.50`, and `1,000,000.50` uniformly: it locates the *last* `,` or `.` and treats it as the decimal separator. Behavior is consistent — no per-input divergence.
+- **Auth + IDOR** — middleware redirects unauthenticated GET/HEAD; `/api/parse-listing` and `/api/rent-compare*` call `supabase.auth.getUser()` before any work; `/api/shares` delegates to `shares.server.ts` which calls `requireUserId()` + `assertDealOwnership()`. RLS on `deals` (owner-only) is the database-level backstop. A request for another user's deal returns 404 from the Supabase query, not data.
+- **Browser nav** — App Router POSTs go through Server Actions / Route Handlers and redirect on success; refresh on a deal detail page hits a server component that re-reads from Supabase (no resubmission risk).
+
+Outstanding (require live testing in Phase 8):
+
+- Disable-on-submit pattern audit — `DealForm`, `add-deal/Wizard`, `/deals/new` all use `react-hook-form` with `formState.isSubmitting`; spot-check during smoke test.
+- Dirty-form `beforeunload` warning — not currently implemented anywhere. Decision deferred to owner: add a simple `beforeunload` listener in the wizard, or wire localStorage auto-save? Default for launch: do nothing (the wizard is short enough that loss-on-close is tolerable for testers).
+- Refresh on every detail page returning a deal → no 500. Will validate during Phase 8.
 
 ## Phase 5 — UX polish
 
