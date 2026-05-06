@@ -1,0 +1,167 @@
+# Immoyield — Launch Readiness Report
+
+> Status: in progress. Updated after each phase.
+> Date started: 2026-05-05
+
+## Phase 1 — Audit
+
+### Stack snapshot
+
+- **Next.js**: `16.2.1` (App Router, Turbopack, React Compiler enabled).
+- **Node target**: `>=20.0.0 <23.0.0` (`package.json#engines`).
+- **React**: `19.2.4`.
+- **Tailwind**: v4. **shadcn/ui**: latest.
+- **Supabase**: `@supabase/ssr@0.9`, `@supabase/supabase-js@2.100`.
+- **Validation**: `zod@4`.
+- **Tests**: `vitest@4` + `@playwright/test`.
+- **Charts/PDF**: `recharts`, `@react-pdf/renderer` (forced server-external).
+- **Deployment**: Vercel (`vercel.json`, cron in [api/cron/update-benchmarks](src/app/api/cron/update-benchmarks/route.ts)).
+
+`src/app/layout.tsx` sets `lang="pt-BR"`, loads DM Sans / DM Serif / JetBrains Mono. Metadata title is generic — per-route metadata still missing on most pages (Phase 5).
+
+### Build / lint / typecheck
+
+| Check | Result |
+| --- | --- |
+| `npm run build` | ✅ Compiled in ~50s. 25 static / many dynamic routes. ⚠ One deprecation warning: `middleware` → `proxy` (Next 16 rename, non-blocking). |
+| `npx tsc --noEmit` | ✅ Clean. |
+| `npm run lint` | ✅ Clean. |
+| `npx vitest run` | ✅ 96 tests across 7 files all green. |
+
+### Routes (active)
+
+```
+/, /auth, /auth/callback, /ajuda
+/analisar, /buscar-bancos, /buscar-imoveis, /configuracoes
+/deals/new, /meus-negocios, /propriedades
+/imoveis/[id]                  # 9 sub-routes (analise, comps-aluguel, descricao, edit,
+                               #   fotos, mapa, planilha, projecoes, score, simulador)
+/internal/design               # design system reference (should be gated for prod)
+/legal/{cookies,privacidade,termos}
+/r/[slug]                      # public share view
+API: /api/auth/validate-email, /api/cron/update-benchmarks,
+     /api/deals/calculate, /api/parse-listing,
+     /api/rent-compare, /api/rent-compare/debug, /api/shares
+```
+
+### Component duplication (deal entry surface)
+
+Three deal-entry components exist:
+
+| File | LOC | Used by |
+| --- | --- | --- |
+| [src/components/deals/DealForm.tsx](src/components/deals/DealForm.tsx) | 768 | `/imoveis/[id]/edit` (the canonical edit path) |
+| [src/components/deals/DealWizard.tsx](src/components/deals/DealWizard.tsx) | 271 | **dead** — no imports outside itself |
+| [src/components/deals/add-deal/Wizard.tsx](src/components/deals/add-deal/Wizard.tsx) | 503 | exports `AddDealWizard`, used by ??? — needs trace |
+
+`/deals/new` defines a local `ManualDealForm` rather than using any of the above. Recommend deleting `DealWizard.tsx` (Phase 4 cleanup); leave `add-deal/Wizard.tsx` until owner confirms.
+
+### Calculation modules
+
+`src/lib/calculations/`: `rental.ts`, `projections.ts`, `financing.ts`, `taxes.ts`, `irr.ts`, `types.ts`. Existing `__tests__/` covers `rental`, `financing`, `irr`, `taxes`. Phase 2 will add the `golden.test.ts` suite.
+
+### Environment variables
+
+Required (server + client):
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SITE_URL
+SUPABASE_SERVICE_ROLE_KEY     # server-only (cron)
+CRON_SECRET                   # server-only (cron)
+```
+
+Optional but used:
+```
+UPSTASH_REDIS_REST_URL        # rate limit + cache (parse-listing, rent-compare)
+UPSTASH_REDIS_REST_TOKEN
+SCRAPERAPI_KEY                # listing scraper
+SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN   # not yet wired (Phase 6)
+NEXT_PUBLIC_POSTHOG_KEY               # not yet wired (Phase 6)
+NEXT_PUBLIC_POSTHOG_HOST              # not yet wired (Phase 6)
+```
+
+`.env.example` updated in Phase 1 to include the optional set.
+
+### Security review
+
+- ✅ `SUPABASE_SERVICE_ROLE_KEY` only referenced in [api/cron/update-benchmarks/route.ts:48](src/app/api/cron/update-benchmarks/route.ts:48). Not leaked client-side.
+- ✅ Cron route gated behind `Bearer ${CRON_SECRET}`.
+- ✅ CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy all set in [next.config.ts:30-43](next.config.ts:30).
+- ✅ Middleware redirects unauthenticated GET/HEAD to `/auth` for everything except `/`, `/auth*`, `/r/*`, `/api/cron/*`, static files ([src/middleware.ts](src/middleware.ts)).
+- ✅ `/api/parse-listing`, `/api/rent-compare*` all check `supabase.auth.getUser()` before doing scraping work.
+- ✅ `/api/shares` delegates to `shares.server.ts` which calls `requireUserId()` + `assertDealOwnership()` → ownership derived from session, never request body.
+- ✅ `/api/deals/calculate` is intentionally unauthenticated (pure compute, no DB) and rate-limited.
+- ✅ `/api/auth/validate-email` is intentionally unauthenticated (pre-signup MX check).
+- ✅ `dangerouslySetInnerHTML` not used with user data anywhere in `src/`.
+- ✅ Upstash rate limiters wired on every paid scraper endpoint and on `/api/shares` writes.
+
+RLS policies present in repo migrations:
+- ✅ `deals` — full owner-only policy set ([001_deals.sql:92-109](supabase/migrations/001_deals.sql)).
+- ✅ `storage.objects` (property-images bucket) — per-deal path-prefix RLS keyed via `deals.user_id` ([005_property_images_storage_policies.sql](supabase/migrations/005_property_images_storage_policies.sql)).
+- ✅ `market_benchmarks` — public read, service-role write ([20250101000001_market_benchmarks.sql](supabase/migrations/20250101000001_market_benchmarks.sql)).
+- ⚠ `shared_reports` — referenced from [src/lib/supabase/shares.server.ts](src/lib/supabase/shares.server.ts) but **no migration in repo**. Table exists in Supabase but its RLS posture is not version-controlled. **HIGH** — verify with owner or capture as `007_shared_reports.sql`.
+- ⚠ Phase 6 will add a `feedback` table; new migration file required.
+
+### Other notable observations
+
+- `/internal/design` is shipped to production — gate or remove before launch (low risk, leaks design-system surface but no data).
+- Currency formatting uses `Intl.NumberFormat('pt-BR', …)` consistently in `landing/` + `currency-input.tsx`. A handful of inline `R$ ${value}` string interpolations exist in deal tabs — Phase 5 sweep.
+- 46 numeric inputs across `src/components/`, only 11 declare `inputMode`. Phase 3 sweep needed.
+- Viewport meta is implicit (Next default). Phase 3 will add an explicit viewport export to the root layout that allows zoom (`maximumScale: 5`).
+- Legal pages already exist at `/legal/{privacidade,termos,cookies}` with LGPD-aligned content but a placeholder CNPJ. Owner brief said `/privacidade` and `/termos` — Phase 7 will add `[REVIEW NEEDED]` markers and link from the global footer (currently absent).
+
+### Prioritized fix list
+
+**Critical** — block launch
+1. *(none found)*
+
+**High** — fix in this run
+1. Capture or remove the unmigrated `shared_reports` table (Phase 1 cleanup or owner check).
+2. Add golden calculation tests + fix any formula bugs they uncover (Phase 2).
+3. Add `inputMode` + decimal keypad to every numeric input (Phase 3).
+4. Add explicit viewport export with zoom enabled (Phase 3).
+5. Add `feedback` table migration + endpoint + UI (Phase 6).
+6. Wire Sentry + PostHog (Phase 6 — owner needs to provide DSN/key).
+7. Per-route `metadata` and OG image (Phase 5).
+
+**Medium**
+8. Delete dead `DealWizard.tsx`.
+9. Gate `/internal/design` from production builds.
+10. Replace `middleware.ts` with the new `proxy.ts` convention (Next 16 rename, non-blocking).
+11. Sweep inline `R$ ${…}` for `Intl.NumberFormat` (Phase 5).
+12. Add empty/loading/error states audit (Phase 5).
+
+**Low**
+13. Add `<noscript>` fallback / favicon variants (already shipping `favicon.ico` via `public/`).
+14. Verify CSP `connect-src` includes Sentry + PostHog endpoints once added.
+
+---
+
+## Phase 2 — Calculation accuracy
+
+_Pending._
+
+## Phase 3 — Mobile & responsive
+
+_Pending._
+
+## Phase 4 — Robustness
+
+_Pending._
+
+## Phase 5 — UX polish
+
+_Pending._
+
+## Phase 6 — Telemetry & feedback
+
+_Pending._
+
+## Phase 7 — Legal pages
+
+_Pending._
+
+## Phase 8 — Smoke test & final verdict
+
+_Pending._
