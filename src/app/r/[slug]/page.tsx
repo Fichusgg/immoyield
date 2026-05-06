@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getPublicReportBySlug } from '@/lib/supabase/shares.server';
+import { getBenchmarks } from '@/lib/benchmarks';
 import PublicReportView from '@/components/share/PublicReportView';
 import type { AnalysisResult } from '@/components/deals/ResultsScreen';
 import type { DealInput } from '@/lib/validations/deal';
@@ -34,6 +35,8 @@ export default async function PublicReportPage({ params }: Props) {
 
   if (!report) notFound();
 
+  const benchmarks = await getBenchmarks();
+
   return (
     <PublicReportView
       dealName={report.deal.name}
@@ -42,6 +45,7 @@ export default async function PublicReportPage({ params }: Props) {
       viewCount={report.view_count}
       result={report.deal.results_cache as unknown as AnalysisResult}
       inputs={report.deal.inputs as unknown as DealInput}
+      benchmarks={{ cdi: benchmarks.cdi, fii: benchmarks.fii, updatedAt: benchmarks.updatedAt }}
       slug={slug}
     />
   );

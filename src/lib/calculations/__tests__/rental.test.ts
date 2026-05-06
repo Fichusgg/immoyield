@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { analyzeRentalDeal } from '../rental';
+import { calculateProjections } from '../projections';
 import { DealInputs } from '../types';
 
 describe('Rental Analysis Logic', () => {
@@ -43,16 +44,55 @@ describe('Rental Analysis Logic', () => {
     const { metrics } = analyzeRentalDeal(mockInput);
 
     // Gross = 3500 * 0.95 = 3325
-    // Expenses = 500 (condo) + 200 (iptu) + 350 (mngmt) + 175 (maint) = 1225
-    // NOI = 3325 - 1225 = 2100
-    expect(metrics.monthlyNOI).toBe(2100);
+    // Expenses = 500 (condo) + 200 (iptu) + 332.5 (mngmt) + 166.25 (maint) = 1198.75
+    // NOI = 3325 - 1198.75 = 2126.25
+    expect(metrics.monthlyNOI).toBeCloseTo(2126.25, 6);
   });
 
   it('should calculate Cap Rate correctly', () => {
     const { metrics } = analyzeRentalDeal(mockInput);
 
-    // (2100 * 12) / 500,000 = 5.04%
-    expect(metrics.capRate).toBeCloseTo(5.04, 2);
+    // (2126.25 * 12) / 500,000 = 5.103%
+    expect(metrics.capRate).toBeCloseTo(5.103, 3);
+  });
+  it('computes management and maintenance on collected rent after vacancy', () => {
+    const vacancyInput: DealInputs = {
+      purchasePrice: 400_000,
+      acquisitionCosts: { itbiPercent: 0.03, cartorio: 5_000, reforms: 0 },
+      financing: {
+        enabled: false,
+        downPayment: 400_000,
+        interestRateYear: 0,
+        termMonths: 240,
+        system: 'SAC',
+      },
+      revenue: { monthlyRent: 2_000, vacancyRate: 0.2 },
+      expenses: { condo: 0, iptu: 0, managementPercent: 0.1, maintenancePercent: 0.05 },
+    };
+
+    const { metrics } = analyzeRentalDeal(vacancyInput);
+    expect(metrics.monthlyNOI).toBeCloseTo(1360, 2);
+  });
+
+  it('projects NOI using projected collected rent and growth', () => {
+    const projectionInput: DealInputs = {
+      purchasePrice: 600_000,
+      acquisitionCosts: { itbiPercent: 0.03, cartorio: 5_000, reforms: 0 },
+      financing: {
+        enabled: false,
+        downPayment: 600_000,
+        interestRateYear: 0,
+        termMonths: 240,
+        system: 'SAC',
+      },
+      revenue: { monthlyRent: 1_000, vacancyRate: 0.1 },
+      expenses: { condo: 0, iptu: 0, managementPercent: 0.1, maintenancePercent: 0.05 },
+      projections: { holdPeriodYears: 5 },
+    };
+
+    const [year1] = calculateProjections(projectionInput, 1);
+    expect(year1.projectedRent).toBeCloseTo(1_000, 2);
+    expect(year1.projectedNOI).toBeCloseTo(765, 2);
   });
 });
 

@@ -388,12 +388,14 @@ export interface DealReportPDFProps {
   result: AnalysisResult;
   inputs: DealInput;
   dealName?: string;
+  benchmarks?: { cdi: number; fii: number; updatedAt: string | null };
 }
 
 export function DealReportPDF({
   result,
   inputs,
   dealName = 'Análise de Deal',
+  benchmarks,
 }: DealReportPDFProps) {
   const { metrics, schedule, projections } = result;
   const cashFlowPositive = metrics.monthlyCashFlow >= 0;
@@ -402,14 +404,17 @@ export function DealReportPDF({
   const grossRent = inputs.revenue.monthlyRent;
   const vacancyLoss = grossRent * inputs.revenue.vacancyRate;
   const effRent = grossRent - vacancyLoss;
-  const mgmtCost = grossRent * inputs.expenses.managementPercent;
-  const maintCost = grossRent * inputs.expenses.maintenancePercent;
+  const landlordPaysCondoIptu = inputs.revenue.rentIncludesCondoIptu ?? true;
+  const condoCost = landlordPaysCondoIptu ? inputs.expenses.condo : 0;
+  const iptuCost = landlordPaysCondoIptu ? inputs.expenses.iptu : 0;
+  const mgmtCost = effRent * inputs.expenses.managementPercent;
+  const maintCost = effRent * inputs.expenses.maintenancePercent;
   const noi = metrics.monthlyNOI;
   const firstInstallment = schedule[0]?.installment ?? 0;
   const ltv = metrics.loanAmount > 0 ? (metrics.loanAmount / metrics.totalInvestment) * 100 : 0;
 
-  const CDI = 10.5;
-  const FII = 8.0;
+  const CDI = benchmarks?.cdi ?? 13.65;
+  const FII = benchmarks?.fii ?? 8.0;
   const maxBench = Math.max(metrics.capRate, metrics.cashOnCash, CDI, FII, 0.01);
 
   const amortYearly = schedule.filter((_, i) => (i + 1) % 12 === 0);
@@ -485,8 +490,18 @@ export function DealReportPDF({
             ['Reformas', fmt(inputs.acquisitionCosts.reforms)],
             ['Aluguel bruto', fmt(grossRent) + ' /mês'],
             ['Vacância estimada', fmtPct(inputs.revenue.vacancyRate * 100)],
-            ['Condomínio', fmt(inputs.expenses.condo) + ' /mês'],
-            ['IPTU', fmt(inputs.expenses.iptu) + ' /mês'],
+            [
+              'Condomínio',
+              landlordPaysCondoIptu
+                ? fmt(inputs.expenses.condo) + ' /mês'
+                : '— (pago pelo inquilino)',
+            ],
+            [
+              'IPTU',
+              landlordPaysCondoIptu
+                ? fmt(inputs.expenses.iptu) + ' /mês'
+                : '— (pago pelo inquilino)',
+            ],
             ['Gestão', fmtPct(inputs.expenses.managementPercent * 100)],
             ['Manutenção', fmtPct(inputs.expenses.maintenancePercent * 100)],
           ].map(([label, value], i) => (
@@ -536,35 +551,45 @@ export function DealReportPDF({
             {
               label: '− Vacância',
               value: -vacancyLoss,
-              ratio: vacancyLoss / grossRent,
+              ratio: grossRent > 0 ? vacancyLoss / grossRent : 0,
               color: C.red500,
             },
             {
               label: '= Aluguel efetivo',
               value: effRent,
-              ratio: effRent / grossRent,
+              ratio: grossRent > 0 ? effRent / grossRent : 0,
               color: C.slate700,
             },
             {
               label: '− Condomínio',
-              value: -inputs.expenses.condo,
-              ratio: inputs.expenses.condo / grossRent,
+              value: -condoCost,
+              ratio: grossRent > 0 ? condoCost / grossRent : 0,
               color: C.amber400,
             },
             {
               label: '− IPTU',
-              value: -inputs.expenses.iptu,
-              ratio: inputs.expenses.iptu / grossRent,
+              value: -iptuCost,
+              ratio: grossRent > 0 ? iptuCost / grossRent : 0,
               color: C.amber400,
             },
-            { label: '− Gestão', value: -mgmtCost, ratio: mgmtCost / grossRent, color: C.amber400 },
+            {
+              label: '− Gestão',
+              value: -mgmtCost,
+              ratio: grossRent > 0 ? mgmtCost / grossRent : 0,
+              color: C.amber400,
+            },
             {
               label: '− Manutenção',
               value: -maintCost,
-              ratio: maintCost / grossRent,
+              ratio: grossRent > 0 ? maintCost / grossRent : 0,
               color: C.amber400,
             },
-            { label: '= NOI', value: noi, ratio: noi / grossRent, color: C.emerald500 },
+            {
+              label: '= NOI',
+              value: noi,
+              ratio: grossRent > 0 ? noi / grossRent : 0,
+              color: C.emerald500,
+            },
           ].map((row, i) => (
             <View key={i} style={s.waterfallRow}>
               <Text style={s.waterfallLabel}>{row.label}</Text>

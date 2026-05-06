@@ -16,7 +16,16 @@ import {
   ReferenceLine,
   Legend,
 } from 'recharts';
-import { RotateCcw, TrendingUp, TrendingDown, ArrowUpRight, Check, Printer, CheckCircle2, AlertTriangle } from 'lucide-react';
+import {
+  RotateCcw,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  Check,
+  Printer,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 import { DownloadPDFButton } from '@/components/pdf/DownloadPDFButton';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useState, useMemo } from 'react';
@@ -275,7 +284,7 @@ const KPICard = ({
       {secondary && (
         <span
           title={secondary.label}
-          className="font-mono text-xs font-semibold tabular-nums text-[#9CA3AF]"
+          className="font-mono text-xs font-semibold text-[#9CA3AF] tabular-nums"
         >
           ({secondary.value} {secondary.label})
         </span>
@@ -535,52 +544,66 @@ export default function ResultsScreen({
   ];
 
   // ── ImmoScore ───────────────────────────────────────────────────────────────
-  const scoreBreakdown = useMemo(() => computeImmoScore({
-    capRate:           metrics.capRate,
-    monthlyCashFlow:   metrics.monthlyCashFlow,
-    cashOutlay:        metrics.cashOutlay,
-    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
-    operatingExpenses: metrics.operatingExpenses ?? 0,
-  }), [metrics]);
+  const scoreBreakdown = useMemo(
+    () =>
+      computeImmoScore({
+        capRate: metrics.capRate,
+        monthlyCashFlow: metrics.monthlyCashFlow,
+        cashOutlay: metrics.cashOutlay,
+        grossMonthlyRent: metrics.grossMonthlyRent ?? 0,
+        operatingExpenses: metrics.operatingExpenses ?? 0,
+      }),
+    [metrics]
+  );
 
   const scoreLabel = getScoreLabel(scoreBreakdown.total);
 
   // ── Insights & Risks ────────────────────────────────────────────────────────
-  const insightsList = useMemo(() => generateInsights({
-    monthlyCashFlow:   metrics.monthlyCashFlow,
-    capRate:           metrics.capRate,
-    cashOnCash:        metrics.cashOnCash,
-    cashOutlay:        metrics.cashOutlay,
-    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
-    condoMonthly:      metrics.operatingExpenses
-                         ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
-                         : 0,
-    iptuMonthly:       0,
-    operatingExpenses: metrics.operatingExpenses ?? 0,
-    loanAmount:        metrics.loanAmount,
-    purchasePrice:     metrics.totalInvestment,
-    vacancyRate:       metrics.grossMonthlyRent && metrics.effectiveRent
-                         ? 1 - (metrics.effectiveRent / metrics.grossMonthlyRent)
-                         : 0.05,
-  }), [metrics]);
+  const insightsList = useMemo(
+    () =>
+      generateInsights({
+        monthlyCashFlow: metrics.monthlyCashFlow,
+        capRate: metrics.capRate,
+        cashOnCash: metrics.cashOnCash,
+        cashOutlay: metrics.cashOutlay,
+        grossMonthlyRent: metrics.grossMonthlyRent ?? 0,
+        condoMonthly: metrics.operatingExpenses
+          ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
+          : 0,
+        iptuMonthly: 0,
+        operatingExpenses: metrics.operatingExpenses ?? 0,
+        loanAmount: metrics.loanAmount,
+        purchasePrice: metrics.totalInvestment,
+        vacancyRate:
+          metrics.grossMonthlyRent && metrics.effectiveRent
+            ? 1 - metrics.effectiveRent / metrics.grossMonthlyRent
+            : 0.05,
+      }),
+    [metrics]
+  );
 
-  const risksList = useMemo(() => generateRisks({
-    monthlyCashFlow:   metrics.monthlyCashFlow,
-    capRate:           metrics.capRate,
-    cashOnCash:        metrics.cashOnCash,
-    cashOutlay:        metrics.cashOutlay,
-    grossMonthlyRent:  metrics.grossMonthlyRent ?? 0,
-    condoMonthly:      metrics.operatingExpenses
-                         ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
-                         : 0,
-    iptuMonthly:       0,
-    operatingExpenses: metrics.operatingExpenses ?? 0,
-    loanAmount:        metrics.loanAmount,
-    purchasePrice:     metrics.totalInvestment,
-    vacancyRate:       metrics.grossMonthlyRent && metrics.effectiveRent
-                         ? 1 - (metrics.effectiveRent / metrics.grossMonthlyRent)
-                         : 0.05,
-  }), [metrics]);
+  const risksList = useMemo(
+    () =>
+      generateRisks({
+        monthlyCashFlow: metrics.monthlyCashFlow,
+        capRate: metrics.capRate,
+        cashOnCash: metrics.cashOnCash,
+        cashOutlay: metrics.cashOutlay,
+        grossMonthlyRent: metrics.grossMonthlyRent ?? 0,
+        condoMonthly: metrics.operatingExpenses
+          ? (metrics.operatingExpenses - (metrics.grossMonthlyRent ?? 0) * 0.15) * 0.5
+          : 0,
+        iptuMonthly: 0,
+        operatingExpenses: metrics.operatingExpenses ?? 0,
+        loanAmount: metrics.loanAmount,
+        purchasePrice: metrics.totalInvestment,
+        vacancyRate:
+          metrics.grossMonthlyRent && metrics.effectiveRent
+            ? 1 - metrics.effectiveRent / metrics.grossMonthlyRent
+            : 0.05,
+      }),
+    [metrics]
+  );
 
   return (
     <div className="space-y-8 pb-10">
@@ -594,7 +617,7 @@ export default function ResultsScreen({
             <h2 className="text-xl font-bold tracking-tight text-[#1C2B20]">
               {dealName ?? 'Resultado do Deal'}
             </h2>
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span
                 className={`inline-flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-bold ${
                   cashFlowPositive
@@ -714,17 +737,19 @@ export default function ResultsScreen({
             </p>
             <p className={`mt-0.5 text-3xl font-black tabular-nums ${scoreLabel.color}`}>
               {scoreBreakdown.total}
-              <span className="ml-1 text-base font-semibold opacity-60">/100 — {scoreLabel.label}</span>
+              <span className="ml-1 text-base font-semibold opacity-60">
+                /100 — {scoreLabel.label}
+              </span>
             </p>
           </div>
         </div>
         <div className="grid grid-cols-5 gap-2 text-center">
           {[
-            { label: 'Yield',       pts: scoreBreakdown.yield,        max: 35 },
-            { label: 'Fluxo',       pts: scoreBreakdown.cashflow,     max: 25 },
-            { label: 'Payback',     pts: scoreBreakdown.payback,      max: 20 },
-            { label: 'Eficiência',  pts: scoreBreakdown.expenseRatio, max: 15 },
-            { label: 'Dados',       pts: scoreBreakdown.completeness, max: 5  },
+            { label: 'Yield', pts: scoreBreakdown.yield, max: 35 },
+            { label: 'Fluxo', pts: scoreBreakdown.cashflow, max: 25 },
+            { label: 'Payback', pts: scoreBreakdown.payback, max: 20 },
+            { label: 'Eficiência', pts: scoreBreakdown.expenseRatio, max: 15 },
+            { label: 'Dados', pts: scoreBreakdown.completeness, max: 5 },
           ].map((c) => (
             <div key={c.label} className="rounded border border-white/60 bg-white/50 px-1 py-2">
               <p className={`text-lg font-black tabular-nums ${scoreLabel.color}`}>{c.pts}</p>
@@ -934,19 +959,19 @@ export default function ResultsScreen({
                     value: fmt(metrics.outOfPocketCash ?? 0),
                   },
                   ...(metrics.cashOnCashOutOfPocket != null
-                    ? [{
-                        label: 'Cash-on-Cash (sem FGTS)',
-                        value: fmtPct(metrics.cashOnCashOutOfPocket),
-                      }]
+                    ? [
+                        {
+                          label: 'Cash-on-Cash (sem FGTS)',
+                          value: fmtPct(metrics.cashOnCashOutOfPocket),
+                        },
+                      ]
                     : []),
                 ]
               : []),
             ...(metrics.loanAmount > 0
               ? [
                   { label: 'Financiamento', value: fmt(metrics.loanAmount) },
-                  ...(metrics.modality
-                    ? [{ label: 'Modalidade', value: metrics.modality }]
-                    : []),
+                  ...(metrics.modality ? [{ label: 'Modalidade', value: metrics.modality }] : []),
                   {
                     label: 'LTV',
                     value: fmtPct((metrics.loanAmount / metrics.totalInvestment) * 100),
@@ -1052,8 +1077,8 @@ export default function ResultsScreen({
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
-            CDI via BACEN (SGS). LCI/LCA estimada em 92% do CDI (isenta de IR p/ PF).
-            Tesouro IPCA+ = cupom real {TESOURO_REAL.toFixed(2)}% + IPCA projetado {IPCA_PROJ.toFixed(2)}%.
+            CDI via BACEN (SGS). LCI/LCA estimada em 92% do CDI (isenta de IR p/ PF). Tesouro IPCA+
+            = cupom real {TESOURO_REAL.toFixed(2)}% + IPCA projetado {IPCA_PROJ.toFixed(2)}%.
           </p>
         </div>
       </div>
@@ -1193,6 +1218,11 @@ export default function ResultsScreen({
               result={result}
               inputs={inputs}
               dealName={dealName ?? 'Deal'}
+              benchmarks={
+                benchmarks
+                  ? { cdi: benchmarks.cdi, fii: benchmarks.fii, updatedAt: benchmarks.updatedAt }
+                  : undefined
+              }
               className="flex items-center gap-1.5 border border-[#D0CEC8] bg-[#F0EFEB] px-4 py-2.5 text-xs font-black whitespace-nowrap text-[#6B7280] transition-colors hover:border-[#9CA3AF] hover:text-[#1C2B20]"
             />
             <button

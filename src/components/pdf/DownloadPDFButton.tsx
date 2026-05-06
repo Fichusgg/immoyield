@@ -29,6 +29,7 @@ interface DownloadPDFButtonProps {
   inputs: DealInput;
   dealName?: string;
   className?: string;
+  benchmarks?: { cdi: number; fii: number; updatedAt: string | null };
 }
 
 export function DownloadPDFButton({
@@ -36,6 +37,7 @@ export function DownloadPDFButton({
   inputs,
   dealName = 'Deal',
   className,
+  benchmarks,
 }: DownloadPDFButtonProps) {
   const isClient = useIsClient();
 
@@ -58,6 +60,7 @@ export function DownloadPDFButton({
       dealName={dealName}
       fileName={fileName}
       className={className}
+      benchmarks={benchmarks}
     />
   );
 }
@@ -73,12 +76,14 @@ function AsyncPDFLink({
   dealName,
   fileName,
   className,
+  benchmarks,
 }: {
   result: AnalysisResult;
   inputs: DealInput;
   dealName: string;
   fileName: string;
   className?: string;
+  benchmarks?: { cdi: number; fii: number; updatedAt: string | null };
 }) {
   const [PDFDownloadLink, setPDFDownloadLink] = useState<React.ComponentType<{
     document: React.ReactElement;
@@ -91,6 +96,7 @@ function AsyncPDFLink({
     result: AnalysisResult;
     inputs: DealInput;
     dealName?: string;
+    benchmarks?: { cdi: number; fii: number; updatedAt: string | null };
   }> | null>(null);
 
   useEffect(() => {
@@ -112,7 +118,9 @@ function AsyncPDFLink({
     );
   }
 
-  const doc = <DealReportPDF result={result} inputs={inputs} dealName={dealName} />;
+  const doc = (
+    <DealReportPDF result={result} inputs={inputs} dealName={dealName} benchmarks={benchmarks} />
+  );
 
   return (
     <PDFDownloadLink document={doc} fileName={fileName} className={className ?? defaultClass}>

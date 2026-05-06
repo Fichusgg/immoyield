@@ -46,3 +46,6 @@ next-env.d.ts
 
 # scratch space for debug scripts (HTML dumps, parsed JSON)
 /tmp/
+
+# Sentry Config File
+.env.sentry-build-plugin

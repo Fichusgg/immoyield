@@ -10,9 +10,13 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     '.next/**',
+    '**/.next/**',
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // Codex/Claude worktrees can contain Next build artifacts that explode lint times.
+    '.claude/**',
+    '**/.claude/**',
   ]),
   eslintConfigPrettier,
 ]);

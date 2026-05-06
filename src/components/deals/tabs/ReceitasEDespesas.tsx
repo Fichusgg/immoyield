@@ -66,9 +66,12 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
       expenses: {
         condo: formData.expenses?.condo ?? 0,
         iptu: formData.expenses?.iptu ?? 0,
-        managementPercent: (formData.expenses?.managementPercent ?? EXPENSE_PRESETS.managementPercent) * 100,
-        maintenancePercent: (formData.expenses?.maintenancePercent ?? EXPENSE_PRESETS.maintenancePercent) * 100,
-        sellingCostPercent: (formData.expenses?.sellingCostPercent ?? EXPENSE_PRESETS.sellingCostPercent) * 100,
+        managementPercent:
+          (formData.expenses?.managementPercent ?? EXPENSE_PRESETS.managementPercent) * 100,
+        maintenancePercent:
+          (formData.expenses?.maintenancePercent ?? EXPENSE_PRESETS.maintenancePercent) * 100,
+        sellingCostPercent:
+          (formData.expenses?.sellingCostPercent ?? EXPENSE_PRESETS.sellingCostPercent) * 100,
       },
     },
   });
@@ -78,17 +81,19 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
   const vacancyRate = useWatch({ control, name: 'revenue.vacancyRate' }) ?? 5;
   const condo = useWatch({ control, name: 'expenses.condo' }) ?? 0;
   const iptu = useWatch({ control, name: 'expenses.iptu' }) ?? 0;
-  const mgmt = useWatch({ control, name: 'expenses.managementPercent' })
-    ?? EXPENSE_PRESETS.managementPercent * 100;
-  const maint = useWatch({ control, name: 'expenses.maintenancePercent' })
-    ?? EXPENSE_PRESETS.maintenancePercent * 100;
+  const mgmt =
+    useWatch({ control, name: 'expenses.managementPercent' }) ??
+    EXPENSE_PRESETS.managementPercent * 100;
+  const maint =
+    useWatch({ control, name: 'expenses.maintenancePercent' }) ??
+    EXPENSE_PRESETS.maintenancePercent * 100;
   const dailyRate = useWatch({ control, name: 'revenue.dailyRate' }) ?? 0;
   const occupancy = useWatch({ control, name: 'revenue.occupancyRate' }) ?? 65;
 
   const effectiveRent = isAirbnb
     ? dailyRate * 30 * (occupancy / 100)
     : monthlyRent * (1 - vacancyRate / 100);
-  const expenses = condo + iptu + monthlyRent * (mgmt / 100) + monthlyRent * (maint / 100);
+  const expenses = condo + iptu + effectiveRent * (mgmt / 100) + effectiveRent * (maint / 100);
   const noi = effectiveRent - expenses;
 
   const fmt = (v: number) =>
@@ -303,7 +308,9 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             {showCondoIptu && (
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="condo-monthly" className={labelClass}>Condomínio (R$/mês)</label>
+                  <label htmlFor="condo-monthly" className={labelClass}>
+                    Condomínio (R$/mês)
+                  </label>
                   <Controller
                     control={control}
                     name="expenses.condo"
@@ -319,7 +326,9 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   />
                 </div>
                 <div>
-                  <label htmlFor="iptu-monthly" className={labelClass}>IPTU (R$/mês)</label>
+                  <label htmlFor="iptu-monthly" className={labelClass}>
+                    IPTU (R$/mês)
+                  </label>
                   <Controller
                     control={control}
                     name="expenses.iptu"

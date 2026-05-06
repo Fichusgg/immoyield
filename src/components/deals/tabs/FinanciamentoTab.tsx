@@ -2,8 +2,17 @@
 
 import { useState, useMemo } from 'react';
 import {
-  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine, Area, AreaChart,
+  BarChart,
+  Bar,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  Area,
+  AreaChart,
 } from 'recharts';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import {
@@ -16,7 +25,11 @@ import type { AmortizationSystem, FinancingModality } from '@/lib/calculations/t
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
 const fmt = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(v);
 
 const fmtPct = (v: number, d = 2) => `${v.toFixed(d)}%`;
 
@@ -27,11 +40,15 @@ function DscrBadge({ value }: { value: number | null }) {
   const good = value >= 1.3;
   const ok = value >= 1.1;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
-      good ? 'bg-[#ebf3ee] text-[#1a5c3a]' :
-      ok   ? 'bg-yellow-50 text-yellow-700' :
-             'bg-red-50 text-red-600'
-    }`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
+        good
+          ? 'bg-[#ebf3ee] text-[#1a5c3a]'
+          : ok
+            ? 'bg-yellow-50 text-yellow-700'
+            : 'bg-red-50 text-red-600'
+      }`}
+    >
       {value.toFixed(2)}
       <span className="font-normal">{good ? '· Bom' : ok ? '· Ok' : '· Baixo'}</span>
     </span>
@@ -80,11 +97,11 @@ export interface FinanciamentoTabProps {
   /** Default values to pre-fill the simulator */
   defaults: {
     monthlyRent: number;
-    vacancyRate: number;          // 0–1
+    vacancyRate: number; // 0–1
     condo: number;
     iptu: number;
-    managementPercent: number;    // 0–1
-    maintenancePercent: number;   // 0–1
+    managementPercent: number; // 0–1
+    maintenancePercent: number; // 0–1
     downPayment: number;
     interestRateYear: number;
     termMonths: number;
@@ -99,10 +116,10 @@ type TabMode = 'analise' | 'simulador';
 
 interface SimState {
   monthlyRent: number;
-  vacancyRate: number;        // 0–100 displayed
+  vacancyRate: number; // 0–100 displayed
   condo: number;
   iptu: number;
-  managementPercent: number;  // 0–100 displayed
+  managementPercent: number; // 0–100 displayed
   maintenancePercent: number; // 0–100 displayed
   downPayment: number;
   interestRateYear: number;
@@ -142,28 +159,33 @@ export function FinanciamentoTab({
   const simNOI = useMemo(() => {
     const vacancy = sim.monthlyRent * (sim.vacancyRate / 100);
     const effective = sim.monthlyRent - vacancy;
-    const mgmt = sim.monthlyRent * (sim.managementPercent / 100);
-    const maint = sim.monthlyRent * (sim.maintenancePercent / 100);
+    const mgmt = effective * (sim.managementPercent / 100);
+    const maint = effective * (sim.maintenancePercent / 100);
     const opEx = sim.condo + sim.iptu + mgmt + maint;
     return effective - opEx;
   }, [sim]);
 
   const simOpEx = useMemo(() => {
-    const mgmt = sim.monthlyRent * (sim.managementPercent / 100);
-    const maint = sim.monthlyRent * (sim.maintenancePercent / 100);
+    const vacancy = sim.monthlyRent * (sim.vacancyRate / 100);
+    const effective = sim.monthlyRent - vacancy;
+    const mgmt = effective * (sim.managementPercent / 100);
+    const maint = effective * (sim.maintenancePercent / 100);
     return sim.condo + sim.iptu + mgmt + maint;
   }, [sim]);
 
-  const simScenario: FinancingScenario = useMemo(() => ({
-    id: 'sim',
-    label: 'Simulador',
-    purchasePrice,
-    downPayment: sim.downPayment,
-    interestRateYear: sim.interestRateYear,
-    termMonths: Math.max(1, sim.termMonths),
-    system: sim.system,
-    modality: sim.modality,
-  }), [purchasePrice, sim]);
+  const simScenario: FinancingScenario = useMemo(
+    () => ({
+      id: 'sim',
+      label: 'Simulador',
+      purchasePrice,
+      downPayment: sim.downPayment,
+      interestRateYear: sim.interestRateYear,
+      termMonths: Math.max(1, sim.termMonths),
+      system: sim.system,
+      modality: sim.modality,
+    }),
+    [purchasePrice, sim]
+  );
 
   const simResult = useMemo(
     () => simulateFinancing(simScenario, simNOI, simOpEx, acquisitionCosts),
@@ -182,7 +204,12 @@ export function FinanciamentoTab({
       system: defaults.system,
       modality: defaults.modality,
     };
-    return simulateFinancing(scenario, actualAnalysis.monthlyNOI, actualAnalysis.operatingExpenses, acquisitionCosts);
+    return simulateFinancing(
+      scenario,
+      actualAnalysis.monthlyNOI,
+      actualAnalysis.operatingExpenses,
+      acquisitionCosts
+    );
   }, [purchasePrice, actualAnalysis, defaults, acquisitionCosts]);
 
   const activeResult = mode === 'analise' ? analiseResult : simResult;
@@ -202,12 +229,16 @@ export function FinanciamentoTab({
   return (
     <div className="space-y-5">
       {/* Mode toggle */}
-      <div className="flex gap-1 rounded-lg bg-[#f5f5f3] p-1 w-fit">
+      <div className="flex w-fit gap-1 rounded-lg bg-[#f5f5f3] p-1">
         {(['analise', 'simulador'] as TabMode[]).map((m) => (
           <button
             key={m}
             type="button"
-            onClick={() => { setMode(m); setSchedulePage(0); setShowSchedule(false); }}
+            onClick={() => {
+              setMode(m);
+              setSchedulePage(0);
+              setShowSchedule(false);
+            }}
             className={`rounded-md px-4 py-1.5 text-xs font-semibold transition-colors ${
               mode === m
                 ? 'bg-white text-[#1c2b20] shadow-sm'
@@ -225,35 +256,55 @@ export function FinanciamentoTab({
           {/* Waterfall + KPIs */}
           <div className="grid gap-5 lg:grid-cols-2">
             {/* Waterfall */}
-            <div className="rounded-xl border border-[#e5e5e3] bg-white divide-y divide-[#f5f5f3]">
+            <div className="divide-y divide-[#f5f5f3] rounded-xl border border-[#e5e5e3] bg-white">
               <div className="px-5 py-4">
-                <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">Fluxo Mensal</p>
+                <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+                  Fluxo Mensal
+                </p>
               </div>
-              <div className="px-5 py-4 space-y-2.5 text-xs">
+              <div className="space-y-2.5 px-5 py-4 text-xs">
                 <WaterfallRow label="Aluguel Bruto" value={actualAnalysis.grossMonthlyRent} />
                 <WaterfallRow label="(−) Vacância" value={-actualAnalysis.vacancyLoss} muted />
                 <WaterfallRow label="Renda Efetiva" value={actualAnalysis.effectiveRent} bold />
-                <WaterfallRow label="(−) Despesas Operacionais" value={-actualAnalysis.operatingExpenses} muted />
+                <WaterfallRow
+                  label="(−) Despesas Operacionais"
+                  value={-actualAnalysis.operatingExpenses}
+                  muted
+                />
                 <WaterfallRow label="NOI" value={actualAnalysis.monthlyNOI} bold />
                 {actualAnalysis.firstInstallment > 0 && (
-                  <WaterfallRow label="(−) Parcela" value={-actualAnalysis.firstInstallment} muted />
+                  <WaterfallRow
+                    label="(−) Parcela"
+                    value={-actualAnalysis.firstInstallment}
+                    muted
+                  />
                 )}
               </div>
               <div className="px-5 py-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-[#1c2b20]">Fluxo de Caixa</span>
                   <div className="text-right">
-                    <p className={`text-xl font-bold ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#1a5c3a]' : 'text-red-600'}`}>
+                    <p
+                      className={`text-xl font-bold ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#1a5c3a]' : 'text-red-600'}`}
+                    >
                       {fmt(actualAnalysis.monthlyCashFlow)}/mês
                     </p>
-                    <p className="text-xs text-[#737373]">{fmt(actualAnalysis.monthlyCashFlow * 12)}/ano</p>
+                    <p className="text-xs text-[#737373]">
+                      {fmt(actualAnalysis.monthlyCashFlow * 12)}/ano
+                    </p>
                   </div>
                 </div>
-                <div className={`mt-3 rounded-lg px-3 py-2.5 ${actualAnalysis.monthlyCashFlow >= 0 ? 'bg-[#ebf3ee]' : 'bg-red-50'}`}>
-                  <p className={`text-xs font-bold ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#1a5c3a]' : 'text-red-600'}`}>
+                <div
+                  className={`mt-3 rounded-lg px-3 py-2.5 ${actualAnalysis.monthlyCashFlow >= 0 ? 'bg-[#ebf3ee]' : 'bg-red-50'}`}
+                >
+                  <p
+                    className={`text-xs font-bold ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#1a5c3a]' : 'text-red-600'}`}
+                  >
                     {actualAnalysis.monthlyCashFlow >= 0 ? '✅ LUCRATIVO' : '❌ NÃO LUCRATIVO'}
                   </p>
-                  <p className={`mt-0.5 text-xs ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#2d7a4f]' : 'text-red-500'}`}>
+                  <p
+                    className={`mt-0.5 text-xs ${actualAnalysis.monthlyCashFlow >= 0 ? 'text-[#2d7a4f]' : 'text-red-500'}`}
+                  >
                     {actualAnalysis.monthlyCashFlow >= 0
                       ? `Sobra ${fmt(actualAnalysis.monthlyCashFlow)}/mês após a parcela`
                       : `Falta ${fmt(Math.abs(actualAnalysis.monthlyCashFlow))}/mês para cobrir`}
@@ -270,32 +321,50 @@ export function FinanciamentoTab({
                   <DscrBadge value={actualAnalysis.dscr} />
                 </KpiTile>
                 <KpiTile label="LTV">
-                  <span className={`text-lg font-bold ${actualAnalysis.ltv <= 70 ? 'text-[#1a5c3a]' : actualAnalysis.ltv <= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <span
+                    className={`text-lg font-bold ${actualAnalysis.ltv <= 70 ? 'text-[#1a5c3a]' : actualAnalysis.ltv <= 80 ? 'text-yellow-600' : 'text-red-600'}`}
+                  >
                     {fmtPct(actualAnalysis.ltv)}
                   </span>
                 </KpiTile>
                 <KpiTile label="Cash-on-Cash">
-                  <span className={`text-lg font-bold ${actualAnalysis.cashOnCash >= 6 ? 'text-[#1a5c3a]' : actualAnalysis.cashOnCash >= 4 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <span
+                    className={`text-lg font-bold ${actualAnalysis.cashOnCash >= 6 ? 'text-[#1a5c3a]' : actualAnalysis.cashOnCash >= 4 ? 'text-yellow-600' : 'text-red-600'}`}
+                  >
                     {fmtPct(actualAnalysis.cashOnCash)} a.a.
                   </span>
                 </KpiTile>
                 <KpiTile label="Payback entrada">
                   <span className="text-lg font-bold text-[#1c2b20]">
-                    {actualAnalysis.paybackYears !== null ? `${actualAnalysis.paybackYears.toFixed(1)} anos` : '—'}
+                    {actualAnalysis.paybackYears !== null
+                      ? `${actualAnalysis.paybackYears.toFixed(1)} anos`
+                      : '—'}
                   </span>
                 </KpiTile>
               </div>
 
               {/* Loan details */}
-              <div className="rounded-xl border border-[#e5e5e3] bg-white p-5 space-y-2.5">
-                <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">Financiamento</p>
+              <div className="space-y-2.5 rounded-xl border border-[#e5e5e3] bg-white p-5">
+                <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+                  Financiamento
+                </p>
                 <MetricRow label="Valor financiado" value={fmt(actualAnalysis.loanAmount)} />
-                <MetricRow label="Parcela mês 1" value={`${fmt(actualAnalysis.firstInstallment)}/mês`} />
+                <MetricRow
+                  label="Parcela mês 1"
+                  value={`${fmt(actualAnalysis.firstInstallment)}/mês`}
+                />
                 {analiseResult.lastInstallment !== analiseResult.firstInstallment && (
-                  <MetricRow label="Parcela final" value={`${fmt(analiseResult.lastInstallment)}/mês`} />
+                  <MetricRow
+                    label="Parcela final"
+                    value={`${fmt(analiseResult.lastInstallment)}/mês`}
+                  />
                 )}
                 <MetricRow label="Total de parcelas" value={fmt(analiseResult.totalPaid)} />
-                <MetricRow label="Total de juros" value={`${fmt(analiseResult.totalInterest)} (${fmtPct(analiseResult.totalInterestPercent)})`} highlight="red" />
+                <MetricRow
+                  label="Total de juros"
+                  value={`${fmt(analiseResult.totalInterest)} (${fmtPct(analiseResult.totalInterestPercent)})`}
+                  highlight="red"
+                />
                 <MetricRow
                   label="Aluguel break-even"
                   value={`${fmt(analiseResult.breakEvenRent)}/mês`}
@@ -340,13 +409,15 @@ export function FinanciamentoTab({
                 <FieldRow label={`Vacância — ${sim.vacancyRate.toFixed(1)}%`}>
                   <input
                     type="range"
-                    min={0} max={30} step={0.5}
+                    min={0}
+                    max={30}
+                    step={0.5}
                     value={sim.vacancyRate}
                     onChange={(e) => patchSim({ vacancyRate: parseFloat(e.target.value) })}
                     className="w-full accent-[#1a5c3a]"
                   />
                   <p className="mt-1 text-[11px] text-[#a3a3a1]">
-                    Perda: {fmt(sim.monthlyRent * sim.vacancyRate / 100)}/mês
+                    Perda: {fmt((sim.monthlyRent * sim.vacancyRate) / 100)}/mês
                   </p>
                 </FieldRow>
               </InputSection>
@@ -372,28 +443,38 @@ export function FinanciamentoTab({
                 <FieldRow label={`Gestão — ${sim.managementPercent.toFixed(1)}%`}>
                   <input
                     type="range"
-                    min={0} max={20} step={0.5}
+                    min={0}
+                    max={20}
+                    step={0.5}
                     value={sim.managementPercent}
                     onChange={(e) => patchSim({ managementPercent: parseFloat(e.target.value) })}
                     className="w-full accent-[#1a5c3a]"
                   />
                   <p className="mt-1 text-[11px] text-[#a3a3a1]">
-                    {fmt(sim.monthlyRent * sim.managementPercent / 100)}/mês
+                    {fmt(
+                      sim.monthlyRent * (1 - sim.vacancyRate / 100) * (sim.managementPercent / 100)
+                    )}
+                    /mês
                   </p>
                 </FieldRow>
                 <FieldRow label={`Manutenção — ${sim.maintenancePercent.toFixed(1)}%`}>
                   <input
                     type="range"
-                    min={0} max={5} step={0.1}
+                    min={0}
+                    max={5}
+                    step={0.1}
                     value={sim.maintenancePercent}
                     onChange={(e) => patchSim({ maintenancePercent: parseFloat(e.target.value) })}
                     className="w-full accent-[#1a5c3a]"
                   />
                   <p className="mt-1 text-[11px] text-[#a3a3a1]">
-                    {fmt(sim.monthlyRent * sim.maintenancePercent / 100)}/mês
+                    {fmt(
+                      sim.monthlyRent * (1 - sim.vacancyRate / 100) * (sim.maintenancePercent / 100)
+                    )}
+                    /mês
                   </p>
                 </FieldRow>
-                <div className="mt-2 rounded-lg bg-[#f5f5f3] px-3 py-2 flex justify-between text-xs">
+                <div className="mt-2 flex justify-between rounded-lg bg-[#f5f5f3] px-3 py-2 text-xs">
                   <span className="text-[#737373]">Total despesas</span>
                   <span className="font-bold text-[#1c2b20]">{fmt(simOpEx)}/mês</span>
                 </div>
@@ -409,10 +490,17 @@ export function FinanciamentoTab({
                     className={inputCls}
                   />
                   <p className="mt-1 text-[11px] text-[#a3a3a1]">
-                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                      (sim.downPayment / purchasePrice) * 100 >= 20 ? 'bg-[#ebf3ee] text-[#1a5c3a]' : 'bg-yellow-50 text-yellow-700'
-                    }`}>
-                      {purchasePrice > 0 ? ((sim.downPayment / purchasePrice) * 100).toFixed(1) : '0'}% do imóvel
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                        (sim.downPayment / purchasePrice) * 100 >= 20
+                          ? 'bg-[#ebf3ee] text-[#1a5c3a]'
+                          : 'bg-yellow-50 text-yellow-700'
+                      }`}
+                    >
+                      {purchasePrice > 0
+                        ? ((sim.downPayment / purchasePrice) * 100).toFixed(1)
+                        : '0'}
+                      % do imóvel
                     </span>
                   </p>
                 </FieldRow>
@@ -420,7 +508,9 @@ export function FinanciamentoTab({
                   <input
                     type="number"
                     value={sim.interestRateYear}
-                    onChange={(e) => patchSim({ interestRateYear: Math.max(0, parseFloat(e.target.value) || 0) })}
+                    onChange={(e) =>
+                      patchSim({ interestRateYear: Math.max(0, parseFloat(e.target.value) || 0) })
+                    }
                     step="0.1"
                     min="0"
                     className={inputCls}
@@ -430,7 +520,9 @@ export function FinanciamentoTab({
                   <input
                     type="number"
                     value={sim.termMonths}
-                    onChange={(e) => patchSim({ termMonths: Math.max(12, parseInt(e.target.value) || 12) })}
+                    onChange={(e) =>
+                      patchSim({ termMonths: Math.max(12, parseInt(e.target.value) || 12) })
+                    }
                     step="12"
                     min="12"
                     className={inputCls}
@@ -460,7 +552,12 @@ export function FinanciamentoTab({
                 <FieldRow label="Modalidade">
                   <div className="flex flex-wrap gap-1.5">
                     {(['SFH', 'SFI', 'consorcio', 'outro'] as FinancingModality[]).map((mod) => {
-                      const labels: Record<string, string> = { SFH: 'SFH', SFI: 'SFI', consorcio: 'Consórcio', outro: 'Outro' };
+                      const labels: Record<string, string> = {
+                        SFH: 'SFH',
+                        SFI: 'SFI',
+                        consorcio: 'Consórcio',
+                        outro: 'Outro',
+                      };
                       return (
                         <button
                           key={mod}
@@ -483,20 +580,22 @@ export function FinanciamentoTab({
               {/* Reset button */}
               <button
                 type="button"
-                onClick={() => setSim({
-                  monthlyRent: defaults.monthlyRent,
-                  vacancyRate: defaults.vacancyRate * 100,
-                  condo: defaults.condo,
-                  iptu: defaults.iptu,
-                  managementPercent: defaults.managementPercent * 100,
-                  maintenancePercent: defaults.maintenancePercent * 100,
-                  downPayment: defaults.downPayment,
-                  interestRateYear: defaults.interestRateYear,
-                  termMonths: defaults.termMonths,
-                  system: defaults.system,
-                  modality: defaults.modality,
-                })}
-                className="w-full rounded-lg border border-[#e5e5e3] py-2 text-xs font-medium text-[#737373] hover:bg-[#f5f5f3] transition-colors"
+                onClick={() =>
+                  setSim({
+                    monthlyRent: defaults.monthlyRent,
+                    vacancyRate: defaults.vacancyRate * 100,
+                    condo: defaults.condo,
+                    iptu: defaults.iptu,
+                    managementPercent: defaults.managementPercent * 100,
+                    maintenancePercent: defaults.maintenancePercent * 100,
+                    downPayment: defaults.downPayment,
+                    interestRateYear: defaults.interestRateYear,
+                    termMonths: defaults.termMonths,
+                    system: defaults.system,
+                    modality: defaults.modality,
+                  })
+                }
+                className="w-full rounded-lg border border-[#e5e5e3] py-2 text-xs font-medium text-[#737373] transition-colors hover:bg-[#f5f5f3]"
               >
                 Restaurar valores originais
               </button>
@@ -535,7 +634,7 @@ const inputCls =
 
 function InputSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[#e5e5e3] bg-white p-5 space-y-3">
+    <div className="space-y-3 rounded-xl border border-[#e5e5e3] bg-white p-5">
       <p className="text-[9px] font-bold tracking-widest text-[#a3a3a1] uppercase">{title}</p>
       {children}
     </div>
@@ -545,7 +644,7 @@ function InputSection({ title, children }: { title: string; children: React.Reac
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-medium text-[#737373] block mb-1">{label}</label>
+      <label className="mb-1 block text-xs font-medium text-[#737373]">{label}</label>
       {children}
     </div>
   );
@@ -553,11 +652,25 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 
 // ── Waterfall row ─────────────────────────────────────────────────────────────
 
-function WaterfallRow({ label, value, bold, muted }: { label: string; value: number; bold?: boolean; muted?: boolean }) {
+function WaterfallRow({
+  label,
+  value,
+  bold,
+  muted,
+}: {
+  label: string;
+  value: number;
+  bold?: boolean;
+  muted?: boolean;
+}) {
   return (
     <div className={`flex items-center justify-between ${bold ? 'font-bold text-[#1c2b20]' : ''}`}>
       <span className={muted ? 'text-[#737373]' : 'text-[#1c2b20]'}>{label}</span>
-      <span className={value < 0 ? 'text-red-600' : value > 0 && bold ? 'text-[#1a5c3a]' : 'text-[#1c2b20]'}>
+      <span
+        className={
+          value < 0 ? 'text-red-600' : value > 0 && bold ? 'text-[#1a5c3a]' : 'text-[#1c2b20]'
+        }
+      >
         {fmt(value)}
       </span>
     </div>
@@ -569,7 +682,9 @@ function WaterfallRow({ label, value, bold, muted }: { label: string; value: num
 function KpiTile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#e5e5e3] bg-white px-4 py-3">
-      <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase mb-1.5">{label}</p>
+      <p className="mb-1.5 text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+        {label}
+      </p>
       {children}
     </div>
   );
@@ -577,15 +692,29 @@ function KpiTile({ label, children }: { label: string; children: React.ReactNode
 
 // ── MetricRow ─────────────────────────────────────────────────────────────────
 
-function MetricRow({ label, value, highlight }: { label: string; value: string; highlight?: 'red' | 'green' }) {
+function MetricRow({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: 'red' | 'green';
+}) {
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="text-[#737373]">{label}</span>
-      <span className={`font-semibold ${
-        highlight === 'red' ? 'text-red-600' :
-        highlight === 'green' ? 'text-[#1a5c3a]' :
-        'text-[#1c2b20]'
-      }`}>{value}</span>
+      <span
+        className={`font-semibold ${
+          highlight === 'red'
+            ? 'text-red-600'
+            : highlight === 'green'
+              ? 'text-[#1a5c3a]'
+              : 'text-[#1c2b20]'
+        }`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -611,7 +740,9 @@ function SimResultCard({
   return (
     <div className="space-y-4">
       {/* Profitability verdict — always at top */}
-      <div className={`rounded-xl border p-5 ${cfPositive ? 'border-[#1a5c3a] bg-[#ebf3ee]' : 'border-red-200 bg-red-50'}`}>
+      <div
+        className={`rounded-xl border p-5 ${cfPositive ? 'border-[#1a5c3a] bg-[#ebf3ee]' : 'border-red-200 bg-red-50'}`}
+      >
         <div className="flex items-start justify-between">
           <div>
             <p className={`text-base font-bold ${cfPositive ? 'text-[#1a5c3a]' : 'text-red-600'}`}>
@@ -633,10 +764,16 @@ function SimResultCard({
       </div>
 
       {/* Cash flow waterfall */}
-      <div className="rounded-xl border border-[#e5e5e3] bg-white p-5 space-y-2">
-        <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase mb-3">Fluxo Mensal Simulado</p>
+      <div className="space-y-2 rounded-xl border border-[#e5e5e3] bg-white p-5">
+        <p className="mb-3 text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+          Fluxo Mensal Simulado
+        </p>
         <WaterfallRow label="Aluguel Bruto" value={grossRent} />
-        <WaterfallRow label={`(−) Vacância ${simState.vacancyRate.toFixed(1)}%`} value={-vacancy} muted />
+        <WaterfallRow
+          label={`(−) Vacância ${simState.vacancyRate.toFixed(1)}%`}
+          value={-vacancy}
+          muted
+        />
         <WaterfallRow label="Renda Efetiva" value={effective} bold />
         <WaterfallRow label="(−) Despesas Operacionais" value={-simOpEx} muted />
         <WaterfallRow label="NOI" value={simNOI} bold />
@@ -647,9 +784,11 @@ function SimResultCard({
       </div>
 
       {/* Loan structure */}
-      <div className="rounded-xl border border-[#e5e5e3] bg-white p-5 space-y-2">
-        <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase mb-3">Financiamento</p>
-        <div className="flex items-center justify-between mb-2">
+      <div className="space-y-2 rounded-xl border border-[#e5e5e3] bg-white p-5">
+        <p className="mb-3 text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+          Financiamento
+        </p>
+        <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-bold text-[#1c2b20]">{fmt(result.loanAmount)}</span>
           <span className="rounded-full bg-[#f5f5f3] px-2 py-0.5 text-xs font-semibold text-[#737373]">
             LTV {fmtPct(result.ltv)}
@@ -660,20 +799,33 @@ function SimResultCard({
           <MetricRow label="Parcela final" value={`${fmt(result.lastInstallment)}/mês`} />
         )}
         <MetricRow label="Total de parcelas" value={fmt(result.totalPaid)} />
-        <MetricRow label="Total de juros" value={`${fmt(result.totalInterest)} (${fmtPct(result.totalInterestPercent)})`} highlight="red" />
-        <MetricRow label="Prazo" value={`${result.schedule.length} meses (${Math.floor(result.schedule.length / 12)} anos)`} />
+        <MetricRow
+          label="Total de juros"
+          value={`${fmt(result.totalInterest)} (${fmtPct(result.totalInterestPercent)})`}
+          highlight="red"
+        />
+        <MetricRow
+          label="Prazo"
+          value={`${result.schedule.length} meses (${Math.floor(result.schedule.length / 12)} anos)`}
+        />
       </div>
 
       {/* Key metrics */}
-      <div className="rounded-xl border border-[#e5e5e3] bg-white p-5 space-y-2">
-        <p className="text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase mb-3">Indicadores</p>
+      <div className="space-y-2 rounded-xl border border-[#e5e5e3] bg-white p-5">
+        <p className="mb-3 text-[10px] font-bold tracking-widest text-[#a3a3a1] uppercase">
+          Indicadores
+        </p>
         <MetricRow label="Aluguel break-even" value={`${fmt(result.breakEvenRent)}/mês`} />
         <div className="flex items-center justify-between text-xs">
           <span className="text-[#737373]">DSCR</span>
           <DscrBadge value={result.dscr} />
         </div>
         {result.cashOnCash !== null && (
-          <MetricRow label="Cash-on-Cash" value={`${fmtPct(result.cashOnCash)} a.a.`} highlight={result.cashOnCash >= 6 ? 'green' : undefined} />
+          <MetricRow
+            label="Cash-on-Cash"
+            value={`${fmtPct(result.cashOnCash)} a.a.`}
+            highlight={result.cashOnCash >= 6 ? 'green' : undefined}
+          />
         )}
         {result.paybackYears !== null && (
           <MetricRow label="Payback da entrada" value={`${result.paybackYears.toFixed(1)} anos`} />
@@ -764,7 +916,13 @@ function AmortizationTable({
 }: {
   show: boolean;
   onToggle: () => void;
-  scheduleSlice: { month: number; installment: number; interest: number; amortization: number; remainingBalance: number }[];
+  scheduleSlice: {
+    month: number;
+    installment: number;
+    interest: number;
+    amortization: number;
+    remainingBalance: number;
+  }[];
   schedulePage: number;
   totalPages: number;
   totalRows: number;
@@ -778,7 +936,7 @@ function AmortizationTable({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-3.5 text-sm font-semibold text-[#1c2b20] hover:bg-[#f5f5f3] rounded-xl"
+        className="flex w-full items-center justify-between rounded-xl px-5 py-3.5 text-sm font-semibold text-[#1c2b20] hover:bg-[#f5f5f3]"
       >
         <span>Ver tabela de amortização completa</span>
         <span className="text-[#737373]">{show ? '▲' : '▼'}</span>
@@ -791,7 +949,10 @@ function AmortizationTable({
               <thead className="bg-[#f5f5f3]">
                 <tr>
                   {['Mês', 'Parcela', 'Juros', 'Amortização', 'Saldo Devedor'].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-right first:text-left text-[#737373] font-semibold">
+                    <th
+                      key={h}
+                      className="px-4 py-2.5 text-right font-semibold text-[#737373] first:text-left"
+                    >
                       {h}
                     </th>
                   ))}
@@ -807,7 +968,9 @@ function AmortizationTable({
                     <td className="px-4 py-2 text-right text-[#1c2b20]">{fmt(row.installment)}</td>
                     <td className="px-4 py-2 text-right text-red-600">{fmt(row.interest)}</td>
                     <td className="px-4 py-2 text-right text-[#1a5c3a]">{fmt(row.amortization)}</td>
-                    <td className="px-4 py-2 text-right text-[#737373]">{fmt(row.remainingBalance)}</td>
+                    <td className="px-4 py-2 text-right text-[#737373]">
+                      {fmt(row.remainingBalance)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -831,14 +994,15 @@ function AmortizationTable({
 
           <div className="flex items-center justify-between border-t border-[#e5e5e3] px-5 py-3">
             <span className="text-xs text-[#737373]">
-              Mês {schedulePage * rowsPerPage + 1}–{Math.min((schedulePage + 1) * rowsPerPage, totalRows)} de {totalRows}
+              Mês {schedulePage * rowsPerPage + 1}–
+              {Math.min((schedulePage + 1) * rowsPerPage, totalRows)} de {totalRows}
             </span>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => onPageChange(Math.max(0, schedulePage - 1))}
                 disabled={schedulePage === 0}
-                className="rounded-lg border border-[#e5e5e3] px-3 py-1 text-xs font-medium text-[#737373] disabled:opacity-40 hover:bg-[#f5f5f3]"
+                className="rounded-lg border border-[#e5e5e3] px-3 py-1 text-xs font-medium text-[#737373] hover:bg-[#f5f5f3] disabled:opacity-40"
               >
                 ← Anterior
               </button>
@@ -846,7 +1010,7 @@ function AmortizationTable({
                 type="button"
                 onClick={() => onPageChange(Math.min(totalPages - 1, schedulePage + 1))}
                 disabled={schedulePage >= totalPages - 1}
-                className="rounded-lg border border-[#e5e5e3] px-3 py-1 text-xs font-medium text-[#737373] disabled:opacity-40 hover:bg-[#f5f5f3]"
+                className="rounded-lg border border-[#e5e5e3] px-3 py-1 text-xs font-medium text-[#737373] hover:bg-[#f5f5f3] disabled:opacity-40"
               >
                 Próximo →
               </button>

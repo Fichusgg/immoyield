@@ -28,13 +28,18 @@ interface PublicReportViewProps {
   viewCount: number;
   result: AnalysisResult;
   inputs: DealInput;
+  benchmarks?: { cdi: number; fii: number; updatedAt: string | null };
   slug?: string;
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
 const fmt = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(v);
 
 const fmtK = (v: number) => {
   if (Math.abs(v) >= 1_000_000) return `R$${(v / 1_000_000).toFixed(1)}mi`;
@@ -132,6 +137,7 @@ export default function PublicReportView({
   viewCount,
   result,
   inputs,
+  benchmarks,
 }: PublicReportViewProps) {
   const { metrics, schedule, projections } = result;
   const cashFlowPositive = metrics.monthlyCashFlow >= 0;
@@ -155,11 +161,15 @@ export default function PublicReportView({
       juros: +(p.interest * 12).toFixed(0),
     }));
 
-  const CDI_RATE = 10.75;
-  const FII_RATE = 8.0;
+  const CDI_RATE = benchmarks?.cdi ?? 13.65;
+  const FII_RATE = benchmarks?.fii ?? 8.0;
   const benchmarkData = [
     { name: 'Cap Rate', value: +metrics.capRate.toFixed(2), fill: '#4A7C59' },
-    { name: 'Cash-on-Cash', value: +metrics.cashOnCash.toFixed(2), fill: metrics.cashOnCash >= 0 ? '#3D6B4F' : '#DC2626' },
+    {
+      name: 'Cash-on-Cash',
+      value: +metrics.cashOnCash.toFixed(2),
+      fill: metrics.cashOnCash >= 0 ? '#3D6B4F' : '#DC2626',
+    },
     { name: 'CDI (ref.)', value: CDI_RATE, fill: '#9CA3AF' },
     { name: 'FII (ref.)', value: FII_RATE, fill: '#D0CEC8' },
   ];
@@ -215,7 +225,9 @@ export default function PublicReportView({
           <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
             Análise de Investimento · Compartilhado via ImmoYield
           </p>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20] md:text-3xl">{dealName}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20] md:text-3xl">
+            {dealName}
+          </h1>
           <div className="mt-3 flex items-center gap-3">
             <span
               className={`flex items-center gap-1.5 border px-3 py-1 font-mono text-xs font-semibold ${
@@ -275,7 +287,10 @@ export default function PublicReportView({
               ...(metrics.loanAmount > 0
                 ? [
                     { label: 'Financiamento', value: fmt(metrics.loanAmount) },
-                    { label: 'LTV', value: fmtPct((metrics.loanAmount / metrics.totalInvestment) * 100) },
+                    {
+                      label: 'LTV',
+                      value: fmtPct((metrics.loanAmount / metrics.totalInvestment) * 100),
+                    },
                     { label: 'Parcela inicial', value: fmt(schedule[0]?.installment ?? 0) },
                   ]
                 : []),
@@ -300,9 +315,17 @@ export default function PublicReportView({
               { label: 'ITBI', value: fmtPct(inputs.acquisitionCosts.itbiPercent * 100) },
               { label: 'Aluguel bruto', value: `${fmt(inputs.revenue.monthlyRent)} /mês` },
               { label: 'Vacância estimada', value: fmtPct(inputs.revenue.vacancyRate * 100) },
-              { label: 'Condomínio + IPTU', value: `${fmt(inputs.expenses.condo + inputs.expenses.iptu)} /mês` },
+              {
+                label: 'Condomínio + IPTU',
+                value: `${fmt(inputs.expenses.condo + inputs.expenses.iptu)} /mês`,
+              },
               ...(inputs.financing.enabled
-                ? [{ label: 'Financiamento', value: `${inputs.financing.system} · ${inputs.financing.interestRateYear}% a.a. · ${inputs.financing.termMonths}m` }]
+                ? [
+                    {
+                      label: 'Financiamento',
+                      value: `${inputs.financing.system} · ${inputs.financing.interestRateYear}% a.a. · ${inputs.financing.termMonths}m`,
+                    },
+                  ]
                 : [{ label: 'Financiamento', value: 'À vista' }]),
             ].map((row, i, arr) => (
               <div
@@ -322,7 +345,11 @@ export default function PublicReportView({
             <SectionLabel>Fluxo de Caixa — 24 Meses</SectionLabel>
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
               <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={cashflowMonthlyData} barSize={6} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                <BarChart
+                  data={cashflowMonthlyData}
+                  barSize={6}
+                  margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E0DA" vertical={false} />
                   <XAxis dataKey="mes" {...axisProps} interval={5} />
                   <YAxis {...axisProps} tickFormatter={fmtK} width={56} />
@@ -344,7 +371,12 @@ export default function PublicReportView({
           <SectionLabel>Benchmarks — % a.a.</SectionLabel>
           <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
             <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={benchmarkData} layout="vertical" barSize={12} margin={{ top: 0, right: 32, left: 0, bottom: 0 }}>
+              <BarChart
+                data={benchmarkData}
+                layout="vertical"
+                barSize={12}
+                margin={{ top: 0, right: 32, left: 0, bottom: 0 }}
+              >
                 <XAxis type="number" {...axisProps} tickFormatter={(v) => `${v}%`} />
                 <YAxis type="category" dataKey="name" {...axisProps} width={84} />
                 <Tooltip
@@ -364,7 +396,7 @@ export default function PublicReportView({
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <p className="mt-2 font-mono text-right text-[10px] text-[#9CA3AF]">
+            <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
               CDI e FII são referências de mercado, não garantidas.
             </p>
           </div>
@@ -394,10 +426,31 @@ export default function PublicReportView({
                   <Legend
                     iconType="circle"
                     iconSize={6}
-                    wrapperStyle={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10, color: '#9CA3AF', paddingTop: 8 }}
+                    wrapperStyle={{
+                      fontFamily: 'var(--font-jetbrains-mono)',
+                      fontSize: 10,
+                      color: '#9CA3AF',
+                      paddingTop: 8,
+                    }}
                   />
-                  <Area type="monotone" dataKey="valor" name="Valor do imóvel" stroke="#4A7C59" strokeWidth={1.5} fill="url(#valGrad)" dot={false} />
-                  <Area type="monotone" dataKey="equity" name="Equity acumulado" stroke="#3D6B4F" strokeWidth={1.5} fill="url(#eqGrad)" dot={false} />
+                  <Area
+                    type="monotone"
+                    dataKey="valor"
+                    name="Valor do imóvel"
+                    stroke="#4A7C59"
+                    strokeWidth={1.5}
+                    fill="url(#valGrad)"
+                    dot={false}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="equity"
+                    name="Equity acumulado"
+                    stroke="#3D6B4F"
+                    strokeWidth={1.5}
+                    fill="url(#eqGrad)"
+                    dot={false}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
               <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
@@ -421,10 +474,30 @@ export default function PublicReportView({
                   <Legend
                     iconType="circle"
                     iconSize={6}
-                    wrapperStyle={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10, color: '#9CA3AF', paddingTop: 8 }}
+                    wrapperStyle={{
+                      fontFamily: 'var(--font-jetbrains-mono)',
+                      fontSize: 10,
+                      color: '#9CA3AF',
+                      paddingTop: 8,
+                    }}
                   />
-                  <Line type="monotone" dataKey="saldo" name="Saldo devedor" stroke="#DC2626" strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="juros" name="Juros pagos (ano)" stroke="#9CA3AF" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
+                  <Line
+                    type="monotone"
+                    dataKey="saldo"
+                    name="Saldo devedor"
+                    stroke="#DC2626"
+                    strokeWidth={1.5}
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="juros"
+                    name="Juros pagos (ano)"
+                    stroke="#9CA3AF"
+                    strokeWidth={1.5}
+                    dot={false}
+                    strokeDasharray="4 2"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -432,9 +505,9 @@ export default function PublicReportView({
         )}
 
         {/* Disclaimer */}
-        <p className="font-mono text-center text-[10px] leading-relaxed text-[#9CA3AF]">
-          Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não presta
-          consultoria de investimento.
+        <p className="text-center font-mono text-[10px] leading-relaxed text-[#9CA3AF]">
+          Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não
+          presta consultoria de investimento.
         </p>
       </main>
 
@@ -448,7 +521,7 @@ export default function PublicReportView({
                 <BarChart2 size={14} className="text-white" />
               </div>
               <div>
-                <p className="text-sm font-bold leading-tight text-[#1C2B20]">
+                <p className="text-sm leading-tight font-bold text-[#1C2B20]">
                   Analise seus próprios imóveis
                 </p>
                 <p className="hidden font-mono text-[10px] text-[#9CA3AF] sm:block">

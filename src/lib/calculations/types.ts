@@ -78,7 +78,7 @@ export interface DealInputs {
     fgtsAmount?: number;
     /**
      * Seguro habitacional (DFI + MIP) em % ao ano sobre saldo devedor.
-     * Range típico: 0.30% a 0.60% a.a. Default: 0.5%.
+     * Range típico: 0.30% a 0.60% a.a. (decimal: 0.003 a 0.006). Default: 0.005 (0.5% a.a.).
      */
     insurancePercentYear?: number;
   };

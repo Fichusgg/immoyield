@@ -42,6 +42,8 @@ import {
   listingToRentalComp,
   DEFAULT_FILTERS,
 } from '@/lib/rent-compare';
+import { analyzeRentalDeal } from '@/lib/calculations/rental';
+import { calculateProjections } from '@/lib/calculations/projections';
 import type { ExcludedListing, ExclusionReason, RentalListing } from '@/lib/rent-compare/types';
 import type { RentalAnalysisFilters } from '@/lib/supabase/deals';
 import { PageHeader } from '../PageHeader';
@@ -80,9 +82,7 @@ export function RentCompareContent({ deal }: Props) {
   // so the same client logic works for both auto-imported and manual entries.
   const initialListings = React.useMemo<RentalListing[]>(() => {
     const stored = deal.comps?.rentals ?? [];
-    return stored
-      .map((c) => rentalCompToListing(c))
-      .filter((l): l is RentalListing => l != null);
+    return stored.map((c) => rentalCompToListing(c)).filter((l): l is RentalListing => l != null);
   }, [deal.comps?.rentals]);
 
   const [listings, setListings] = React.useState<RentalListing[]>(initialListings);
@@ -92,16 +92,14 @@ export function RentCompareContent({ deal }: Props) {
     ...(deal.comps?.rentalAnalysis?.filters ?? {}),
   }));
   const [excludedIds, setExcludedIds] = React.useState<string[]>(
-    deal.comps?.rentalAnalysis?.excludedIds ?? [],
+    deal.comps?.rentalAnalysis?.excludedIds ?? []
   );
   const [forceIncludedIds, setForceIncludedIds] = React.useState<string[]>(
-    deal.comps?.rentalAnalysis?.forceIncludedIds ?? [],
+    deal.comps?.rentalAnalysis?.forceIncludedIds ?? []
   );
-  const [sources, setSources] = React.useState<string[]>(
-    deal.comps?.rentalAnalysis?.sources ?? [],
-  );
+  const [sources, setSources] = React.useState<string[]>(deal.comps?.rentalAnalysis?.sources ?? []);
   const [lastFetchedAt, setLastFetchedAt] = React.useState<string | null>(
-    deal.comps?.rentalAnalysis?.runAt ?? null,
+    deal.comps?.rentalAnalysis?.runAt ?? null
   );
   const [lastResponse, setLastResponse] = React.useState<ApiResponse | null>(null);
   const [debugOpen, setDebugOpen] = React.useState(false);
@@ -128,7 +126,7 @@ export function RentCompareContent({ deal }: Props) {
 
   const userExcluded = React.useMemo(
     () => listings.filter((l) => excludedIds.includes(l.id)),
-    [listings, excludedIds],
+    [listings, excludedIds]
   );
 
   // ── Sort kept comps for table display (declared before any early return
@@ -145,9 +143,7 @@ export function RentCompareContent({ deal }: Props) {
           return ((a.area ?? 0) - (b.area ?? 0)) * dir;
         case 'pricePerM2':
           return (
-            ((a.area ? a.monthlyRent / a.area : 0) -
-              (b.area ? b.monthlyRent / b.area : 0)) *
-            dir
+            ((a.area ? a.monthlyRent / a.area : 0) - (b.area ? b.monthlyRent / b.area : 0)) * dir
           );
         case 'status':
           return a.status.localeCompare(b.status) * dir;
@@ -200,12 +196,8 @@ export function RentCompareContent({ deal }: Props) {
       const manualPrev = listings.filter((l) => l.source === 'manual');
       const nextListings = [...manualPrev, ...data.listings];
       // Reset exclusions when sources change — old excluded ids may not exist now.
-      const nextExcluded = excludedIds.filter((id) =>
-        nextListings.some((l) => l.id === id),
-      );
-      const nextForced = forceIncludedIds.filter((id) =>
-        nextListings.some((l) => l.id === id),
-      );
+      const nextExcluded = excludedIds.filter((id) => nextListings.some((l) => l.id === id));
+      const nextForced = forceIncludedIds.filter((id) => nextListings.some((l) => l.id === id));
 
       setListings(nextListings);
       setSources(data.sources);
@@ -256,7 +248,7 @@ export function RentCompareContent({ deal }: Props) {
         toast.info('Nenhum comparável encontrado nas fontes disponíveis.');
       } else {
         toast.success(
-          `${data.listings.length} anúncios encontrados em ${data.sources.length} fonte${data.sources.length === 1 ? '' : 's'}.`,
+          `${data.listings.length} anúncios encontrados em ${data.sources.length} fonte${data.sources.length === 1 ? '' : 's'}.`
         );
       }
     } catch (e) {
@@ -358,8 +350,19 @@ export function RentCompareContent({ deal }: Props) {
           monthlyRent: analysis.score.suggestedRent,
         },
       };
-      await patchDeal(deal.id, { inputs: nextInputs });
-      toast.success(`Aluguel atualizado para ${brl(analysis.score.suggestedRent)}/mês`);
+      const nextAnalysis = analyzeRentalDeal(nextInputs);
+      const projections = calculateProjections(
+        nextInputs,
+        nextInputs.projections?.holdPeriodYears ?? 10,
+        nextInputs.projections?.appreciationRate ?? 0.05
+      );
+      await patchDeal(deal.id, {
+        inputs: nextInputs,
+        results_cache: { ...nextAnalysis, projections },
+      });
+      toast.success(
+        `Aluguel atualizado para ${brl(analysis.score.suggestedRent)}/mês. Análise recalculada.`
+      );
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao aplicar');
@@ -373,8 +376,7 @@ export function RentCompareContent({ deal }: Props) {
     const have = {
       cidade: deal.city ?? deal.inputs?.property?.address?.city ?? '—',
       bairro: deal.neighborhood ?? deal.inputs?.property?.address?.neighborhood ?? '—',
-      quartos:
-        deal.bedrooms ?? deal.inputs?.property?.bedrooms ?? '—',
+      quartos: deal.bedrooms ?? deal.inputs?.property?.bedrooms ?? '—',
       área: deal.area ?? deal.inputs?.property?.squareFootage ?? '—',
     };
     return (
@@ -389,8 +391,7 @@ export function RentCompareContent({ deal }: Props) {
         />
         <FormCard className="p-6">
           <p className="text-sm text-[#1C2B20]">
-            Para buscar comparáveis estes campos do imóvel precisam estar
-            preenchidos:
+            Para buscar comparáveis estes campos do imóvel precisam estar preenchidos:
           </p>
           <ul className="mt-3 space-y-1.5 font-mono text-xs">
             {(['cidade', 'bairro', 'quartos', 'área'] as const).map((k) => {
@@ -402,13 +403,9 @@ export function RentCompareContent({ deal }: Props) {
                     isMissing ? 'text-[#DC2626]' : 'text-[#6B7280]'
                   }`}
                 >
-                  <span className="inline-block w-3 text-center">
-                    {isMissing ? '✗' : '✓'}
-                  </span>
+                  <span className="inline-block w-3 text-center">{isMissing ? '✗' : '✓'}</span>
                   <span className="w-20 capitalize">{k}:</span>
-                  <span className="text-[#1C2B20]">
-                    {String(have[k])}
-                  </span>
+                  <span className="text-[#1C2B20]">{String(have[k])}</span>
                 </li>
               );
             })}
@@ -439,8 +436,8 @@ export function RentCompareContent({ deal }: Props) {
     score?.confidence === 'alta'
       ? 'bg-[#EBF3EE] text-[#4A7C59] border-[#A8C5B2]'
       : score?.confidence === 'media'
-      ? 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]'
-      : 'bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]';
+        ? 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]'
+        : 'bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]';
 
   return (
     <>
@@ -485,27 +482,28 @@ export function RentCompareContent({ deal }: Props) {
           {subject.neighborhood}, {subject.city}
           {subject.state ? `/${subject.state}` : ''}
         </span>
-        {lastFetchedAt && (() => {
-          const ageDays = (Date.now() - new Date(lastFetchedAt).getTime()) / 86_400_000;
-          const stale = ageDays > 7;
-          return (
-            <span
-              className={`ml-auto font-mono text-[10px] ${
-                stale ? 'text-[#B45309]' : 'text-[#9CA3AF]'
-              }`}
-            >
-              Última busca:{' '}
-              {new Date(lastFetchedAt).toLocaleString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-              {sources.length > 0 && ` · ${sources.join(', ')}`}
-              {stale && ' · resultados desatualizados, considere atualizar'}
-            </span>
-          );
-        })()}
+        {lastFetchedAt &&
+          (() => {
+            const ageDays = (Date.now() - new Date(lastFetchedAt).getTime()) / 86_400_000;
+            const stale = ageDays > 7;
+            return (
+              <span
+                className={`ml-auto font-mono text-[10px] ${
+                  stale ? 'text-[#B45309]' : 'text-[#9CA3AF]'
+                }`}
+              >
+                Última busca:{' '}
+                {new Date(lastFetchedAt).toLocaleString('pt-BR', {
+                  day: '2-digit',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+                {sources.length > 0 && ` · ${sources.join(', ')}`}
+                {stale && ' · resultados desatualizados, considere atualizar'}
+              </span>
+            );
+          })()}
       </div>
 
       {/* ── Hero recommendation ──────────────────────────────────────────── */}
@@ -518,7 +516,7 @@ export function RentCompareContent({ deal }: Props) {
                 <p className="text-[10px] font-semibold tracking-[0.12em] text-[#4A7C59] uppercase">
                   Aluguel sugerido de mercado
                 </p>
-                <p className="mt-1.5 font-mono text-[40px] font-bold leading-none tracking-tight text-[#1C2B20]">
+                <p className="mt-1.5 font-mono text-[40px] leading-none font-bold tracking-tight text-[#1C2B20]">
                   {brl(score.suggestedRent)}
                   <span className="ml-1 text-base font-medium text-[#9CA3AF]">/mês</span>
                 </p>
@@ -590,7 +588,7 @@ export function RentCompareContent({ deal }: Props) {
 
       {/* ── Filter controls ──────────────────────────────────────────────── */}
       <details className="mb-5 border border-[#E2E0DA] bg-[#FAFAF8] [&_summary::-webkit-details-marker]:hidden">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-2.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase select-none transition-colors hover:bg-[#F0EFEB]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-2.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase transition-colors select-none hover:bg-[#F0EFEB]">
           <span className="flex items-center gap-2">
             Filtros
             <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] tracking-wide text-[#9CA3AF]">
@@ -605,79 +603,73 @@ export function RentCompareContent({ deal }: Props) {
           <ChevronDown size={12} className="transition-transform group-open:rotate-180" />
         </summary>
         <div className="border-t border-[#E2E0DA] p-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <ScopeRadio
-            value={filters.scope}
-            onChange={(scope) => setFilters((f) => ({ ...f, scope }))}
-          />
-          <ToleranceSlider
-            label={`Tolerância de área: ±${Math.round(filters.areaTolerancePct * 100)}%`}
-            value={filters.areaTolerancePct}
-            min={0.10}
-            max={0.40}
-            step={0.05}
-            onChange={(v) => setFilters((f) => ({ ...f, areaTolerancePct: v }))}
-          />
-          <ToleranceSlider
-            label={
-              filters.bedroomTolerance === 0
-                ? `Quartos: exato (${subject.bedrooms}Q)`
-                : `Tolerância de quartos: ±${filters.bedroomTolerance}`
-            }
-            value={filters.bedroomTolerance}
-            min={0}
-            max={2}
-            step={1}
-            onChange={(v) =>
-              setFilters((f) => ({ ...f, bedroomTolerance: Math.round(v) }))
-            }
-          />
-          <ToleranceSlider
-            label={`Tolerância de banheiros: ±${filters.bathTolerance}`}
-            value={filters.bathTolerance}
-            min={0}
-            max={2}
-            step={1}
-            onChange={(v) =>
-              setFilters((f) => ({ ...f, bathTolerance: Math.round(v) }))
-            }
-          />
-          <ToleranceSlider
-            label={`Tolerância de ano: ±${filters.yearTolerance}`}
-            value={filters.yearTolerance}
-            min={5}
-            max={30}
-            step={5}
-            onChange={(v) =>
-              setFilters((f) => ({ ...f, yearTolerance: Math.round(v) }))
-            }
-          />
-        </div>
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#F0EFEB] pt-3">
-          <ToggleCheck
-            label="Excluir mobiliados"
-            checked={filters.excludeFurnished}
-            onChange={(v) => setFilters((f) => ({ ...f, excludeFurnished: v }))}
-          />
-          <ToggleCheck
-            label="Excluir temporada / Airbnb"
-            checked={filters.excludeShortTerm}
-            onChange={(v) => setFilters((f) => ({ ...f, excludeShortTerm: v }))}
-          />
-          <ToggleCheck
-            label="Casar faixa de preço (±15%)"
-            checked={filters.priceBandMatch}
-            onChange={(v) => setFilters((f) => ({ ...f, priceBandMatch: v }))}
-          />
-          <button
-            type="button"
-            onClick={() => setFilters(DEFAULT_FILTERS)}
-            className="ml-auto inline-flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#1C2B20]"
-          >
-            <RotateCcw size={11} />
-            Restaurar padrão
-          </button>
-        </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ScopeRadio
+              value={filters.scope}
+              onChange={(scope) => setFilters((f) => ({ ...f, scope }))}
+            />
+            <ToleranceSlider
+              label={`Tolerância de área: ±${Math.round(filters.areaTolerancePct * 100)}%`}
+              value={filters.areaTolerancePct}
+              min={0.1}
+              max={0.4}
+              step={0.05}
+              onChange={(v) => setFilters((f) => ({ ...f, areaTolerancePct: v }))}
+            />
+            <ToleranceSlider
+              label={
+                filters.bedroomTolerance === 0
+                  ? `Quartos: exato (${subject.bedrooms}Q)`
+                  : `Tolerância de quartos: ±${filters.bedroomTolerance}`
+              }
+              value={filters.bedroomTolerance}
+              min={0}
+              max={2}
+              step={1}
+              onChange={(v) => setFilters((f) => ({ ...f, bedroomTolerance: Math.round(v) }))}
+            />
+            <ToleranceSlider
+              label={`Tolerância de banheiros: ±${filters.bathTolerance}`}
+              value={filters.bathTolerance}
+              min={0}
+              max={2}
+              step={1}
+              onChange={(v) => setFilters((f) => ({ ...f, bathTolerance: Math.round(v) }))}
+            />
+            <ToleranceSlider
+              label={`Tolerância de ano: ±${filters.yearTolerance}`}
+              value={filters.yearTolerance}
+              min={5}
+              max={30}
+              step={5}
+              onChange={(v) => setFilters((f) => ({ ...f, yearTolerance: Math.round(v) }))}
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#F0EFEB] pt-3">
+            <ToggleCheck
+              label="Excluir mobiliados"
+              checked={filters.excludeFurnished}
+              onChange={(v) => setFilters((f) => ({ ...f, excludeFurnished: v }))}
+            />
+            <ToggleCheck
+              label="Excluir temporada / Airbnb"
+              checked={filters.excludeShortTerm}
+              onChange={(v) => setFilters((f) => ({ ...f, excludeShortTerm: v }))}
+            />
+            <ToggleCheck
+              label="Casar faixa de preço (±15%)"
+              checked={filters.priceBandMatch}
+              onChange={(v) => setFilters((f) => ({ ...f, priceBandMatch: v }))}
+            />
+            <button
+              type="button"
+              onClick={() => setFilters(DEFAULT_FILTERS)}
+              className="ml-auto inline-flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#1C2B20]"
+            >
+              <RotateCcw size={11} />
+              Restaurar padrão
+            </button>
+          </div>
         </div>
       </details>
 
@@ -711,8 +703,8 @@ export function RentCompareContent({ deal }: Props) {
               Encontre comparáveis automaticamente
             </p>
             <p className="max-w-md text-sm text-[#6B7280]">
-              Vamos buscar anúncios ativos e aluguéis fechados recentemente em portais
-              brasileiros para imóveis parecidos com o seu.
+              Vamos buscar anúncios ativos e aluguéis fechados recentemente em portais brasileiros
+              para imóveis parecidos com o seu.
             </p>
             <button
               type="button"
@@ -738,8 +730,8 @@ export function RentCompareContent({ deal }: Props) {
       ) : kept.length === 0 ? (
         <FormCard className="mb-5 border-dashed py-10 text-center">
           <p className="text-sm text-[#6B7280]">
-            Nenhum comparável atende aos filtros atuais. Tente expandir o escopo
-            para a cidade inteira ou aumentar as tolerâncias.
+            Nenhum comparável atende aos filtros atuais. Tente expandir o escopo para a cidade
+            inteira ou aumentar as tolerâncias.
           </p>
         </FormCard>
       ) : (
@@ -800,9 +792,7 @@ export function RentCompareContent({ deal }: Props) {
                     </p>
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono text-[11px] text-[#9CA3AF]">
-                    {deal.inputs?.revenue?.monthlyRent
-                      ? brl(deal.inputs.revenue.monthlyRent)
-                      : '—'}
+                    {deal.inputs?.revenue?.monthlyRent ? brl(deal.inputs.revenue.monthlyRent) : '—'}
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono text-[11px]">
                     {num(subject.area)} m²
@@ -854,22 +844,20 @@ export function RentCompareContent({ deal }: Props) {
                         </div>
                         <p className="mt-0.5 line-clamp-1 max-w-[260px] text-[10px] text-[#9CA3AF]">
                           {isManual ? 'manual' : l.source}
-                          {l.condoFee
-                            ? ` · cond. ${brl(l.condoFee)}`
-                            : ''}
+                          {l.condoFee ? ` · cond. ${brl(l.condoFee)}` : ''}
                           {l.isFurnished ? ' · mobiliado' : ''}
                         </p>
                       </td>
-                      <td className="px-3 py-3 text-right font-mono tabular-nums text-[#1C2B20]">
+                      <td className="px-3 py-3 text-right font-mono text-[#1C2B20] tabular-nums">
                         {brl(l.monthlyRent)}
                       </td>
-                      <td className="px-3 py-3 text-right font-mono tabular-nums text-[#6B7280]">
+                      <td className="px-3 py-3 text-right font-mono text-[#6B7280] tabular-nums">
                         {l.area ? `${num(l.area)} m²` : '—'}
                       </td>
-                      <td className="px-3 py-3 text-right font-mono tabular-nums font-semibold text-[#4A7C59]">
+                      <td className="px-3 py-3 text-right font-mono font-semibold text-[#4A7C59] tabular-nums">
                         {ppm > 0 ? brl(ppm) : '—'}
                       </td>
-                      <td className="px-3 py-3 text-center font-mono tabular-nums text-[#6B7280]">
+                      <td className="px-3 py-3 text-center font-mono text-[#6B7280] tabular-nums">
                         {l.bedrooms ?? '–'} / {l.bathrooms ?? '–'}
                       </td>
                       <td className="px-3 py-3 font-mono text-[#6B7280]">
@@ -967,7 +955,10 @@ export function RentCompareContent({ deal }: Props) {
                     {userExcluded.map((l) => {
                       const ppm = l.area && l.area > 0 ? l.monthlyRent / l.area : 0;
                       return (
-                        <tr key={l.id} className="border-b border-[#F0EFEB] last:border-0 opacity-60">
+                        <tr
+                          key={l.id}
+                          className="border-b border-[#F0EFEB] opacity-60 last:border-0"
+                        >
                           <td className="px-4 py-2.5 text-[#1C2B20]">
                             <div className="flex items-center gap-1.5">
                               <span className="line-clamp-1 max-w-[260px]">
@@ -1058,22 +1049,24 @@ export function RentCompareContent({ deal }: Props) {
           onToggle={(e) => setDebugOpen((e.target as HTMLDetailsElement).open)}
           className="mt-8 border border-[#E2E0DA] bg-[#FAFAF8] text-xs"
         >
-          <summary className="cursor-pointer select-none px-4 py-2.5 font-mono text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase hover:text-[#1C2B20]">
+          <summary className="cursor-pointer px-4 py-2.5 font-mono text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase select-none hover:text-[#1C2B20]">
             Developer · per-source telemetry
           </summary>
           <div className="border-t border-[#E2E0DA] p-4 font-mono text-[11px] leading-relaxed">
             <p className="mb-2 text-[#9CA3AF]">
               Subject:{' '}
               <span className="text-[#1C2B20]">
-                {subject.bucket} · {subject.bedrooms}Q · {subject.area}m² · {subject.neighborhood} / {subject.city}
+                {subject.bucket} · {subject.bedrooms}Q · {subject.area}m² · {subject.neighborhood} /{' '}
+                {subject.city}
                 {subject.state ? `/${subject.state}` : ''}
               </span>
             </p>
             <p className="mb-3 text-[#9CA3AF]">
               Pipeline:{' '}
               <span className="text-[#1C2B20]">
-                {listings.length} listings → {kept.length} kept · {userExcluded.length} user-excluded ·{' '}
-                {analysis ? analysis.filterResult.excluded.length : 0} filter-rejected
+                {listings.length} listings → {kept.length} kept · {userExcluded.length}{' '}
+                user-excluded · {analysis ? analysis.filterResult.excluded.length : 0}{' '}
+                filter-rejected
               </span>
             </p>
             {analysis && analysis.filterResult.excluded.length > 0 && (
@@ -1088,8 +1081,8 @@ export function RentCompareContent({ deal }: Props) {
                         acc[e.reason] = (acc[e.reason] ?? 0) + 1;
                         return acc;
                       },
-                      {} as Record<string, number>,
-                    ),
+                      {} as Record<string, number>
+                    )
                   ).map(([reason, count]) => (
                     <li key={reason} className="text-[#1C2B20]">
                       <span className="text-[#9CA3AF]">{reason}:</span> {count}
@@ -1103,13 +1096,15 @@ export function RentCompareContent({ deal }: Props) {
                 <p className="mb-1 text-[#9CA3AF]">Last API response:</p>
                 <ul className="mb-3 space-y-1">
                   <li>
-                    cacheHit: <span className="text-[#1C2B20]">{String(lastResponse.cacheHit)}</span>
+                    cacheHit:{' '}
+                    <span className="text-[#1C2B20]">{String(lastResponse.cacheHit)}</span>
                   </li>
                   <li>
                     fetchedAt: <span className="text-[#1C2B20]">{lastResponse.fetchedAt}</span>
                   </li>
                   <li>
-                    sources: <span className="text-[#1C2B20]">{lastResponse.sources.join(', ') || '∅'}</span>
+                    sources:{' '}
+                    <span className="text-[#1C2B20]">{lastResponse.sources.join(', ') || '∅'}</span>
                   </li>
                 </ul>
                 <p className="mb-1 text-[#9CA3AF]">Per-source breakdown:</p>
@@ -1128,10 +1123,17 @@ export function RentCompareContent({ deal }: Props) {
                         <td className="py-1 pr-3 text-[#1C2B20]">{p.source}</td>
                         <td className="py-1 pr-3 text-right text-[#1C2B20]">{p.count}</td>
                         <td className="py-1 pr-3 text-[#DC2626]">{p.error ?? '—'}</td>
-                        <td className="py-1 truncate text-[#6B7280]" title={p.searchUrl}>
+                        <td className="truncate py-1 text-[#6B7280]" title={p.searchUrl}>
                           {p.searchUrl ? (
-                            <a href={p.searchUrl} target="_blank" rel="noreferrer" className="hover:text-[#4A7C59]">
-                              {p.searchUrl.length > 80 ? p.searchUrl.slice(0, 80) + '…' : p.searchUrl}
+                            <a
+                              href={p.searchUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:text-[#4A7C59]"
+                            >
+                              {p.searchUrl.length > 80
+                                ? p.searchUrl.slice(0, 80) + '…'
+                                : p.searchUrl}
                             </a>
                           ) : (
                             '—'
@@ -1180,11 +1182,7 @@ function SortHeader({
       } select-none`}
       onClick={onClick}
     >
-      <span
-        className={`inline-flex items-center gap-1 ${
-          active ? 'text-[#4A7C59]' : ''
-        }`}
-      >
+      <span className={`inline-flex items-center gap-1 ${active ? 'text-[#4A7C59]' : ''}`}>
         {label}
         {active && (dir === 'asc' ? <ArrowUp size={9} /> : <ArrowDown size={9} />)}
       </span>
@@ -1211,9 +1209,7 @@ function ScopeRadio({
             type="button"
             onClick={() => onChange(opt)}
             className={`rounded-full px-3 py-1 font-medium transition-colors ${
-              value === opt
-                ? 'bg-[#4A7C59] text-white'
-                : 'text-[#6B7280] hover:text-[#1C2B20]'
+              value === opt ? 'bg-[#4A7C59] text-white' : 'text-[#6B7280] hover:text-[#1C2B20]'
             }`}
           >
             {opt === 'bairro' ? 'Mesmo bairro' : 'Cidade inteira'}
@@ -1263,7 +1259,7 @@ const REASON_LABELS: Record<ExclusionReason, string> = {
   'bathrooms-out-of-range': 'Banheiros fora da tolerância',
   'area-out-of-range': 'Área fora da tolerância',
   'year-out-of-range': 'Ano fora da tolerância',
-  'furnished': 'Mobiliado',
+  furnished: 'Mobiliado',
   'short-term': 'Temporada / Airbnb',
   'rent-outlier': 'Aluguel atípico',
   'price-band-mismatch': 'Faixa de preço diferente',
@@ -1287,13 +1283,11 @@ function RejectedSection({
   onUninclude: (id: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [reasonFilter, setReasonFilter] = React.useState<ExclusionReason | 'todos'>(
-    'todos',
-  );
+  const [reasonFilter, setReasonFilter] = React.useState<ExclusionReason | 'todos'>('todos');
 
   const visible = React.useMemo(
     () => excluded.filter((e) => !HIDDEN_REASONS.includes(e.reason)),
-    [excluded],
+    [excluded]
   );
   const reasonCounts = React.useMemo(() => {
     const counts: Partial<Record<ExclusionReason, number>> = {};
@@ -1304,11 +1298,8 @@ function RejectedSection({
   }, [visible]);
 
   const filtered = React.useMemo(
-    () =>
-      reasonFilter === 'todos'
-        ? visible
-        : visible.filter((e) => e.reason === reasonFilter),
-    [visible, reasonFilter],
+    () => (reasonFilter === 'todos' ? visible : visible.filter((e) => e.reason === reasonFilter)),
+    [visible, reasonFilter]
   );
 
   if (visible.length === 0 && forceIncludedIds.length === 0) return null;
@@ -1324,7 +1315,8 @@ function RejectedSection({
           Rejeitados pelos filtros ({visible.length})
           {forceIncludedIds.length > 0 && (
             <span className="rounded bg-[#EBF3EE] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#4A7C59] uppercase">
-              {forceIncludedIds.length} incluído{forceIncludedIds.length === 1 ? '' : 's'} manualmente
+              {forceIncludedIds.length} incluído{forceIncludedIds.length === 1 ? '' : 's'}{' '}
+              manualmente
             </span>
           )}
         </span>
@@ -1341,16 +1333,14 @@ function RejectedSection({
                 active={reasonFilter === 'todos'}
                 onClick={() => setReasonFilter('todos')}
               />
-              {(Object.entries(reasonCounts) as [ExclusionReason, number][]).map(
-                ([r, count]) => (
-                  <ReasonChip
-                    key={r}
-                    label={`${REASON_LABELS[r]} (${count})`}
-                    active={reasonFilter === r}
-                    onClick={() => setReasonFilter(r)}
-                  />
-                ),
-              )}
+              {(Object.entries(reasonCounts) as [ExclusionReason, number][]).map(([r, count]) => (
+                <ReasonChip
+                  key={r}
+                  label={`${REASON_LABELS[r]} (${count})`}
+                  active={reasonFilter === r}
+                  onClick={() => setReasonFilter(r)}
+                />
+              ))}
             </div>
           )}
 
@@ -1397,14 +1387,12 @@ function RejectedSection({
                     </div>
 
                     {/* Stats */}
-                    <div className="flex shrink-0 items-center gap-4 font-mono text-xs tabular-nums text-[#6B7280]">
+                    <div className="flex shrink-0 items-center gap-4 font-mono text-xs text-[#6B7280] tabular-nums">
                       <span>
                         <span className="text-[#1C2B20]">{brl(l.monthlyRent)}</span>
                         {l.area ? <span className="text-[#9CA3AF]"> / {num(l.area)}m²</span> : ''}
                       </span>
-                      {ppm > 0 && (
-                        <span className="text-[#4A7C59]">{brl(ppm)}/m²</span>
-                      )}
+                      {ppm > 0 && <span className="text-[#4A7C59]">{brl(ppm)}/m²</span>}
                       <span className="text-[#9CA3AF]">
                         {l.bedrooms ?? '–'}Q / {l.bathrooms ?? '–'}B
                       </span>
@@ -1489,10 +1477,7 @@ function SearchProgress() {
     { at: 8.5, label: 'Calculando mediana e faixa de mercado' },
   ];
 
-  const activeIdx = STEPS.reduce(
-    (acc, s, i) => (elapsed >= s.at ? i : acc),
-    0,
-  );
+  const activeIdx = STEPS.reduce((acc, s, i) => (elapsed >= s.at ? i : acc), 0);
 
   return (
     <div className="mb-5 border border-[#E2E0DA] bg-[#FAFAF8] p-6">
@@ -1501,9 +1486,7 @@ function SearchProgress() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A8C5B2] opacity-75" />
           <span className="relative inline-flex h-3 w-3 rounded-full bg-[#4A7C59]" />
         </span>
-        <p className="text-sm font-bold text-[#1C2B20]">
-          Buscando comparáveis de aluguel…
-        </p>
+        <p className="text-sm font-bold text-[#1C2B20]">Buscando comparáveis de aluguel…</p>
         <span className="ml-auto font-mono text-xs text-[#9CA3AF] tabular-nums">
           {Math.floor(elapsed)}s
         </span>
@@ -1524,8 +1507,7 @@ function SearchProgress() {
       {/* Step list */}
       <ul className="mt-5 space-y-2.5">
         {STEPS.map((s, i) => {
-          const status =
-            i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'pending';
+          const status = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'pending';
           return (
             <li
               key={i}
@@ -1592,21 +1574,13 @@ function Dot({ delay }: { delay: number }) {
   );
 }
 
-function StatCell({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
+function StatCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-[#FAFAF8] p-4">
       <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
         {label}
       </p>
-      <p className="mt-1.5 font-mono text-lg font-bold leading-tight tracking-tight text-[#1C2B20]">
+      <p className="mt-1.5 font-mono text-lg leading-tight font-bold tracking-tight text-[#1C2B20]">
         {value}
       </p>
       {sub && <p className="mt-1 text-[11px] leading-snug text-[#6B7280]">{sub}</p>}

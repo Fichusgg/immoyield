@@ -1,10 +1,6 @@
 import { DealInputs, effectiveMonthlyRevenue } from './types';
 import { calculateAmortization } from './financing';
-import {
-  computeRentalIR,
-  computeSaleTax,
-  type RentalTaxResult,
-} from './taxes';
+import { computeRentalIR, computeSaleTax, type RentalTaxResult } from './taxes';
 import { irr, monthlyToAnnual } from './irr';
 
 /** Sum of explicit closing costs, falling back to legacy `cartorio`. */
@@ -34,10 +30,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
 
   // FGTS utilizado na entrada: reduz o caixa próprio de fato desembolsado,
   // mas continua compondo a "entrada" (não altera o saldo financiado).
-  const fgtsAmount = Math.min(
-    inputs.financing.fgtsAmount ?? 0,
-    inputs.financing.downPayment,
-  );
+  const fgtsAmount = Math.min(inputs.financing.fgtsAmount ?? 0, inputs.financing.downPayment);
   const cashOutlay = totalInitialInvestment - loanAmount;
   const outOfPocketCash = Math.max(0, cashOutlay - fgtsAmount);
 
@@ -51,12 +44,13 @@ export function analyzeRentalDeal(inputs: DealInputs) {
   const condoExpense = landlordPaysCondoIptu ? inputs.expenses.condo : 0;
   const iptuExpense = landlordPaysCondoIptu ? inputs.expenses.iptu : 0;
 
-  const managementFee = inputs.revenue.monthlyRent * inputs.expenses.managementPercent;
+  // Fees modeled as % of collected rent should follow vacancy (no rent → no fee).
+  const managementFee = monthlyGrossRent * inputs.expenses.managementPercent;
   const monthlyOpExpenses =
     condoExpense +
     iptuExpense +
     managementFee +
-    inputs.revenue.monthlyRent * inputs.expenses.maintenancePercent;
+    monthlyGrossRent * inputs.expenses.maintenancePercent;
 
   const noi = monthlyGrossRent - monthlyOpExpenses;
 
@@ -79,8 +73,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
 
   // ── Imposto sobre receita de aluguel (PF: Carnê-Leão · PJ: Lucro Presumido)
   const regime = inputs.taxation?.regime ?? 'PF';
-  const taxedRegime: 'PF' | 'PJ' | null =
-    regime === 'PF' || regime === 'PJ' ? regime : null;
+  const taxedRegime: 'PF' | 'PJ' | null = regime === 'PF' || regime === 'PJ' ? regime : null;
   const applyIR = taxedRegime !== null && inputs.propertyType !== 'flip';
   const rentalTax: RentalTaxResult | null = applyIR
     ? computeRentalIR({
@@ -154,8 +147,7 @@ export function analyzeRentalDeal(inputs: DealInputs) {
   if (inputs.propertyType !== 'flip' && cashOutlay > 0) {
     const holdMonths = 60;
     const annualGrowth = annualRentGrowth(inputs.revenue);
-    const monthlyRentGrowth =
-      annualGrowth > 0 ? Math.pow(1 + annualGrowth, 1 / 12) - 1 : 0;
+    const monthlyRentGrowth = annualGrowth > 0 ? Math.pow(1 + annualGrowth, 1 / 12) - 1 : 0;
     const monthlyAppreciation = Math.pow(1.05, 1 / 12) - 1; // 5% a.a. default
 
     const cashflows: number[] = [-cashOutlay];
@@ -168,22 +160,22 @@ export function analyzeRentalDeal(inputs: DealInputs) {
       const period = schedule[m - 1];
       const installment = period?.installment ?? 0;
       const insurance = period ? (period.remainingBalance * insurancePctYear) / 12 : 0;
+      const collectedRent = rent * (1 - inputs.revenue.vacancyRate);
+      const managementFeeM = collectedRent * inputs.expenses.managementPercent;
+      const maintenanceExpenseM = collectedRent * inputs.expenses.maintenancePercent;
       const noiM =
-        rent * (1 - inputs.revenue.vacancyRate) -
-        (condoExpense +
-          iptuExpense +
-          rent * inputs.expenses.managementPercent +
-          rent * inputs.expenses.maintenancePercent);
-      const irM = applyIR && taxedRegime
-        ? computeRentalIR({
-            grossMonthlyRent: rent,
-            condo: condoExpense,
-            iptu: iptuExpense,
-            managementFee: rent * inputs.expenses.managementPercent,
-            vacancyRate: inputs.revenue.vacancyRate,
-            regime: taxedRegime,
-          }).monthlyIR
-        : 0;
+        collectedRent - (condoExpense + iptuExpense + managementFeeM + maintenanceExpenseM);
+      const irM =
+        applyIR && taxedRegime
+          ? computeRentalIR({
+              grossMonthlyRent: rent,
+              condo: condoExpense,
+              iptu: iptuExpense,
+              managementFee: managementFeeM,
+              vacancyRate: inputs.revenue.vacancyRate,
+              regime: taxedRegime,
+            }).monthlyIR
+          : 0;
       cashflows.push(noiM - installment - insurance - irM);
     }
 
@@ -232,25 +224,18 @@ export function analyzeRentalDeal(inputs: DealInputs) {
   // tax via `monthlyCashFlow`; expose it explicitly under the new name and
   // also surface the pre-tax variant for the side-by-side display.
   const monthlyCashFlowPreTax = noi - monthlyDebtService;
-  const cashOnCashGrossPct =
-    cashOutlay > 0 ? ((monthlyCashFlowPreTax * 12) / cashOutlay) * 100 : 0;
-  const cashOnCashNetPct =
-    cashOutlay > 0 ? ((monthlyCashFlow * 12) / cashOutlay) * 100 : 0;
+  const cashOnCashGrossPct = cashOutlay > 0 ? ((monthlyCashFlowPreTax * 12) / cashOutlay) * 100 : 0;
+  const cashOnCashNetPct = cashOutlay > 0 ? ((monthlyCashFlow * 12) / cashOutlay) * 100 : 0;
 
   // Rental ROI over the configured hold period (default 5 yrs).
-  const rentalHoldYears = Math.max(
-    1,
-    Math.min(30, inputs.projections?.holdPeriodYears ?? 5),
-  );
+  const rentalHoldYears = Math.max(1, Math.min(30, inputs.projections?.holdPeriodYears ?? 5));
   let rentalRoiPct: number | null = null;
   let rentalRoiAnnualizedPct: number | null = null;
   if (inputs.propertyType !== 'flip' && cashOutlay > 0) {
     const cumulativeCashFlow = monthlyCashFlow * 12 * rentalHoldYears;
     const horizonMonths = Math.min(rentalHoldYears * 12, schedule.length);
     const remainingAtHorizon =
-      horizonMonths > 0
-        ? schedule[horizonMonths - 1]?.remainingBalance ?? 0
-        : loanAmount;
+      horizonMonths > 0 ? (schedule[horizonMonths - 1]?.remainingBalance ?? 0) : loanAmount;
     const equityBuildUp = loanAmount - remainingAtHorizon;
     const totalReturn = cumulativeCashFlow + equityBuildUp;
     rentalRoiPct = (totalReturn / cashOutlay) * 100;
