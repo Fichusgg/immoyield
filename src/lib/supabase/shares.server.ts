@@ -137,11 +137,11 @@ export async function getPublicReportBySlug(slug: string): Promise<PublicReport 
 
   if (error || !data) return null;
 
-  supabase
-    .from('shared_reports')
-    .update({ view_count: (data.view_count ?? 0) + 1 })
-    .eq('slug', slug)
-    .then(() => {});
+  // Bump view_count via SECURITY DEFINER RPC. Required because /r/[slug] is a
+  // public route — the caller is often anonymous, and the UPDATE policy on
+  // shared_reports is owner-only. The RPC is the only public mutation path
+  // and can only ever increment the counter on an active row.
+  supabase.rpc('increment_share_view', { p_slug: slug }).then(() => {});
 
   const deal = Array.isArray(data.deal) ? data.deal[0] : data.deal;
   if (!deal) return null;
