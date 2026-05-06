@@ -140,7 +140,28 @@ RLS policies present in repo migrations:
 
 ## Phase 2 — Calculation accuracy
 
-_Pending._
+Added [src/lib/calculations/__tests__/golden.test.ts](src/lib/calculations/__tests__/golden.test.ts) with 8 fixtures + invariants (30 assertions, all green):
+
+| # | Fixture | What it pins |
+| - | ------- | ------------ |
+| 1 | Cash purchase, no financing | totals, NOI, cap rate, payback, IR=0 |
+| 2 | MCMV-eligible (R$240k, 90%, SAC 30y, 10.5%) | totals, SAC first installment, monotonic draw-down |
+| 3 | SFH standard (R$500k, 80%, PRICE 30y, 10.5%) | constant PRICE installment, full amortization, NOI |
+| 4 | SFI high-value (R$2M, 70%, SAC 25y, 12%) | totals, SAC first installment, PF IR ≠ 0, all schedule rows ≥ 0 |
+| 5 | 100% vacancy edge | NOI = -fixed expenses, cashflow finite + negative |
+| 6 | 0% down (100% financed) | loan = price, outlay = acquisition costs only |
+| 7 | 30-year horizon | monotonic property value, equity growth, no NaN/Inf |
+| 8 | Negative cashflow trap | flagged via `monthlyCashFlow < 0` and `cashOnCash < 0` |
+
+Plus invariants: determinism (same input → identical output), no NaN/Infinity in any returned metric across all fixtures.
+
+**Domain notes uncovered while writing tests** (no formula bugs, but worth documenting for the owner):
+
+- `computeRentalIR` applies `vacancyRate` to gross rent **before** subtracting deductions (condo + IPTU + management fee). This yields a slightly lower IR than treating gross rent as the full taxable base. Documented in the test comments — confirm this matches Receita Federal practice if the owner has a CPA's reading.
+- `analyzeRentalDeal.metrics.capRate` is `(NOI × 12) / purchasePrice`, where NOI is **net of vacancy + management/maintenance scaled to collected rent + condo + IPTU** (when landlord pays them). It does **not** subtract debt service or IR — i.e. capRate is unlevered, pre-tax. Standard convention; flag if you want to relabel.
+- `cashOnCash` exposes both pre-tax (`monthlyCashFlowPreTax`) and post-tax (`monthlyCashFlow`) variants; the headline `cashOnCash` is post-tax.
+
+No formula bugs identified. Existing 96-test suite + 30 new golden assertions = 126 tests, all green.
 
 ## Phase 3 — Mobile & responsive
 
