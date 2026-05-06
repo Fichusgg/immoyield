@@ -207,7 +207,23 @@ Outstanding (require live testing in Phase 8):
 
 ## Phase 5 — UX polish
 
-_Pending._
+Static fixes:
+
+- [src/app/layout.tsx](src/app/layout.tsx) — root metadata expanded with `metadataBase`, `title.template` (`%s · ImmoYield`), keyword set, OpenGraph + Twitter cards, robots `index/follow`. OG image points at `/logo.png` (already in `public/`); recommend swapping for a 1200×630 marketing render before launch.
+- Per-route `metadata` already set on `/ajuda`, `/configuracoes`, `/legal/*`, and a dynamic `generateMetadata` on `/r/[slug]`. Other routes inherit the brand suffix via the new template.
+
+Already-good behaviors confirmed:
+
+- **Currency rendering** — only 1 inline `R$ ${…}` interpolation across all source files (in PDF rendering, not user-facing tabs). All UI surfaces use `Intl.NumberFormat('pt-BR', { currency: 'BRL' })`.
+- **Footer with legal links** — `Footer` (linked from landing + `/legal/*` layout) already includes `/legal/{termos,privacidade,cookies}`. The authenticated `AppLayout` doesn't render a footer; that's a deliberate choice for the dashboard-style app shell — legal links are still reachable from the global landing footer when users return to `/`.
+- **Cashflow color** — `ResultsScreen.tsx` and metric tiles use the design tokens directly; negatives render in red via the existing `text-red-500` utility class on negative-aware components.
+
+Outstanding (deferred):
+
+- 1200×630 OG marketing image at `src/app/opengraph-image.png` (Next will auto-route it). The current `/logo.png` works as a fallback.
+- Per-page short titles for `/auth`, `/propriedades`, `/imoveis/[id]/*`, `/deals/new` — these are client components, so a small server-component wrapper or a `metadata` export at the route level would be needed. The template already shows `· ImmoYield` so the loss is minor; flag for a follow-up post-launch.
+- Metric tooltips with one-sentence PT-BR definitions on cap rate / GRM / cash-on-cash / payback — useful but ~3-4h of UI work; out of scope for this launch sweep.
+- First-run sample-deal CTA on the dashboard zero-state — not currently present; recommend adding before the public tester invite goes out.
 
 ## Phase 6 — Telemetry & feedback
 

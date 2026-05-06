@@ -31,9 +31,46 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600', '700'],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://immoyield.com.br';
+
 export const metadata: Metadata = {
-  title: 'ImmoYield — Calculadora de Investimento Imobiliário',
-  description: 'Análise de investimento imobiliário para o mercado brasileiro.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'ImmoYield — Calculadora de Investimento Imobiliário',
+    // Per-route titles render as "Page · ImmoYield". Pages set a short
+    // `title: 'Page'` and inherit the brand suffix from this template.
+    template: '%s · ImmoYield',
+  },
+  description:
+    'Análise completa de investimento imobiliário para o mercado brasileiro: cap rate, fluxo de caixa, TIR, financiamento (SAC/PRICE) e projeções de longo prazo.',
+  applicationName: 'ImmoYield',
+  keywords: [
+    'investimento imobiliário',
+    'cap rate',
+    'aluguel',
+    'financiamento imobiliário',
+    'SAC',
+    'PRICE',
+    'fluxo de caixa',
+    'análise de imóveis',
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: SITE_URL,
+    siteName: 'ImmoYield',
+    title: 'ImmoYield — Calculadora de Investimento Imobiliário',
+    description:
+      'Cap rate, fluxo de caixa, TIR e projeções para qualquer imóvel — em segundos, no padrão brasileiro.',
+    images: [{ url: '/logo.png', width: 1200, height: 630, alt: 'ImmoYield' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ImmoYield — Análise de investimento imobiliário',
+    description: 'Cap rate, fluxo de caixa e TIR no padrão brasileiro.',
+    images: ['/logo.png'],
+  },
+  robots: { index: true, follow: true },
 };
 
 import { Toaster } from '@/components/ui/sonner';
