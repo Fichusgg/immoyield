@@ -227,7 +227,21 @@ Outstanding (deferred):
 
 ## Phase 6 — Telemetry & feedback
 
-_Pending._
+### In-app feedback — shipped
+
+- [supabase/migrations/007_feedback.sql](supabase/migrations/007_feedback.sql) — new `feedback` table (id, user_id nullable, email, message, url, user_agent, created_at). RLS allows insert from anon + authenticated; users read only their own rows; no update/delete (the owner uses service-role for admin).
+- [src/app/api/feedback/route.ts](src/app/api/feedback/route.ts) — POST endpoint. Auth optional; user_id and email auto-derived from session when present (never from request body). Rate-limited via the existing `limiters.write` (20/min per IP). Validates message non-empty + ≤ 5000 chars.
+- [src/components/feedback/FloatingFeedbackButton.tsx](src/components/feedback/FloatingFeedbackButton.tsx) — bottom-right floating circle on every page (mounted in the root layout). Modal with textarea + email (prefilled from session), submits to `/api/feedback`, success toast `"Obrigado! Vamos ler todo feedback."`. Mobile: slides up from bottom with rounded-top sheet.
+
+### Sentry + PostHog — awaiting keys
+
+> **Owner question:** I need the following to wire telemetry. Without them I can't proceed for Phase 6's second half. Reply with values (or "skip — defer to post-launch") and I'll continue:
+>
+> - `NEXT_PUBLIC_SENTRY_DSN` — Sentry project DSN. Without it, error reporting is a no-op.
+> - `SENTRY_AUTH_TOKEN` — for source-map upload during build (Vercel env, not committed).
+> - `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` — PostHog project key + ingestion host (default `https://us.i.posthog.com`).
+>
+> Once provided I'll install `@sentry/nextjs` and `posthog-js`, wire the Sentry init files (`sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`), add a CSP `connect-src` allowance for the Sentry + PostHog endpoints, and emit the event set listed in the brief (`signup_completed`, `deal_creation_started/completed/abandoned`, `share_link_created/opened`, `calculation_error`).
 
 ## Phase 7 — Legal pages
 
