@@ -433,16 +433,16 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
                 {form.listingType === 'rent' ? 'Aluguel mensal' : 'Venda'}{' '}
                 <span className="text-orange-500">*</span>
               </label>
-              <input name="price" value={form.price} onChange={handleChange} type="number" placeholder="0" className={fc('price')} />
+              <input name="price" value={form.price} onChange={handleChange} type="number" inputMode="decimal" placeholder="0" className={fc('price')} />
               {formErrors.price && <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Condomínio / mês</label>
-              <input name="condoFee" value={form.condoFee} onChange={handleChange} type="number" placeholder="0" className={fc('condoFee')} />
+              <input name="condoFee" value={form.condoFee} onChange={handleChange} type="number" inputMode="decimal" placeholder="0" className={fc('condoFee')} />
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">IPTU / ano</label>
-              <input name="iptu" value={form.iptu} onChange={handleChange} type="number" placeholder="0" className={fc('iptu')} />
+              <input name="iptu" value={form.iptu} onChange={handleChange} type="number" inputMode="decimal" placeholder="0" className={fc('iptu')} />
             </div>
           </div>
         </div>
@@ -453,23 +453,23 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
           <div className="grid grid-cols-5 gap-3">
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Área (m²)</label>
-              <input name="area" value={form.area} onChange={handleChange} type="number" placeholder="0" className={fc('area')} />
+              <input name="area" value={form.area} onChange={handleChange} type="number" inputMode="decimal" placeholder="0" className={fc('area')} />
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Quartos</label>
-              <input name="bedrooms" value={form.bedrooms} onChange={handleChange} type="number" placeholder="0" className={fc('bedrooms')} />
+              <input name="bedrooms" value={form.bedrooms} onChange={handleChange} type="number" inputMode="numeric" placeholder="0" className={fc('bedrooms')} />
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Banheiros</label>
-              <input name="bathrooms" value={form.bathrooms} onChange={handleChange} type="number" placeholder="0" className={fc('bathrooms')} />
+              <input name="bathrooms" value={form.bathrooms} onChange={handleChange} type="number" inputMode="numeric" placeholder="0" className={fc('bathrooms')} />
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Suítes</label>
-              <input name="suites" value={form.suites} onChange={handleChange} type="number" placeholder="0" className={fc('suites')} />
+              <input name="suites" value={form.suites} onChange={handleChange} type="number" inputMode="numeric" placeholder="0" className={fc('suites')} />
             </div>
             <div>
               <label className="block text-xs font-medium text-[#6B7280] mb-1">Vagas</label>
-              <input name="parkingSpots" value={form.parkingSpots} onChange={handleChange} type="number" placeholder="0" className={fc('parkingSpots')} />
+              <input name="parkingSpots" value={form.parkingSpots} onChange={handleChange} type="number" inputMode="numeric" placeholder="0" className={fc('parkingSpots')} />
             </div>
           </div>
         </div>

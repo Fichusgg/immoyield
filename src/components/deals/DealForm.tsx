@@ -717,6 +717,9 @@ export function DealForm({ mode, initialDeal }: Props) {
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            // capture="environment" lets mobile browsers offer "take photo"
+            // alongside "choose from library". Harmless on desktop.
+            capture="environment"
             multiple
             className="sr-only"
             onChange={handleFileChange}

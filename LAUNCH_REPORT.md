@@ -165,7 +165,25 @@ No formula bugs identified. Existing 96-test suite + 30 new golden assertions = 
 
 ## Phase 3 — Mobile & responsive
 
-_Pending._
+Static fixes landed:
+
+- [src/components/ui/input.tsx](src/components/ui/input.tsx) — base `Input` now auto-applies `inputMode="decimal"` whenever `type="number"` and the caller doesn't override. This converts ~38 number inputs across DealForm / wizard tabs to the numeric keypad on mobile in one change.
+- [src/components/DealImportForm.tsx](src/components/DealImportForm.tsx) — 8 raw `<input type="number">` upgraded with explicit `inputMode` (`decimal` for monetary/area, `numeric` for room counts).
+- [src/components/deals/DealForm.tsx](src/components/deals/DealForm.tsx) — image input gains `capture="environment"` so mobile users can tap "take photo" alongside the gallery picker.
+- [src/app/layout.tsx](src/app/layout.tsx) — explicit `Viewport` export with `width=device-width, initialScale=1, maximumScale=5`. Zoom never disabled (WCAG 1.4.4).
+- `CurrencyInput` already shipped `inputMode` correctly (`decimal` when `decimals > 0`, `numeric` otherwise) and accepts the three pt-BR formats (`R$ 1.000.000,50`, `1000000.50`, `1,000,000.50`) via `parseLocaleNumber`.
+
+Confirmed already-good behaviors (no change needed):
+
+- `tabs/financiamento`, `receitas-e-despesas`, `compra-e-custos`, `dados-imovel`, `projecoes-longo-prazo`, wizard `steps/*`, `add-deal/Wizard.tsx` all use the wrapper `<Input>` → benefit from the inputMode default.
+- `NumberInputGuard` (mounted in root layout) globally suppresses scroll-wheel value changes on every `type="number"`.
+
+Outstanding (smoke test required, not statically verifiable):
+
+- Lighthouse mobile run on the deployed build (target Perf ≥ 70, A11y ≥ 90).
+- iOS Safari modal scroll-lock check (Base UI dialog primitives — generally safe, but only a real device confirms).
+- 360px viewport overflow scan — most surfaces use Tailwind responsive grid (`grid-cols-3 md:grid-cols-5` etc.); the design system uses `min-w-0` on the input so overflow at narrow widths should be limited to long PT-BR labels in some headers. Flag if any horizontal scrollbar appears.
+- Tap-target ≥ 44px audit — primary CTAs use `h-10`+ (40px); a few utility buttons in tabs use `h-8` (32px). Acceptable for desktop-first, marginal on mobile. Do not block launch on this; capture in the smoke-test follow-ups.
 
 ## Phase 4 — Robustness
 

@@ -3,11 +3,17 @@ import { Input as InputPrimitive } from '@base-ui/react/input';
 
 import { cn } from '@/lib/utils';
 
-function Input({ className, type, onWheel, onKeyDown, ...props }: React.ComponentProps<'input'>) {
+function Input({ className, type, inputMode, onWheel, onKeyDown, ...props }: React.ComponentProps<'input'>) {
   const isNumber = type === 'number';
+  // Mobile keyboards: type="number" still ships the full QWERTY on most
+  // browsers — the decimal/numeric inputMode is what triggers the numeric
+  // keypad. Default to "decimal" because most numeric inputs in this app
+  // accept fractional values (rates, areas, prices). Caller can override.
+  const resolvedInputMode = inputMode ?? (isNumber ? 'decimal' : undefined);
   return (
     <InputPrimitive
       type={type}
+      inputMode={resolvedInputMode}
       data-slot="input"
       onWheel={(e) => {
         if (isNumber) (e.target as HTMLInputElement).blur();

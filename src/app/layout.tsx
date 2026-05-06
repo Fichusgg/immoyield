@@ -1,6 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, DM_Serif_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // Allow zoom — never disable. Pinching to inspect numbers on small
+  // screens is critical for this app, and disabling zoom is a documented
+  // a11y violation (WCAG 1.4.4).
+  maximumScale: 5,
+  themeColor: '#F8F7F4',
+};
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
