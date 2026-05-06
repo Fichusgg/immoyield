@@ -254,4 +254,69 @@ Owner action before public launch: replace placeholder CNPJ (`XX.XXX.XXX/0001-XX
 
 ## Phase 8 — Smoke test & final verdict
 
-_Pending._
+### What I could verify from the repo
+
+| Check | Result |
+| --- | --- |
+| `npm run build` | ✅ Green. 28 routes (3 new: `/privacidade`, `/termos`, `/api/feedback`). |
+| `npx tsc --noEmit` | ✅ Clean. |
+| `npm run lint` | ✅ Clean. |
+| `npx vitest run` | ✅ 126 tests across 8 files (was 96 / 7 — golden suite added 30). |
+| Auth boundary | ✅ Middleware redirect + per-route `getUser()` + RLS. |
+| RLS coverage | ✅ `deals`, storage `property-images`, `market_benchmarks`, new `feedback`. |
+
+### What I could not verify (owner action required)
+
+The brief calls for a smoke test against a deployed production URL on a fresh browser, using a real mobile phone and triggering a real Sentry event. None of those are reachable from this session. The owner needs to run them after applying the open follow-ups.
+
+### Verdict — **NOT READY** (blocked on owner items, code quality is fine)
+
+Open blockers:
+
+1. **Apply migration `007_feedback.sql`** to the Supabase project (one `supabase db push` or paste into the SQL editor). Without this, `POST /api/feedback` 500s on the missing table.
+2. **Capture or migrate `shared_reports`** — the table already exists in Supabase but is not in the repo. Either dump the schema into a `008_shared_reports.sql` migration, or confirm it's intentionally drift-managed.
+3. **Provide telemetry keys** — `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `NEXT_PUBLIC_POSTHOG_KEY` (+ host). Or "skip — defer to post-launch" and I'll close the Phase 6 second-half ticket.
+4. **Legal sign-off on `/legal/{privacidade,termos,cookies}`** — replace placeholder CNPJ + DPO contact, then drop the `[REVIEW NEEDED]` banner from `LegalDoc.tsx`.
+5. **Run the live smoke test** (steps in the brief) on the deployed Vercel URL after items 1–4 land. Lighthouse mobile (target Perf ≥ 70, A11y ≥ 90) needs to run there too.
+
+Non-blocking but worth doing soon: 1200×630 OG marketing image at `src/app/opengraph-image.png`; per-page short titles for client-component routes; metric tooltips on cap rate / GRM / cash-on-cash / payback; first-run sample-deal CTA on the dashboard zero state.
+
+### Tester invite template (Portuguese — use after the blockers above clear)
+
+```
+Assunto: ImmoYield — você está convidado(a) a testar (15 min)
+
+Olá!
+
+A ImmoYield (calculadora de investimento imobiliário para o mercado
+brasileiro) está em testes fechados e queria a sua ajuda. Acesso direto:
+
+  https://immoyield.com.br
+
+Se puder, peço 15 min seguindo estes três fluxos:
+
+  1) Crie uma conta (e-mail + senha). Confirme o e-mail e faça login.
+  2) Adicione um imóvel real ou imaginado: preço, financiamento, aluguel,
+     condomínio, IPTU. Vá até a aba "Análise" e me diga se os números
+     batem com a sua intuição.
+  3) Use o botão "Comparar aluguéis" e o gerador de relatório
+     compartilhável (botão "Compartilhar" na aba Análise).
+
+No canto inferior direito tem um botão verde de feedback — qualquer
+problema, dúvida ou sugestão, me conta por lá. Eu leio tudo.
+
+Obrigado pelo tempo!
+```
+
+### Phase-by-phase summary
+
+| Phase | Status | Notes |
+| --- | --- | --- |
+| 1 — Audit | ✅ | No critical blockers found. |
+| 2 — Calculations | ✅ | 30 new golden assertions; no formula bugs uncovered. |
+| 3 — Mobile | ✅ | Auto `inputMode` on all `<Input type="number">` + viewport export with zoom enabled + camera capture on image upload. Lighthouse + iOS modal scroll-lock pending live device test. |
+| 4 — Robustness | ✅ | `name` capped at 200, description bumped to 5000, auth + IDOR audited. `beforeunload` deferred. |
+| 5 — UX | ✅ | Root metadata template + OG/Twitter cards. Tooltips + dashboard zero-state CTA flagged for follow-up. |
+| 6 — Telemetry & feedback | ⚠ Partial | Feedback table + endpoint + UI shipped. Sentry/PostHog awaiting owner-supplied keys. |
+| 7 — Legal | ✅ | `[REVIEW NEEDED]` banner; `/privacidade` + `/termos` aliases. |
+| 8 — Smoke test | ⚠ | Repo-side checks all green; live smoke test gated on the blockers above. |
