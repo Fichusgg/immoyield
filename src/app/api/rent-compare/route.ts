@@ -21,6 +21,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { createClient } from '@/lib/supabase/server';
+import { canAccessCompareRent, getUserEntitlement } from '@/lib/entitlements';
 import { searchRentals, type RentalSearchQuery } from '@/lib/scrapers/rentals';
 import type { RentalListing } from '@/lib/rent-compare/types';
 import { slugify } from '@/lib/scrapers/rentals/slug';
@@ -124,6 +125,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { ok: false, error: 'UNAUTHENTICATED', message: 'Faça login para buscar comparáveis.' },
       { status: 401 },
+    );
+  }
+
+  // ── Entitlement gate ─────────────────────────────────────────────────────
+  const entitlement = await getUserEntitlement(supabase, user.id);
+  if (!entitlement || !canAccessCompareRent(entitlement)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'upgrade_required',
+        message: 'O comparativo de aluguel é um recurso Premium.',
+      },
+      { status: 402 },
     );
   }
 

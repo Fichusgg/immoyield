@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getBenchmarks } from '@/lib/benchmarks';
 import TopNav from '@/components/layout/TopNav';
 import PropertiesPage from '@/components/properties/PropertiesPage';
+import { DealQuotaBanner } from '@/components/billing/DealQuotaBanner';
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -31,6 +32,9 @@ export default async function PropriedadesPage({ searchParams }: PageProps) {
   return (
     <div className="flex h-screen flex-col bg-[#F8F7F4]">
       <TopNav userEmail={user.email} />
+      <div className="px-4 pt-3">
+        <DealQuotaBanner />
+      </div>
       <PropertiesPage benchmarks={benchmarks} />
     </div>
   );

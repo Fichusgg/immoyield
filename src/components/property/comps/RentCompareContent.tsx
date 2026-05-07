@@ -180,6 +180,18 @@ export function RentCompareContent({ deal }: Props) {
       const data = (await res.json()) as ApiResponse;
       setLastResponse(data);
       if (!res.ok || !data.ok) {
+        if (res.status === 402 || data.error === 'upgrade_required') {
+          toast.error('Recurso Premium', {
+            description:
+              data.message ?? 'Faça upgrade para usar o comparativo de aluguel.',
+            duration: 8000,
+            action: {
+              label: 'Ver planos',
+              onClick: () => router.push('/precos'),
+            },
+          });
+          return;
+        }
         if (data.error === 'SCRAPER_QUOTA_EXHAUSTED') {
           // Long-lived toast — this is a billing issue, not a transient error.
           toast.error(data.message ?? 'Cota de busca esgotada', {
