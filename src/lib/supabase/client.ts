@@ -1,6 +1,7 @@
 import 'client-only';
 
 import { createBrowserClient } from '@supabase/ssr';
+import { getCookieDomain } from './cookie-domain';
 
 /**
  * Supabase browser client.
@@ -12,4 +13,13 @@ import { createBrowserClient } from '@supabase/ssr';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const createClient = () => createBrowserClient(supabaseUrl!, supabaseKey!);
+export const createClient = () => {
+  const host = typeof window !== 'undefined' ? window.location.host : null;
+  const domain = getCookieDomain(host);
+
+  return createBrowserClient(
+    supabaseUrl!,
+    supabaseKey!,
+    domain ? { cookieOptions: { domain } } : undefined
+  );
+};

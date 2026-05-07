@@ -10,7 +10,11 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.replace('/auth');
+    if (process.env.NODE_ENV === 'production') {
+      window.location.href = 'https://immoyield.com/';
+    } else {
+      router.replace('/');
+    }
   };
 
   return (

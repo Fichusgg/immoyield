@@ -1,7 +1,8 @@
 import 'server-only';
 
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { getCookieDomain } from './cookie-domain';
 
 /**
  * Supabase server client.
@@ -15,6 +16,8 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const createClient = async () => {
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const domain = getCookieDomain(headerStore.get('host'));
 
   return createServerClient(supabaseUrl!, supabaseKey!, {
     cookies: {
@@ -29,5 +32,6 @@ export const createClient = async () => {
         }
       },
     },
+    ...(domain ? { cookieOptions: { domain } } : {}),
   });
 };

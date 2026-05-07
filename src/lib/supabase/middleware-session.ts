@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getCookieDomain } from './cookie-domain';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -12,6 +13,8 @@ export async function getSupabaseSession(request: NextRequest) {
   });
   response.headers.set('Cache-Control', 'private, no-store');
 
+  const domain = getCookieDomain(request.headers.get('host'));
+
   const supabase = createServerClient(supabaseUrl!, supabaseKey!, {
     cookies: {
       getAll() {
@@ -23,6 +26,7 @@ export async function getSupabaseSession(request: NextRequest) {
         });
       },
     },
+    ...(domain ? { cookieOptions: { domain } } : {}),
   });
 
   const {
