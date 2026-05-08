@@ -33,7 +33,7 @@ export function PageHeader({ title, breadcrumb, helper, actions }: Props) {
                   {c.href ? (
                     <Link
                       href={c.href}
-                      className="font-mono text-[11px] text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+                      className="font-mono text-[11px] text-[#6B7480] transition-colors hover:text-[#6B7280]"
                     >
                       {c.label}
                     </Link>

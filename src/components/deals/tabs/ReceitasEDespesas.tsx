@@ -33,7 +33,7 @@ type StepData = z.infer<typeof stepSchema>;
 const fieldClass =
   'w-full border border-[#E2E0DA] bg-white px-3.5 py-2.5 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
 const labelClass =
-  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase';
+  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase';
 
 interface Props {
   onBack: () => void;
@@ -130,7 +130,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
       <div>
         <h2 className="text-base font-bold text-[#1C2B20]">Receitas & Despesas</h2>
-        <p className="mt-0.5 text-sm text-[#9CA3AF]">
+        <p className="mt-0.5 text-sm text-[#6B7480]">
           {isAirbnb
             ? 'Diária e taxa de ocupação para locação por temporada.'
             : isReforma
@@ -145,7 +145,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           <div>
             <label className={labelClass}>Valor Pós-Reforma — ARV (R$)</label>
             <div className="relative">
-              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
+              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#6B7480]">
                 R$
               </span>
               <Controller
@@ -180,16 +180,16 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   {...register('expenses.sellingCostPercent', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                   %
                 </span>
               </div>
-              <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-1 font-mono text-[10px] text-[#6B7480]">
                 Corretor + ITBI vendedor ≈ 6%
               </p>
             </div>
           </div>
-          <div className="border border-[#E2E0DA] bg-[#F0EFEB] px-4 py-3 font-mono text-xs text-[#9CA3AF]">
+          <div className="border border-[#E2E0DA] bg-[#F0EFEB] px-4 py-3 font-mono text-xs text-[#6B7480]">
             Ganho de capital calculado automaticamente com alíquota de 15% (até R$ 5M).
           </div>
         </div>
@@ -203,7 +203,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             <div>
               <label className={labelClass}>Diária Média (R$)</label>
               <div className="relative">
-                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#6B7480]">
                   R$
                 </span>
                 <Controller
@@ -229,7 +229,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   {...register('revenue.occupancyRate', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                   %
                 </span>
               </div>
@@ -246,7 +246,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             <div>
               <label className={labelClass}>Aluguel Mensal (R$)</label>
               <div className="relative">
-                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#6B7480]">
                   R$
                 </span>
                 <Controller
@@ -272,7 +272,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   {...register('revenue.vacancyRate', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                   %
                 </span>
               </div>
@@ -288,7 +288,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#1C2B20]">Incluir condomínio e IPTU</p>
-                <p className="font-mono text-[10px] text-[#9CA3AF]">
+                <p className="font-mono text-[10px] text-[#6B7480]">
                   Adiciona custos fixos do imóvel ao cálculo das despesas
                 </p>
               </div>
@@ -351,7 +351,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#1C2B20]">Reajuste pelo IPCA</p>
-                <p className="font-mono text-[10px] text-[#9CA3AF]">
+                <p className="font-mono text-[10px] text-[#6B7480]">
                   {isAirbnb
                     ? 'Projeta crescimento da diária corrigida pela inflação'
                     : 'Projeta crescimento do aluguel corrigido pela inflação'}
@@ -382,7 +382,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('revenue.annualIpcaRate', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                     %
                   </span>
                 </div>
@@ -408,7 +408,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('expenses.managementPercent', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                     %
                   </span>
                 </div>
@@ -422,7 +422,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                     {...register('expenses.maintenancePercent', { valueAsNumber: true })}
                     className={`${fieldClass} pr-8`}
                   />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                     %
                   </span>
                 </div>
@@ -433,18 +433,18 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
           {/* Live NOI waterfall */}
           {!isReforma && (monthlyRent > 0 || dailyRate > 0) && (
             <div className="border border-[#E2E0DA] bg-[#F8F7F4] p-4 text-sm">
-              <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+              <p className="mb-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
                 Resultado Operacional — prévia
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-[#9CA3AF]">Aluguel bruto</span>
+                  <span className="text-[#6B7480]">Aluguel bruto</span>
                   <span className="font-mono font-semibold text-[#1C2B20]">
                     {fmt(isAirbnb ? dailyRate * 30 : monthlyRent)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#9CA3AF]">
+                  <span className="text-[#6B7480]">
                     {isAirbnb ? `Ocupação (${occupancy}%)` : `Vacância (${vacancyRate}%)`}
                   </span>
                   <span className="font-mono text-[#DC2626]">
@@ -463,7 +463,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#9CA3AF]">Despesas operacionais</span>
+                  <span className="text-[#6B7480]">Despesas operacionais</span>
                   <span className="font-mono text-[#DC2626]">− {fmt(expenses)}</span>
                 </div>
                 <div className="flex justify-between border-t border-[#D0CEC8] pt-2">
@@ -484,7 +484,7 @@ export function ReceitasEDespesas({ onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>

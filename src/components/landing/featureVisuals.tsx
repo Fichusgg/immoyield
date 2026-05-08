@@ -59,7 +59,7 @@ export function InputsCard() {
           { label: 'Aluguel mensal', value: 'R$ 6.800' },
         ].map((f) => (
           <div key={f.label}>
-            <label className="mb-1.5 block text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <label className="mb-1.5 block text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               {f.label}
             </label>
             <div className="flex h-11 items-center border border-[#E2E0DA] bg-[#F8F7F4] px-3.5 text-sm font-semibold text-[#1C2B20] tabular-nums">
@@ -87,7 +87,7 @@ export function AnalyticsCard() {
           />
           <div className="absolute inset-[20%] flex items-center justify-center rounded-full bg-[#FAFAF8]">
             <div className="text-center">
-              <p className="text-[8px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+              <p className="text-[8px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
                 Yield líquido
               </p>
               <p className="mt-0.5 text-xl font-bold tabular-nums text-[#1C2B20]">8,4%</p>
@@ -187,7 +187,7 @@ export function OfferCalculatorCard() {
                 : 'border-[#E2E0DA] bg-[#F8F7F4]'
             }`}
           >
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               {p.label}
             </p>
             <p className="mt-2 text-sm font-bold text-[#1C2B20] tabular-nums">{p.value}</p>
@@ -243,7 +243,7 @@ export function ReportsCard() {
           { label: 'TIR (10a)', value: '14,8%' },
         ].map((s) => (
           <div key={s.label}>
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               {s.label}
             </p>
             <p className="mt-1 text-base font-bold text-[#1C2B20] tabular-nums">{s.value}</p>

@@ -149,7 +149,7 @@ export default function ScoreContent({ deal }: Props) {
       <div className={`mb-6 border p-6 ${label.bg} ${label.border}`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               Pontuação geral
             </p>
             <p className={`mt-1 font-mono text-5xl font-black tabular-nums ${label.color}`}>
@@ -195,11 +195,11 @@ export default function ScoreContent({ deal }: Props) {
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[#1C2B20]">{c.label}</p>
-                    <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{c.hint}</p>
+                    <p className="mt-0.5 text-[11px] text-[#6B7480]">{c.hint}</p>
                   </div>
                   <p className="font-mono text-sm font-bold tabular-nums text-[#1C2B20]">
                     <span className={label.color}>{pts}</span>
-                    <span className="text-[#9CA3AF]"> / {c.max}</span>
+                    <span className="text-[#6B7480]"> / {c.max}</span>
                   </p>
                 </div>
                 <div className="mt-2.5 h-1.5 overflow-hidden bg-[#F0EFEB]">
@@ -236,7 +236,7 @@ export default function ScoreContent({ deal }: Props) {
           </ul>
         ) : (
           <div className="flex items-start gap-3 px-5 py-4">
-            <Info size={14} className="mt-0.5 shrink-0 text-[#9CA3AF]" />
+            <Info size={14} className="mt-0.5 shrink-0 text-[#6B7480]" />
             <p className="text-sm text-[#6B7280]">
               Nenhum destaque positivo claro neste cenário. Ajuste premissas na
               Planilha de Compra para explorar alternativas.
@@ -273,7 +273,7 @@ export default function ScoreContent({ deal }: Props) {
         )}
       </FormCard>
 
-      <p className="pt-1 pb-4 text-center font-mono text-[10px] text-[#9CA3AF]">
+      <p className="pt-1 pb-4 text-center font-mono text-[10px] text-[#6B7480]">
         Pontuação calculada com base nos dados salvos da Planilha de Compra. Ajuste
         os parâmetros e salve novamente para reavaliar.
       </p>

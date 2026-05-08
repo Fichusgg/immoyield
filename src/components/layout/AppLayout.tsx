@@ -73,7 +73,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
                 className={`flex h-full items-center border-b-2 px-4 text-sm font-medium transition-colors ${
                   active
                     ? 'border-[#4A7C59] text-[#1C2B20]'
-                    : 'border-transparent text-[#9CA3AF] hover:text-[#6B7280]'
+                    : 'border-transparent text-[#6B7480] hover:text-[#6B7280]'
                 }`}
               >
                 {label}
@@ -84,7 +84,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
 
         {/* Right — avatar + logout */}
         <div className="ml-auto flex items-center gap-4">
-          {userEmail && <span className="font-mono text-xs text-[#9CA3AF]">{userEmail}</span>}
+          {userEmail && <span className="font-mono text-xs text-[#6B7480]">{userEmail}</span>}
           {userEmail && (
             <div className="flex h-7 w-7 items-center justify-center bg-[#4A7C59] font-mono text-xs font-bold text-white">
               {userEmail[0].toUpperCase()}
@@ -92,7 +92,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 font-mono text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+            className="flex items-center gap-1.5 font-mono text-xs text-[#6B7480] transition-colors hover:text-[#6B7280]"
           >
             <LogOut size={13} />
             Sair
@@ -132,7 +132,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
                     className={`flex items-center gap-2 border-l-2 py-2 pr-3 pl-4 text-xs transition-colors ${
                       isActiveSubItem
                         ? 'border-[#4A7C59] bg-[#EBF3EE] text-[#4A7C59]'
-                        : 'border-transparent text-[#9CA3AF] hover:bg-[#F0EFEB] hover:text-[#6B7280]'
+                        : 'border-transparent text-[#6B7480] hover:bg-[#F0EFEB] hover:text-[#6B7280]'
                     }`}
                   >
                     <span className="w-3 shrink-0 text-right font-mono text-[10px] font-bold">
@@ -155,7 +155,7 @@ export default function AppLayout({ children, userEmail, dealCounts }: AppLayout
               <div className="flex h-6 w-6 shrink-0 items-center justify-center bg-[#4A7C59] font-mono text-[10px] font-bold text-white">
                 {userEmail ? userEmail[0].toUpperCase() : 'U'}
               </div>
-              <p className="min-w-0 truncate font-mono text-[10px] text-[#9CA3AF]">{userEmail}</p>
+              <p className="min-w-0 truncate font-mono text-[10px] text-[#6B7480]">{userEmail}</p>
             </div>
           </div>
         </aside>

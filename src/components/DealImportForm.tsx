@@ -262,7 +262,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
   };
 
   const sectionLabel = (text: string) => (
-    <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-3">{text}</p>
+    <p className="text-[10px] font-semibold text-[#6B7480] uppercase tracking-widest mb-3">{text}</p>
   );
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -317,7 +317,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
       {/* ── Photos ────────────────────────────────────────────────────────── */}
       {photos.length > 0 && (
         <div className="rounded border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-          <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">
+          <p className="text-[10px] font-semibold text-[#6B7480] uppercase tracking-widest mb-2">
             Fotos ({photos.length})
           </p>
           <div className="flex gap-2 flex-wrap">
@@ -379,7 +379,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-[#1C2B20]">Dados do imóvel</p>
           {showForm && (
-            <span className="text-xs text-[#9CA3AF]">
+            <span className="text-xs text-[#6B7480]">
               {REQUIRED_FIELDS.filter(f => !form[f]?.trim()).length > 0
                 ? `${REQUIRED_FIELDS.filter(f => !form[f]?.trim()).length} campos obrigatórios pendentes`
                 : 'Todos os campos obrigatórios preenchidos ✓'}
@@ -529,7 +529,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
             <label className="block text-xs font-medium text-[#6B7280] mb-1">URL do anúncio</label>
             <input
               name="sourceUrl" value={form.sourceUrl} readOnly
-              className="w-full rounded border border-[#E2E0DA] bg-[#F0EFEB] px-3 py-2 text-xs text-[#9CA3AF] cursor-default truncate"
+              className="w-full rounded border border-[#E2E0DA] bg-[#F0EFEB] px-3 py-2 text-xs text-[#6B7480] cursor-default truncate"
             />
           </div>
         </div>
@@ -554,7 +554,7 @@ export default function DealImportForm({ onSuccess }: DealImportFormProps) {
           <button
             type="button"
             onClick={() => { setForm(EMPTY_FORM); setShowForm(false); setPhotos([]); setUrl(''); setScrapedMeta(null); }}
-            className="text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+            className="text-xs text-[#6B7480] hover:text-[#6B7280] transition-colors"
           >
             Limpar formulário
           </button>

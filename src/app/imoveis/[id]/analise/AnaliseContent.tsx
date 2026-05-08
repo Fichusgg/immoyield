@@ -250,13 +250,13 @@ export default function AnaliseContent({ deal }: Props) {
       <SectionHeading label="Fluxo de Caixa" />
       <FormCard className="mb-6 p-0">
         <div className="grid grid-cols-3 border-b border-[#F0EFEB] bg-[#F0EFEB] px-5 py-2.5">
-          <span className="text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+          <span className="text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
             Item
           </span>
-          <span className="text-right text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+          <span className="text-right text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
             Mensal
           </span>
-          <span className="text-right text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+          <span className="text-right text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
             Anual
           </span>
         </div>
@@ -299,7 +299,7 @@ export default function AnaliseContent({ deal }: Props) {
             <>
               {/* Regime banner */}
               <div className="flex flex-wrap items-center gap-2 border-b border-[#F0EFEB] bg-[#F8F7F4] px-5 py-3">
-                <span className="font-mono text-[10px] font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+                <span className="font-mono text-[10px] font-semibold tracking-[0.07em] text-[#6B7480] uppercase">
                   Regime tributário
                 </span>
                 <span className="font-mono text-xs font-semibold text-[#1C2B20]">
@@ -316,13 +316,13 @@ export default function AnaliseContent({ deal }: Props) {
               </div>
               {/* Gross vs Net rows */}
               <div className="grid grid-cols-3 border-b border-[#F0EFEB] bg-[#F0EFEB] px-5 py-2.5">
-                <span className="text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+                <span className="text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
                   Métrica
                 </span>
-                <span className="text-right text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+                <span className="text-right text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
                   Sem imposto
                 </span>
-                <span className="text-right text-[11px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+                <span className="text-right text-[11px] font-semibold tracking-wider text-[#6B7480] uppercase">
                   Com imposto
                 </span>
               </div>
@@ -339,7 +339,7 @@ export default function AnaliseContent({ deal }: Props) {
               />
               <div className="grid grid-cols-3 items-center border-t border-[#F0EFEB] bg-[#FAFAF8] px-5 py-3">
                 <span className="text-sm text-[#6B7280]">Fluxo de Caixa</span>
-                <span className="text-right font-mono text-sm font-semibold text-[#9CA3AF] tabular-nums">
+                <span className="text-right font-mono text-sm font-semibold text-[#6B7480] tabular-nums">
                   {fmtMoney((cashFlow + monthlyIR) * 12)}/ano
                 </span>
                 <span
@@ -417,7 +417,7 @@ export default function AnaliseContent({ deal }: Props) {
                           className="border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2"
                           style={{ boxShadow: '0 10px 30px rgba(28,43,32,0.08)' }}
                         >
-                          <p className="font-mono text-[10px] text-[#9CA3AF]">{label}</p>
+                          <p className="font-mono text-[10px] text-[#6B7480]">{label}</p>
                           <p className="font-mono text-xs font-semibold text-[#4A7C59]">
                             {fmtMoney(payload[0].value as number)}
                           </p>
@@ -496,7 +496,7 @@ function YieldRow({
       >
         {label}
       </span>
-      <span className="text-right font-mono text-sm font-semibold text-[#9CA3AF] tabular-nums">
+      <span className="text-right font-mono text-sm font-semibold text-[#6B7480] tabular-nums">
         {gross}
       </span>
       <span
@@ -535,7 +535,7 @@ function BreakdownRow({
       <div className="flex items-center gap-3">
         <span
           className={`w-3 text-center font-mono text-xs ${
-            total ? 'font-bold text-[#4A7C59]' : 'text-[#9CA3AF]'
+            total ? 'font-bold text-[#4A7C59]' : 'text-[#6B7480]'
           }`}
         >
           {sym}

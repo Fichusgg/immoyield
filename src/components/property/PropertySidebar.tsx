@@ -64,7 +64,7 @@ export function PropertySidebar({ deal }: Props) {
     <aside className="h-full w-[270px] shrink-0 overflow-y-auto">
       <Link
         href="/propriedades"
-        className="mb-3 flex items-center gap-1.5 text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+        className="mb-3 flex items-center gap-1.5 text-xs text-[#6B7480] transition-colors hover:text-[#6B7280]"
       >
         <ArrowLeft size={12} />
         Ver todos os imóveis
@@ -118,7 +118,7 @@ export function PropertySidebar({ deal }: Props) {
             onClick={() => router.push('/propriedades')}
           >
             <h2 className="line-clamp-2 text-sm font-bold text-[#1C2B20]">{deal.title}</h2>
-            <ChevronDown size={14} className="mt-0.5 shrink-0 text-[#9CA3AF]" />
+            <ChevronDown size={14} className="mt-0.5 shrink-0 text-[#6B7480]" />
           </button>
 
           {(addressLine1 || addressLine2) && (
@@ -129,7 +129,7 @@ export function PropertySidebar({ deal }: Props) {
           )}
 
           {specs && (
-            <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">{specs}</p>
+            <p className="mt-2 font-mono text-[10px] text-[#6B7480]">{specs}</p>
           )}
 
           <div className="mt-3 flex items-baseline justify-between">
@@ -152,7 +152,7 @@ export function PropertySidebar({ deal }: Props) {
             return (
               <React.Fragment key={item.slug}>
                 {item.group && (
-                  <p className="px-4 pt-3 pb-1 text-[9px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+                  <p className="px-4 pt-3 pb-1 text-[9px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
                     {item.group}
                   </p>
                 )}
@@ -170,7 +170,7 @@ export function PropertySidebar({ deal }: Props) {
                   <Icon size={13} className="shrink-0" />
                   <span className="flex-1">{item.label}</span>
                   {item.comingSoon && (
-                    <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[8px] font-semibold tracking-wide text-[#9CA3AF] uppercase">
+                    <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[8px] font-semibold tracking-wide text-[#6B7480] uppercase">
                       Em Breve
                     </span>
                   )}

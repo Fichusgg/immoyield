@@ -1,15 +1,20 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { SavedDeal, deleteDeal } from '@/lib/supabase/deals';
 import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { useDealStore } from '@/store/useDealStore';
-import DealWizard from '@/components/deals/DealWizard';
-import UrlImportScreen from '@/components/deals/UrlImportScreen';
 import { Home, CalendarDays, Wrench, Plus, Search, ArrowLeft, PencilLine, Link2 } from 'lucide-react';
 import { getDealDisplayTitle } from '@/lib/deals/display';
+
+// Heavy components only shown after user interaction — keep them out of the
+// initial /propriedades bundle. DealWizard pulls in recharts and the full deal
+// form tree; UrlImportScreen pulls in cheerio-ish parsing.
+const DealWizard = dynamic(() => import('@/components/deals/DealWizard'), { ssr: false });
+const UrlImportScreen = dynamic(() => import('@/components/deals/UrlImportScreen'), { ssr: false });
 
 // ─── The 3 DealCheck-style categories ────────────────────────────────────────
 
@@ -181,9 +186,9 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-0 flex-1 gap-0">
-      {/* ── Left sidebar — 3 category boxes ──────────────────────────────── */}
-      <aside className="flex w-64 shrink-0 flex-col gap-2 overflow-y-auto border-r border-[#E2E0DA] bg-[#FAFAF8] p-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-0 lg:flex-row">
+      {/* ── Category nav — sidebar on lg+, horizontal pill bar on mobile ── */}
+      <aside className="flex shrink-0 gap-2 overflow-x-auto border-b border-[#E2E0DA] bg-[#FAFAF8] p-3 lg:w-64 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:border-r lg:border-b-0">
         {CATEGORIES.map((cat) => {
           const count = countByCategory(cat.type);
           const active = activeCategory === cat.type;
@@ -200,14 +205,14 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 setWizardOpenedFromChoice(false);
                 setSearch('');
               }}
-              className={`flex flex-col gap-2 border p-4 text-left transition-colors ${
+              className={`flex shrink-0 flex-col gap-2 border p-3 text-left transition-colors lg:p-4 ${
                 active
                   ? 'border-[#4A7C59] bg-[#EBF3EE]'
                   : 'border-[#E2E0DA] bg-[#F0EFEB] hover:border-[#D0CEC8]'
               }`}
             >
               {/* Top row: label + count */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <span
                   className={`text-sm font-semibold ${
                     active ? 'text-[#4A7C59]' : 'text-[#1C2B20]'
@@ -216,19 +221,19 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                   {cat.label}
                 </span>
                 <span
-                  className={`font-mono text-lg font-black ${
-                    active ? 'text-[#4A7C59]' : 'text-[#9CA3AF]'
+                  className={`font-mono text-base font-black lg:text-lg ${
+                    active ? 'text-[#4A7C59]' : 'text-[#6B7480]'
                   }`}
                 >
                   {count}
                 </span>
               </div>
 
-              {/* Sub-items */}
-              <div className="space-y-1">
+              {/* Sub-items — only render on lg+ where there's vertical room */}
+              <div className="hidden space-y-1 lg:block">
                 <div
                   className={`flex items-center gap-2 text-xs ${
-                    active ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'
+                    active ? 'text-[#3D6B4F]' : 'text-[#6B7480]'
                   }`}
                 >
                   <Icon size={12} />
@@ -244,7 +249,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
       <div className="flex flex-1 flex-col overflow-y-auto bg-[#F8F7F4]">
         {showUrlImport ? (
           /* ── URL import screen ──────────────────────────────────────────── */
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <UrlImportScreen
               propertyType={activeCategory}
               onReady={handleImportReady}
@@ -260,10 +265,10 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
           </div>
         ) : showEntryChoice ? (
           /* ── Entry method choice ────────────────────────────────────────── */
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <button
               onClick={() => setShowEntryChoice(false)}
-              className="mb-6 flex items-center gap-1.5 text-sm text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+              className="mb-6 flex items-center gap-1.5 text-sm text-[#6B7480] transition-colors hover:text-[#6B7280]"
             >
               <ArrowLeft size={14} />
               Voltar para {activeDef.label}
@@ -272,7 +277,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             <h2 className="mb-1 text-lg font-bold tracking-tight text-[#1C2B20]">
               Adicionar imóvel — {activeDef.label}
             </h2>
-            <p className="mb-6 text-sm text-[#9CA3AF]">
+            <p className="mb-6 text-sm text-[#6B7480]">
               Escolha como deseja cadastrar este imóvel
             </p>
 
@@ -349,10 +354,10 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
           </div>
         ) : showWizard ? (
           /* ── Inline wizard ──────────────────────────────────────────────── */
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <button
               onClick={handleWizardBack}
-              className="mb-6 flex items-center gap-1.5 text-sm text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+              className="mb-6 flex items-center gap-1.5 text-sm text-[#6B7480] transition-colors hover:text-[#6B7280]"
             >
               <ArrowLeft size={14} />
               {wizardOpenedFromChoice ? 'Voltar' : `Voltar para ${activeDef.label}`}
@@ -361,11 +366,11 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
           </div>
         ) : (
           /* ── Property list view ─────────────────────────────────────────── */
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             {/* Page header */}
             <div className="mb-4">
               <h1 className="text-xl font-bold tracking-tight text-[#1C2B20]">{activeDef.label}</h1>
-              <p className="mt-0.5 text-sm text-[#9CA3AF]">{activeDef.description}</p>
+              <p className="mt-0.5 text-sm text-[#6B7480]">{activeDef.description}</p>
             </div>
 
             {/* Aggregate KPI header */}
@@ -374,32 +379,31 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             )}
 
             {/* Toolbar */}
-            <div className="mb-5 flex items-center gap-3 border-b border-[#E2E0DA] py-4">
-              <div className="relative w-64">
+            <div className="mb-5 flex flex-col gap-3 border-b border-[#E2E0DA] py-4 sm:flex-row sm:items-center">
+              <div className="relative w-full sm:w-64">
                 <Search
                   size={13}
-                  className="absolute top-1/2 left-3 -translate-y-1/2 text-[#9CA3AF]"
+                  className="absolute top-1/2 left-3 -translate-y-1/2 text-[#6B7480]"
                 />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Buscar imóveis..."
-                  className="w-full border border-[#E2E0DA] bg-[#F0EFEB] py-1.5 pr-3 pl-8 text-sm text-[#1C2B20] outline-none placeholder:text-[#9CA3AF] focus:border-[#4A7C59]"
+                  className="w-full border border-[#E2E0DA] bg-[#F0EFEB] py-2 pr-3 pl-8 text-base text-[#1C2B20] outline-none placeholder:text-[#9CA3AF] focus:border-[#4A7C59] sm:py-1.5 sm:text-sm"
                 />
               </div>
 
-              <div className="ml-auto flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-[#9CA3AF]">Ordenar:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'name' | 'date')}
-                    className="border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-1.5 font-mono text-xs text-[#6B7280] outline-none focus:border-[#4A7C59]"
-                  >
-                    <option value="date">Data</option>
-                    <option value="name">Nome</option>
-                  </select>
-                </div>
+              <div className="flex items-center gap-2 sm:ml-auto">
+                <span className="font-mono text-xs text-[#6B7480]">Ordenar:</span>
+                <select
+                  aria-label="Ordenar imóveis"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'name' | 'date')}
+                  className="border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-1.5 font-mono text-xs text-[#6B7280] outline-none focus:border-[#4A7C59]"
+                >
+                  <option value="date">Data</option>
+                  <option value="name">Nome</option>
+                </select>
               </div>
             </div>
 
@@ -418,7 +422,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 <p className="font-mono text-sm text-[#DC2626]">{error}</p>
                 <button
                   onClick={load}
-                  className="mt-4 border border-[#E2E0DA] px-4 py-2 font-mono text-xs text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+                  className="mt-4 border border-[#E2E0DA] px-4 py-2 font-mono text-xs text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
                 >
                   Tentar novamente
                 </button>
@@ -447,7 +451,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                   <p className="text-sm font-semibold text-[#1C2B20]">
                     Adicionar novo imóvel — {activeDef.label}
                   </p>
-                  <p className="text-xs text-[#9CA3AF]">
+                  <p className="text-xs text-[#6B7480]">
                     Clique para analisar um novo imóvel nesta categoria.
                   </p>
                 </div>
@@ -462,7 +466,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 <p className="mt-4 text-sm font-semibold text-[#1C2B20]">
                   Nenhum deal em &quot;{activeDef.label}&quot; ainda.
                 </p>
-                <p className="mt-1 text-xs text-[#9CA3AF]">
+                <p className="mt-1 text-xs text-[#6B7480]">
                   Clique em &quot;Adicionar imóvel&quot; para começar sua primeira análise.
                 </p>
               </div>
@@ -475,7 +479,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
                 </p>
                 <button
                   onClick={() => setSearch('')}
-                  className="mt-3 font-mono text-xs text-[#9CA3AF] underline transition-colors hover:text-[#6B7280]"
+                  className="mt-3 font-mono text-xs text-[#6B7480] underline transition-colors hover:text-[#6B7280]"
                 >
                   Limpar busca
                 </button>
@@ -508,32 +512,32 @@ function PortfolioHeader({ deals }: { deals: SavedDeal[] }) {
       : null;
 
   return (
-    <div className="mb-5 grid grid-cols-3 gap-px border border-[#E2E0DA] bg-[#E2E0DA]">
+    <div className="mb-5 grid grid-cols-1 gap-px border border-[#E2E0DA] bg-[#E2E0DA] sm:grid-cols-3">
       <div className="bg-[#FAFAF8] px-4 py-3">
-        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
           Deals em análise
         </p>
         <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">{deals.length}</p>
       </div>
       <div className="bg-[#FAFAF8] px-4 py-3">
-        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
           Valor total
         </p>
         <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">{fmt(totalValue)}</p>
       </div>
       <div className="bg-[#FAFAF8] px-4 py-3">
-        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+        <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
           Fluxo médio / Cap Rate
         </p>
         {avgCashFlow != null ? (
           <p className="mt-1 font-mono text-xl font-bold text-[#1C2B20]">
             {fmt(avgCashFlow)}{' '}
-            <span className="text-sm font-medium text-[#9CA3AF]">
+            <span className="text-sm font-medium text-[#6B7480]">
               · {avgCapRate?.toFixed(1)}% cap
             </span>
           </p>
         ) : (
-          <p className="mt-1 font-mono text-sm text-[#9CA3AF]">—</p>
+          <p className="mt-1 font-mono text-sm text-[#6B7480]">—</p>
         )}
       </div>
     </div>
@@ -570,11 +574,11 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
   const dateLabel = updatedAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
 
   return (
-    <div className="group flex items-center border border-[#E2E0DA] bg-[#FAFAF8] transition-colors hover:border-[#D0CEC8]">
+    <div className="group flex flex-col items-stretch border border-[#E2E0DA] bg-[#FAFAF8] transition-colors hover:border-[#D0CEC8] sm:flex-row sm:items-center">
       {/* Left: property info */}
-      <a href={`/imoveis/${deal.id}`} className="flex min-w-0 flex-1 items-center gap-4 p-4">
+      <a href={`/imoveis/${deal.id}`} className="flex min-w-0 flex-1 items-center gap-3 p-4 sm:gap-4">
         {/* Thumbnail placeholder */}
-        <div className="flex h-14 w-16 shrink-0 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB] sm:h-14 sm:w-16">
           <Home size={18} className="text-[#D0CEC8]" />
         </div>
 
@@ -582,9 +586,9 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
             <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
-            <span className="shrink-0 font-mono text-[10px] text-[#9CA3AF]">{dateLabel}</span>
+            <span className="shrink-0 font-mono text-[10px] text-[#6B7480]">{dateLabel}</span>
           </div>
-          <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
+          <p className="mt-0.5 font-mono text-xs text-[#6B7480]">
             {deal.property_type
               ? (PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type)
               : (deal.type ?? '—')}
@@ -595,13 +599,13 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
               <span className={`font-semibold ${positive ? 'text-[#4A7C59]' : 'text-[#DC2626]'}`}>
                 {fmt(m.monthlyCashFlow ?? 0)}/mês
               </span>
-              <span className="text-[#9CA3AF]">{m.capRate?.toFixed(1)}% Cap</span>
-              <span className="text-[#9CA3AF]">{m.cashOnCash?.toFixed(1)}% COC</span>
+              <span className="text-[#6B7480]">{m.capRate?.toFixed(1)}% Cap</span>
+              <span className="text-[#6B7480]">{m.cashOnCash?.toFixed(1)}% COC</span>
             </div>
           )}
           {/* Meta strip — listing-imported deal */}
           {!m && (deal.city || deal.neighborhood) && (
-            <p className="mt-1.5 font-mono text-xs text-[#9CA3AF]">
+            <p className="mt-1.5 font-mono text-xs text-[#6B7480]">
               {[deal.neighborhood, deal.city, deal.state].filter(Boolean).join(', ')}
             </p>
           )}
@@ -609,19 +613,19 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
       </a>
 
       {/* Right: price + actions */}
-      <div className="flex shrink-0 items-center gap-4 border-l border-[#E2E0DA] px-5 py-4">
-        <div className="text-right">
+      <div className="flex shrink-0 items-center justify-between gap-4 border-t border-[#E2E0DA] px-4 py-3 sm:justify-start sm:border-t-0 sm:border-l sm:px-5 sm:py-4">
+        <div className="sm:text-right">
           <p className="font-mono text-sm font-bold text-[#1C2B20]">
             {fmt(deal.inputs?.purchasePrice ?? deal.price ?? 0)}
           </p>
-          <p className="font-mono text-[10px] text-[#9CA3AF]">
+          <p className="font-mono text-[10px] text-[#6B7480]">
             {deal.inputs ? 'Preço de compra' : 'Valor'}
           </p>
         </div>
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="text-[#D0CEC8] transition-colors hover:text-[#DC2626] disabled:opacity-50"
+          className="-m-2 flex h-11 w-11 items-center justify-center text-[#D0CEC8] transition-colors hover:text-[#DC2626] disabled:opacity-50"
           aria-label="Excluir"
         >
           <svg

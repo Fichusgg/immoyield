@@ -37,12 +37,21 @@ const connectSrc = [
   posthogAssetsOrigin !== posthogOrigin ? posthogAssetsOrigin : '',
 ].filter(Boolean).join(' ');
 
+// PostHog loads its array.js (config) and surveys.js from the assets subdomain.
+// Without this in script-src, both are blocked by CSP, which Lighthouse flags
+// under errors-in-console / inspector-issues.
+const scriptSrcExtras = [
+  posthogOrigin,
+  posthogAssetsOrigin !== posthogOrigin ? posthogAssetsOrigin : '',
+].filter(Boolean).join(' ');
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   // 'unsafe-inline' for scripts is required by Next.js runtime; 'unsafe-eval' is
   // only allowed in development, where React uses eval() for debug features.
   // Tighten with nonces once all inline scripts are moved out.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+  `script-src 'self' 'unsafe-inline' ${scriptSrcExtras}${isDev ? " 'unsafe-eval'" : ''}`.trim(),
+  `script-src-elem 'self' 'unsafe-inline' ${scriptSrcExtras}`.trim(),
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
@@ -70,30 +79,44 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   serverExternalPackages: ['@react-pdf/renderer'],
   turbopack: {},
+  productionBrowserSourceMaps: false,
+  compress: true,
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
   async headers() {
     return [
       {
         source: '/:path*',
         headers: securityHeaders,
       },
+      {
+        // Long-cache hashed Next build assets — these are immutable.
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
     ];
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  org: 'immoyield',
-  project: 'javascript-nextjs',
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
+export default isDev
+  ? nextConfig
+  : withSentryConfig(nextConfig, {
+      org: 'immoyield',
+      project: 'javascript-nextjs',
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
 
-  // Route browser Sentry requests through /monitoring on our own domain
-  // to bypass ad-blockers and keep our CSP tight (no wildcard ingest needed in prod).
-  tunnelRoute: '/monitoring',
+      // Route browser Sentry requests through /monitoring on our own domain
+      // to bypass ad-blockers and keep our CSP tight (no wildcard ingest needed in prod).
+      tunnelRoute: '/monitoring',
 
-  webpack: {
-    automaticVercelMonitors: true,
-    treeshake: {
-      removeDebugLogging: true,
-    },
-  },
-});
+      webpack: {
+        automaticVercelMonitors: true,
+        treeshake: {
+          removeDebugLogging: true,
+        },
+      },
+    });

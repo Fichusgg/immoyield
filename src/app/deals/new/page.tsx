@@ -204,7 +204,7 @@ function ManualDealForm({ onSuccess }: { onSuccess: (id: string) => void }) {
 
       {/* Financials */}
       <div>
-        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#9CA3AF] uppercase">
+        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#6B7480] uppercase">
           Financeiro (R$)
         </p>
         <div className="grid grid-cols-3 gap-3">
@@ -252,7 +252,7 @@ function ManualDealForm({ onSuccess }: { onSuccess: (id: string) => void }) {
 
       {/* Specs */}
       <div>
-        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#9CA3AF] uppercase">
+        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#6B7480] uppercase">
           Especificações
         </p>
         <div className="grid grid-cols-5 gap-3">
@@ -280,7 +280,7 @@ function ManualDealForm({ onSuccess }: { onSuccess: (id: string) => void }) {
 
       {/* Location */}
       <div>
-        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#9CA3AF] uppercase">
+        <p className="mb-2 text-[10px] font-semibold tracking-widest text-[#6B7480] uppercase">
           Localização
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -422,7 +422,7 @@ export default function NewDealPage() {
           </Link>
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-xs text-[#9CA3AF]">
+          <div className="flex items-center gap-1.5 text-xs text-[#6B7480]">
             <Link href="/propriedades" className="transition-colors hover:text-[#6B7280]">
               Imóveis
             </Link>
@@ -559,7 +559,7 @@ export default function NewDealPage() {
               <button
                 type="button"
                 onClick={() => setMode('choose')}
-                className="flex items-center gap-1.5 text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+                className="flex items-center gap-1.5 text-xs text-[#6B7480] transition-colors hover:text-[#6B7280]"
               >
                 <svg
                   width="12"

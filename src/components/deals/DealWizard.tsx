@@ -186,7 +186,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
             {formData.name ? formData.name : 'Nova Análise'}
           </h1>
           {formData.name && (
-            <p className="mt-0.5 font-mono text-sm text-[#9CA3AF]">{propertyLabel}</p>
+            <p className="mt-0.5 font-mono text-sm text-[#6B7480]">{propertyLabel}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -201,7 +201,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
           )}
           <button
             onClick={handleReset}
-            className="border border-[#E2E0DA] px-4 py-2.5 text-sm text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+            className="border border-[#E2E0DA] px-4 py-2.5 text-sm text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
           >
             Recomeçar
           </button>
@@ -235,7 +235,7 @@ export default function DealWizard({ benchmarks, onSaved }: DealWizardProps) {
               </span>
               <span
                 className={`text-[9px] leading-tight ${
-                  active ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'
+                  active ? 'text-[#3D6B4F]' : 'text-[#6B7480]'
                 }`}
               >
                 {tab.sub}

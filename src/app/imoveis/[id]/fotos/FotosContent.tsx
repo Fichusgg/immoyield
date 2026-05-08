@@ -246,17 +246,17 @@ export default function FotosContent({ deal }: Props) {
           <p className="px-3 text-xs font-medium text-[#1C2B20]">
             Arraste fotos aqui
           </p>
-          <p className="px-3 text-[10px] text-[#9CA3AF]">
+          <p className="px-3 text-[10px] text-[#6B7480]">
             ou clique para escolher
           </p>
-          <p className="px-3 text-[9px] font-mono text-[#9CA3AF]">
+          <p className="px-3 text-[9px] font-mono text-[#6B7480]">
             JPG · PNG · WebP · até 10 MB
           </p>
         </button>
       </div>
 
       {photos.length === 0 && uploading === 0 && (
-        <p className="mt-6 text-center text-xs text-[#9CA3AF]">
+        <p className="mt-6 text-center text-xs text-[#6B7480]">
           Nenhuma foto ainda. Adicione a primeira para definir a capa do imóvel.
         </p>
       )}

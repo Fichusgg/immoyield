@@ -33,7 +33,7 @@ export default function FeatureSection({
         >
           <div className="flex max-w-[480px] flex-col gap-5">
             {eyebrow && (
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
                 {eyebrow}
               </p>
             )}

@@ -118,7 +118,7 @@ export default function Home() {
       <section id="como-funciona" className="border-b border-[#E2E0DA] py-[100px]">
         <div className="mx-auto max-w-[1200px] px-6">
           <FadeInSection className="mx-auto mb-16 max-w-2xl text-center">
-            <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+            <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
               Como funciona
             </p>
             <h2 className="text-[28px] font-bold leading-tight tracking-tight text-[#1C2B20] md:text-[32px]">
@@ -164,7 +164,7 @@ export default function Home() {
       <section id="precos" className="border-b border-[#E2E0DA] bg-[#FAFAF8] py-[100px]">
         <div className="mx-auto max-w-[1200px] px-6">
           <FadeInSection className="mx-auto mb-16 max-w-2xl text-center">
-            <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+            <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
               Preços transparentes
             </p>
             <h2 className="text-[28px] font-bold leading-tight tracking-tight text-[#1C2B20] md:text-[32px]">
@@ -187,7 +187,7 @@ export default function Home() {
                     Mais escolhido
                   </span>
                 )}
-                <p className="text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+                <p className="text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
                   {p.name}
                 </p>
                 <div className="mt-4 flex items-baseline gap-1.5">
@@ -195,7 +195,7 @@ export default function Home() {
                   <span className="text-4xl font-bold tracking-tight tabular-nums text-[#1C2B20]">
                     {p.price}
                   </span>
-                  <span className="text-sm text-[#9CA3AF]">/ {p.suffix}</span>
+                  <span className="text-sm text-[#6B7480]">/ {p.suffix}</span>
                 </div>
                 <p className="mt-2 text-sm text-[#6B7280]">{p.tagline}</p>
                 <ul className="mt-6 space-y-2.5">

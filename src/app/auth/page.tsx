@@ -214,7 +214,7 @@ export default function AuthPage() {
                 ? 'Criar sua conta'
                 : 'Recuperar senha'}
           </h1>
-          <p className="mb-8 text-sm text-[#9CA3AF]">
+          <p className="mb-8 text-sm text-[#6B7480]">
             {mode === 'signin'
               ? 'Bem-vindo de volta. Suas análises estão onde você deixou.'
               : mode === 'signup'
@@ -240,7 +240,7 @@ export default function AuthPage() {
                 <span className="font-mono text-[#1C2B20]">{email}</span>. Clique no link para
                 ativar sua conta.
               </p>
-              <p className="mb-4 text-xs text-[#9CA3AF]">
+              <p className="mb-4 text-xs text-[#6B7480]">
                 Não recebeu? Verifique a pasta de spam ou tente novamente em alguns minutos.
               </p>
               <button
@@ -395,14 +395,14 @@ export default function AuthPage() {
             </form>
           )}
 
-          <p className="mt-4 text-center font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-4 text-center font-mono text-[10px] text-[#6B7480]">
             Seus dados ficam privados. Nenhum spam. Cancele quando quiser.
           </p>
         </div>
 
         <Link
           href="/"
-          className="mt-8 self-start font-mono text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+          className="mt-8 self-start font-mono text-xs text-[#6B7480] transition-colors hover:text-[#6B7280]"
         >
           ← Voltar para o site
         </Link>
@@ -415,7 +415,7 @@ export default function AuthPage() {
             &ldquo;Economizei a planilha que eu fazia a cada imóvel. Agora eu rejeito em dois
             minutos o que antes tomava uma noite inteira.&rdquo;
           </p>
-          <cite className="mt-3 block font-mono text-xs text-[#9CA3AF] not-italic">
+          <cite className="mt-3 block font-mono text-xs text-[#6B7480] not-italic">
             — Investidor individual · São Paulo
           </cite>
         </blockquote>
@@ -434,7 +434,7 @@ export default function AuthPage() {
           ))}
         </div>
 
-        <p className="font-mono text-[10px] leading-relaxed text-[#9CA3AF]">
+        <p className="font-mono text-[10px] leading-relaxed text-[#6B7480]">
           Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não
           presta consultoria de investimento.
         </p>

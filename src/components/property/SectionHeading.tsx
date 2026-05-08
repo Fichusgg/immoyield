@@ -14,7 +14,7 @@ interface Props {
 export function SectionHeading({ label, rightSlot, className }: Props) {
   return (
     <div className={cn('mb-2 flex items-center justify-between px-1', className)}>
-      <h3 className="text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <h3 className="text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         {label}
       </h3>
       {rightSlot && <div className="flex items-center gap-2">{rightSlot}</div>}

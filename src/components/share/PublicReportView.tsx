@@ -68,7 +68,7 @@ const DSTooltip = ({
       className="border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2"
       style={{ boxShadow: '0 10px 30px rgba(28,43,32,0.08)' }}
     >
-      <p className="mb-1 font-mono text-[10px] text-[#9CA3AF]">
+      <p className="mb-1 font-mono text-[10px] text-[#6B7480]">
         {prefix}
         {label}
       </p>
@@ -99,7 +99,7 @@ const KpiCard = ({
   benchmarkPct?: number;
 }) => (
   <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-    <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+    <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
       {label}
     </p>
     <p
@@ -117,14 +117,14 @@ const KpiCard = ({
         />
       </div>
     )}
-    {sub && <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">{sub}</p>}
+    {sub && <p className="mt-1 font-mono text-[10px] text-[#6B7480]">{sub}</p>}
   </div>
 );
 
 // ── Section header ────────────────────────────────────────────────────────────
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="mb-3 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+  <p className="mb-3 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
     {children}
   </p>
 );
@@ -198,7 +198,7 @@ export default function PublicReportView({
             <span className="font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
           </Link>
 
-          <div className="hidden items-center gap-4 font-mono text-xs text-[#9CA3AF] sm:flex">
+          <div className="hidden items-center gap-4 font-mono text-xs text-[#6B7480] sm:flex">
             <span className="flex items-center gap-1">
               <Eye size={11} />
               {viewCount} {viewCount === 1 ? 'visualização' : 'visualizações'}
@@ -222,7 +222,7 @@ export default function PublicReportView({
       <main className="mx-auto max-w-[64rem] space-y-10 px-4 py-10 pb-36 md:px-6">
         {/* Title block */}
         <div className="border-b border-[#E2E0DA] pb-6">
-          <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+          <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
             Análise de Investimento · Compartilhado via ImmoYield
           </p>
           <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20] md:text-3xl">
@@ -239,7 +239,7 @@ export default function PublicReportView({
               {cashFlowPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
               Fluxo de caixa {cashFlowPositive ? 'positivo' : 'negativo'}
             </span>
-            <span className="flex items-center gap-1 font-mono text-xs text-[#9CA3AF] sm:hidden">
+            <span className="flex items-center gap-1 font-mono text-xs text-[#6B7480] sm:hidden">
               <Eye size={10} />
               {viewCount}
             </span>
@@ -396,7 +396,7 @@ export default function PublicReportView({
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
+            <p className="mt-2 text-right font-mono text-[10px] text-[#6B7480]">
               CDI e FII são referências de mercado, não garantidas.
             </p>
           </div>
@@ -453,7 +453,7 @@ export default function PublicReportView({
                   />
                 </AreaChart>
               </ResponsiveContainer>
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
                 Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
               </p>
             </div>
@@ -505,7 +505,7 @@ export default function PublicReportView({
         )}
 
         {/* Disclaimer */}
-        <p className="text-center font-mono text-[10px] leading-relaxed text-[#9CA3AF]">
+        <p className="text-center font-mono text-[10px] leading-relaxed text-[#6B7480]">
           Cálculos para fins informativos — ImmoYield não compra, vende nem recomenda imóveis e não
           presta consultoria de investimento.
         </p>
@@ -524,7 +524,7 @@ export default function PublicReportView({
                 <p className="text-sm leading-tight font-bold text-[#1C2B20]">
                   Analise seus próprios imóveis
                 </p>
-                <p className="hidden font-mono text-[10px] text-[#9CA3AF] sm:block">
+                <p className="hidden font-mono text-[10px] text-[#6B7480] sm:block">
                   Gratuito · Sem cartão de crédito
                 </p>
               </div>

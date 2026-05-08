@@ -31,7 +31,9 @@ export default async function PropriedadesPage({ searchParams }: PageProps) {
   return (
     <div className="flex h-screen flex-col bg-[#F8F7F4]">
       <TopNav userEmail={user.email} />
-      <PropertiesPage benchmarks={benchmarks} />
+      <main id="main" className="flex min-h-0 flex-1 flex-col">
+        <PropertiesPage benchmarks={benchmarks} />
+      </main>
     </div>
   );
 }

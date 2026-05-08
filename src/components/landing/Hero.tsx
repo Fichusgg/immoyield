@@ -42,7 +42,7 @@ export default function Hero() {
         <div className="flex flex-col gap-7 md:col-span-6 md:justify-center">
           <motion.p
             {...rise(0)}
-            className="text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase"
+            className="text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase"
           >
             Calculadora · Brasil · 2026
           </motion.p>

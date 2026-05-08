@@ -218,7 +218,7 @@ const ChartTooltip = ({
   if (!active || !payload?.length) return null;
   return (
     <div className="border border-[#E2E0DA] bg-[#F8F7F4] px-3 py-2 text-xs text-[#1C2B20]">
-      <p className="mb-1 font-mono text-[#9CA3AF]">
+      <p className="mb-1 font-mono text-[#6B7480]">
         {prefix}
         {label}
       </p>
@@ -262,7 +262,7 @@ const KPICard = ({
   >
     <span
       className={`text-[10px] font-semibold tracking-[0.06em] uppercase ${
-        highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'
+        highlight ? 'text-[#3D6B4F]' : 'text-[#6B7480]'
       }`}
     >
       {label}
@@ -284,14 +284,14 @@ const KPICard = ({
       {secondary && (
         <span
           title={secondary.label}
-          className="font-mono text-xs font-semibold text-[#9CA3AF] tabular-nums"
+          className="font-mono text-xs font-semibold text-[#6B7480] tabular-nums"
         >
           ({secondary.value} {secondary.label})
         </span>
       )}
     </div>
     {sub && (
-      <span className={`text-xs ${highlight ? 'text-[#3D6B4F]' : 'text-[#9CA3AF]'}`}>{sub}</span>
+      <span className={`text-xs ${highlight ? 'text-[#3D6B4F]' : 'text-[#6B7480]'}`}>{sub}</span>
     )}
   </div>
 );
@@ -299,7 +299,7 @@ const KPICard = ({
 // ─── Section Header ───────────────────────────────────────────────────────────
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="mb-4 text-xs font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+  <h3 className="mb-4 text-xs font-semibold tracking-[0.07em] text-[#6B7480] uppercase">
     {children}
   </h3>
 );
@@ -337,7 +337,7 @@ const CDIBanner = ({
         {/* Left: your return + CDI reference */}
         <div className="flex-1 space-y-2">
           <div>
-            <p className="mb-0.5 text-[10px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase">
+            <p className="mb-0.5 text-[10px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase">
               {label}
             </p>
             <p className="font-mono text-3xl font-black tracking-tight text-[#1C2B20] tabular-nums">
@@ -345,10 +345,10 @@ const CDIBanner = ({
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="font-mono text-xs text-[#9CA3AF]">vs CDI:</span>
+            <span className="font-mono text-xs text-[#6B7480]">vs CDI:</span>
             <span className="font-mono text-sm font-bold text-[#6B7280]">{fmtPct(cdiRate)}</span>
             {benchmarks?.updatedAt && (
-              <span className="font-mono text-[9px] text-[#9CA3AF]">
+              <span className="font-mono text-[9px] text-[#6B7480]">
                 (atualizado {new Date(benchmarks.updatedAt).toLocaleDateString('pt-BR')})
               </span>
             )}
@@ -611,7 +611,7 @@ export default function ResultsScreen({
       {!hideHeader && (
         <div className="flex items-start justify-between">
           <div>
-            <p className="mb-1 text-xs font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+            <p className="mb-1 text-xs font-semibold tracking-[0.07em] text-[#6B7480] uppercase">
               Análise Concluída
             </p>
             <h2 className="text-xl font-bold tracking-tight text-[#1C2B20]">
@@ -642,7 +642,7 @@ export default function ResultsScreen({
           </div>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 border border-[#E2E0DA] px-3 py-2 text-xs text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+            className="flex items-center gap-1.5 border border-[#E2E0DA] px-3 py-2 text-xs text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
           >
             <RotateCcw size={12} />
             Nova análise
@@ -732,7 +732,7 @@ export default function ResultsScreen({
       <div className={`border p-5 ${scoreLabel.bg} ${scoreLabel.border}`}>
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.07em] text-[#9CA3AF] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.07em] text-[#6B7480] uppercase">
               ImmoScore — Avaliação do Deal
             </p>
             <p className={`mt-0.5 text-3xl font-black tabular-nums ${scoreLabel.color}`}>
@@ -754,7 +754,7 @@ export default function ResultsScreen({
             <div key={c.label} className="rounded border border-white/60 bg-white/50 px-1 py-2">
               <p className={`text-lg font-black tabular-nums ${scoreLabel.color}`}>{c.pts}</p>
               <p className="text-[9px] font-semibold text-[#6B7280] uppercase">{c.label}</p>
-              <p className="text-[9px] text-[#9CA3AF]">/{c.max}</p>
+              <p className="text-[9px] text-[#6B7480]">/{c.max}</p>
             </div>
           ))}
         </div>
@@ -870,7 +870,7 @@ export default function ResultsScreen({
                 key={row.label}
                 className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#F8F7F4]' : 'bg-[#FAFAF8]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#9CA3AF]'}>
+                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#6B7480]'}>
                   {row.label}
                 </span>
                 <span
@@ -927,7 +927,7 @@ export default function ResultsScreen({
                 key={row.label}
                 className={`flex justify-between px-4 py-3 ${row.final ? 'bg-[#F8F7F4]' : 'bg-[#FAFAF8]'}`}
               >
-                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#9CA3AF]'}>
+                <span className={row.bold ? 'font-semibold text-[#6B7280]' : 'text-[#6B7480]'}>
                   {row.label}
                 </span>
                 <span
@@ -984,7 +984,7 @@ export default function ResultsScreen({
               : []),
           ].map((row) => (
             <div key={row.label} className="flex justify-between bg-[#FAFAF8] px-4 py-3">
-              <span className="text-[#9CA3AF]">{row.label}</span>
+              <span className="text-[#6B7480]">{row.label}</span>
               <span className="font-mono font-bold text-[#1C2B20]">{row.value}</span>
             </div>
           ))}
@@ -1076,7 +1076,7 @@ export default function ResultsScreen({
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <p className="mt-2 text-right font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-2 text-right font-mono text-[10px] text-[#6B7480]">
             CDI via BACEN (SGS). LCI/LCA estimada em 92% do CDI (isenta de IR p/ PF). Tesouro IPCA+
             = cupom real {TESOURO_REAL.toFixed(2)}% + IPCA projetado {IPCA_PROJ.toFixed(2)}%.
           </p>
@@ -1140,7 +1140,7 @@ export default function ResultsScreen({
                 />
               </AreaChart>
             </ResponsiveContainer>
-            <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+            <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
               Projeção assume 5% de valorização anual. Valores estimados, sem garantia.
             </p>
           </div>
@@ -1204,7 +1204,7 @@ export default function ResultsScreen({
             <p className="text-sm font-black text-[#1C2B20]">
               {savedOk ? 'Análise salva!' : 'Salvar esta análise'}
             </p>
-            <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
+            <p className="mt-0.5 font-mono text-xs text-[#6B7480]">
               {savedOk
                 ? 'Disponível no seu dashboard.'
                 : isAuthenticated

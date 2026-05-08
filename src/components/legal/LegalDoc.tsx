@@ -12,7 +12,7 @@ export default function LegalDoc({ eyebrow, title, updatedAt, children }: Props)
     <article className="mx-auto max-w-3xl px-6 py-16 md:py-24">
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-1.5 text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+        className="mb-8 inline-flex items-center gap-1.5 text-xs text-[#6B7480] transition-colors hover:text-[#6B7280]"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M15 18l-6-6 6-6" />
@@ -27,13 +27,13 @@ export default function LegalDoc({ eyebrow, title, updatedAt, children }: Props)
         jurídica antes do lançamento público.
       </div>
 
-      <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+      <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
         {eyebrow}
       </p>
       <h1 className="text-[28px] font-bold leading-tight tracking-tight text-[#1C2B20] md:text-[36px]">
         {title}
       </h1>
-      <p className="mt-3 font-mono text-xs text-[#9CA3AF]">
+      <p className="mt-3 font-mono text-xs text-[#6B7480]">
         Última atualização: {updatedAt}
       </p>
 
@@ -41,7 +41,7 @@ export default function LegalDoc({ eyebrow, title, updatedAt, children }: Props)
         {children}
       </div>
 
-      <div className="mt-16 border-t border-[#E2E0DA] pt-6 text-xs text-[#9CA3AF]">
+      <div className="mt-16 border-t border-[#E2E0DA] pt-6 text-xs text-[#6B7480]">
         Dúvidas sobre este documento?{' '}
         <a
           href="mailto:contato@immoyield.com.br"

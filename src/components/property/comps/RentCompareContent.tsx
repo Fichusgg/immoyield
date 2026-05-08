@@ -473,7 +473,7 @@ export function RentCompareContent({ deal }: Props) {
 
       {/* ── Subject summary ──────────────────────────────────────────────── */}
       <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[#E2E0DA] pb-3">
-        <span className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+        <span className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
           Imóvel em análise
         </span>
         <span className="text-sm font-semibold text-[#1C2B20]">
@@ -489,7 +489,7 @@ export function RentCompareContent({ deal }: Props) {
             return (
               <span
                 className={`ml-auto font-mono text-[10px] ${
-                  stale ? 'text-[#B45309]' : 'text-[#9CA3AF]'
+                  stale ? 'text-[#B45309]' : 'text-[#6B7480]'
                 }`}
               >
                 Última busca:{' '}
@@ -518,7 +518,7 @@ export function RentCompareContent({ deal }: Props) {
                 </p>
                 <p className="mt-1.5 font-mono text-[40px] leading-none font-bold tracking-tight text-[#1C2B20]">
                   {brl(score.suggestedRent)}
-                  <span className="ml-1 text-base font-medium text-[#9CA3AF]">/mês</span>
+                  <span className="ml-1 text-base font-medium text-[#6B7480]">/mês</span>
                 </p>
                 <div className="mt-3 flex items-center gap-2">
                   <span
@@ -591,7 +591,7 @@ export function RentCompareContent({ deal }: Props) {
         <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-2.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7280] uppercase transition-colors select-none hover:bg-[#F0EFEB]">
           <span className="flex items-center gap-2">
             Filtros
-            <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] tracking-wide text-[#9CA3AF]">
+            <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] tracking-wide text-[#6B7480]">
               {filters.scope === 'bairro' ? 'Bairro' : 'Cidade'} · ±
               {Math.round(filters.areaTolerancePct * 100)}% área ·{' '}
               {filters.bedroomTolerance === 0
@@ -721,7 +721,7 @@ export function RentCompareContent({ deal }: Props) {
                 setEditing(null);
                 setAddDialogOpen(true);
               }}
-              className="text-xs text-[#9CA3AF] underline transition-colors hover:text-[#6B7280]"
+              className="text-xs text-[#6B7480] underline transition-colors hover:text-[#6B7280]"
             >
               ou adicionar manualmente
             </button>
@@ -739,7 +739,7 @@ export function RentCompareContent({ deal }: Props) {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-[#E2E0DA] bg-[#F0EFEB] text-[10px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+                <tr className="border-b border-[#E2E0DA] bg-[#F0EFEB] text-[10px] font-semibold tracking-wider text-[#6B7480] uppercase">
                   <th className="px-4 py-2.5 text-left">Endereço</th>
                   <SortHeader
                     label="Aluguel"
@@ -791,13 +791,13 @@ export function RentCompareContent({ deal }: Props) {
                       {subject.neighborhood}, {subject.city}
                     </p>
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-[11px] text-[#9CA3AF]">
+                  <td className="px-3 py-2.5 text-right font-mono text-[11px] text-[#6B7480]">
                     {deal.inputs?.revenue?.monthlyRent ? brl(deal.inputs.revenue.monthlyRent) : '—'}
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono text-[11px]">
                     {num(subject.area)} m²
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-[11px] text-[#9CA3AF]">
+                  <td className="px-3 py-2.5 text-right font-mono text-[11px] text-[#6B7480]">
                     {deal.inputs?.revenue?.monthlyRent
                       ? brl(deal.inputs.revenue.monthlyRent / subject.area)
                       : '—'}
@@ -828,7 +828,7 @@ export function RentCompareContent({ deal }: Props) {
                               target="_blank"
                               rel="noreferrer"
                               aria-label="Abrir anúncio"
-                              className="text-[#9CA3AF] transition-colors hover:text-[#4A7C59]"
+                              className="text-[#6B7480] transition-colors hover:text-[#4A7C59]"
                             >
                               <ExternalLink size={11} />
                             </a>
@@ -842,7 +842,7 @@ export function RentCompareContent({ deal }: Props) {
                             </span>
                           )}
                         </div>
-                        <p className="mt-0.5 line-clamp-1 max-w-[260px] text-[10px] text-[#9CA3AF]">
+                        <p className="mt-0.5 line-clamp-1 max-w-[260px] text-[10px] text-[#6B7480]">
                           {isManual ? 'manual' : l.source}
                           {l.condoFee ? ` · cond. ${brl(l.condoFee)}` : ''}
                           {l.isFurnished ? ' · mobiliado' : ''}
@@ -872,7 +872,7 @@ export function RentCompareContent({ deal }: Props) {
                           </span>
                         )}
                       </td>
-                      <td className="px-3 py-3 font-mono text-[10px] text-[#9CA3AF]">
+                      <td className="px-3 py-3 font-mono text-[10px] text-[#6B7480]">
                         {dateLabel
                           ? new Date(dateLabel).toLocaleDateString('pt-BR', {
                               day: '2-digit',
@@ -900,7 +900,7 @@ export function RentCompareContent({ deal }: Props) {
                                 });
                                 setAddDialogOpen(true);
                               }}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#9CA3AF] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20]"
+                              className="flex h-6 w-6 items-center justify-center rounded text-[#6B7480] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20]"
                             >
                               <Pencil size={11} />
                             </button>
@@ -909,7 +909,7 @@ export function RentCompareContent({ deal }: Props) {
                             type="button"
                             aria-label="Excluir do cálculo"
                             onClick={() => exclude(l.id)}
-                            className="flex h-6 w-6 items-center justify-center rounded text-[#9CA3AF] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626]"
+                            className="flex h-6 w-6 items-center justify-center rounded text-[#6B7480] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626]"
                           >
                             <XIcon size={11} />
                           </button>
@@ -918,7 +918,7 @@ export function RentCompareContent({ deal }: Props) {
                               type="button"
                               aria-label="Remover"
                               onClick={() => handleDelete(l.id)}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#9CA3AF] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626]"
+                              className="flex h-6 w-6 items-center justify-center rounded text-[#6B7480] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626]"
                             >
                               <Trash2 size={11} />
                             </button>
@@ -969,7 +969,7 @@ export function RentCompareContent({ deal }: Props) {
                                   href={l.url}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="text-[#9CA3AF]"
+                                  className="text-[#6B7480]"
                                 >
                                   <ExternalLink size={11} />
                                 </a>
@@ -1053,7 +1053,7 @@ export function RentCompareContent({ deal }: Props) {
             Developer · per-source telemetry
           </summary>
           <div className="border-t border-[#E2E0DA] p-4 font-mono text-[11px] leading-relaxed">
-            <p className="mb-2 text-[#9CA3AF]">
+            <p className="mb-2 text-[#6B7480]">
               Subject:{' '}
               <span className="text-[#1C2B20]">
                 {subject.bucket} · {subject.bedrooms}Q · {subject.area}m² · {subject.neighborhood} /{' '}
@@ -1061,7 +1061,7 @@ export function RentCompareContent({ deal }: Props) {
                 {subject.state ? `/${subject.state}` : ''}
               </span>
             </p>
-            <p className="mb-3 text-[#9CA3AF]">
+            <p className="mb-3 text-[#6B7480]">
               Pipeline:{' '}
               <span className="text-[#1C2B20]">
                 {listings.length} listings → {kept.length} kept · {userExcluded.length}{' '}
@@ -1085,7 +1085,7 @@ export function RentCompareContent({ deal }: Props) {
                     )
                   ).map(([reason, count]) => (
                     <li key={reason} className="text-[#1C2B20]">
-                      <span className="text-[#9CA3AF]">{reason}:</span> {count}
+                      <span className="text-[#6B7480]">{reason}:</span> {count}
                     </li>
                   ))}
                 </ul>
@@ -1093,7 +1093,7 @@ export function RentCompareContent({ deal }: Props) {
             )}
             {lastResponse && (
               <>
-                <p className="mb-1 text-[#9CA3AF]">Last API response:</p>
+                <p className="mb-1 text-[#6B7480]">Last API response:</p>
                 <ul className="mb-3 space-y-1">
                   <li>
                     cacheHit:{' '}
@@ -1107,10 +1107,10 @@ export function RentCompareContent({ deal }: Props) {
                     <span className="text-[#1C2B20]">{lastResponse.sources.join(', ') || '∅'}</span>
                   </li>
                 </ul>
-                <p className="mb-1 text-[#9CA3AF]">Per-source breakdown:</p>
+                <p className="mb-1 text-[#6B7480]">Per-source breakdown:</p>
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E2E0DA] text-left text-[#9CA3AF]">
+                    <tr className="border-b border-[#E2E0DA] text-left text-[#6B7480]">
                       <th className="py-1 pr-3">source</th>
                       <th className="py-1 pr-3 text-right">count</th>
                       <th className="py-1 pr-3">error</th>
@@ -1145,7 +1145,7 @@ export function RentCompareContent({ deal }: Props) {
                 </table>
               </>
             )}
-            <p className="mt-3 text-[#9CA3AF]">
+            <p className="mt-3 text-[#6B7480]">
               Direct debug curl:{' '}
               <code className="rounded bg-[#F0EFEB] px-1 py-0.5 text-[10px]">
                 GET /api/rent-compare/debug?city={encodeURIComponent(subject.city)}&neighborhood=
@@ -1199,7 +1199,7 @@ function ScopeRadio({
 }) {
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         Escopo geográfico
       </p>
       <div className="inline-flex rounded-full border border-[#E2E0DA] bg-[#FAFAF8] p-0.5 text-xs">
@@ -1237,7 +1237,7 @@ function ToleranceSlider({
 }) {
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <p className="mb-1.5 text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         {label}
       </p>
       <input
@@ -1345,7 +1345,7 @@ function RejectedSection({
           )}
 
           {filtered.length === 0 ? (
-            <p className="px-4 py-6 text-center text-xs text-[#9CA3AF]">
+            <p className="px-4 py-6 text-center text-xs text-[#6B7480]">
               Nenhum item para este filtro.
             </p>
           ) : (
@@ -1372,7 +1372,7 @@ function RejectedSection({
                             target="_blank"
                             rel="noreferrer"
                             aria-label="Abrir anúncio"
-                            className="text-[#9CA3AF] transition-colors hover:text-[#4A7C59]"
+                            className="text-[#6B7480] transition-colors hover:text-[#4A7C59]"
                           >
                             <ExternalLink size={11} />
                           </a>
@@ -1382,7 +1382,7 @@ function RejectedSection({
                         <span className="rounded-full border border-[#FCD34D] bg-[#FEF3C7] px-2 py-0.5 font-mono text-[9px] font-semibold text-[#92400E] uppercase">
                           {REASON_LABELS[reason]}
                         </span>
-                        <span className="font-mono text-[10px] text-[#9CA3AF]">{detail}</span>
+                        <span className="font-mono text-[10px] text-[#6B7480]">{detail}</span>
                       </div>
                     </div>
 
@@ -1390,10 +1390,10 @@ function RejectedSection({
                     <div className="flex shrink-0 items-center gap-4 font-mono text-xs text-[#6B7280] tabular-nums">
                       <span>
                         <span className="text-[#1C2B20]">{brl(l.monthlyRent)}</span>
-                        {l.area ? <span className="text-[#9CA3AF]"> / {num(l.area)}m²</span> : ''}
+                        {l.area ? <span className="text-[#6B7480]"> / {num(l.area)}m²</span> : ''}
                       </span>
                       {ppm > 0 && <span className="text-[#4A7C59]">{brl(ppm)}/m²</span>}
-                      <span className="text-[#9CA3AF]">
+                      <span className="text-[#6B7480]">
                         {l.bedrooms ?? '–'}Q / {l.bathrooms ?? '–'}B
                       </span>
                     </div>
@@ -1487,7 +1487,7 @@ function SearchProgress() {
           <span className="relative inline-flex h-3 w-3 rounded-full bg-[#4A7C59]" />
         </span>
         <p className="text-sm font-bold text-[#1C2B20]">Buscando comparáveis de aluguel…</p>
-        <span className="ml-auto font-mono text-xs text-[#9CA3AF] tabular-nums">
+        <span className="ml-auto font-mono text-xs text-[#6B7480] tabular-nums">
           {Math.floor(elapsed)}s
         </span>
       </div>
@@ -1499,7 +1499,7 @@ function SearchProgress() {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mt-1.5 flex items-center justify-between font-mono text-[10px] text-[#9CA3AF] tabular-nums">
+      <div className="mt-1.5 flex items-center justify-between font-mono text-[10px] text-[#6B7480] tabular-nums">
         <span>{Math.round(progress)}%</span>
         <span>geralmente leva 5–15 segundos</span>
       </div>
@@ -1512,7 +1512,7 @@ function SearchProgress() {
             <li
               key={i}
               className={`flex items-center gap-2.5 text-xs transition-opacity ${
-                status === 'pending' ? 'text-[#9CA3AF] opacity-60' : 'text-[#1C2B20]'
+                status === 'pending' ? 'text-[#6B7480] opacity-60' : 'text-[#1C2B20]'
               }`}
             >
               <span
@@ -1521,7 +1521,7 @@ function SearchProgress() {
                     ? 'border-[#4A7C59] bg-[#4A7C59] text-white'
                     : status === 'active'
                       ? 'border-[#4A7C59] bg-white text-[#4A7C59]'
-                      : 'border-[#D0CEC8] bg-[#F0EFEB] text-[#9CA3AF]'
+                      : 'border-[#D0CEC8] bg-[#F0EFEB] text-[#6B7480]'
                 }`}
                 aria-hidden
               >
@@ -1577,7 +1577,7 @@ function Dot({ delay }: { delay: number }) {
 function StatCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-[#FAFAF8] p-4">
-      <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         {label}
       </p>
       <p className="mt-1.5 font-mono text-lg leading-tight font-bold tracking-tight text-[#1C2B20]">

@@ -44,7 +44,7 @@ export function DonutChart({ datasets, totalLabel, className }: Props) {
                 'rounded px-3 py-1 text-[11px] font-medium transition-colors',
                 activeKey === d.key
                   ? 'bg-[#FAFAF8] text-[#1C2B20] shadow-sm'
-                  : 'text-[#9CA3AF] hover:text-[#6B7280]'
+                  : 'text-[#6B7480] hover:text-[#6B7280]'
               )}
             >
               {d.label}
@@ -95,7 +95,7 @@ export function DonutChart({ datasets, totalLabel, className }: Props) {
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           {totalLabel && (
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               {totalLabel}
             </p>
           )}
@@ -117,7 +117,7 @@ export function DonutChart({ datasets, totalLabel, className }: Props) {
                 {s.name}
               </span>
               <span className="font-mono tabular-nums text-[#1C2B20]">
-                {brl(s.value)} <span className="ml-1 text-[#9CA3AF]">{p}%</span>
+                {brl(s.value)} <span className="ml-1 text-[#6B7480]">{p}%</span>
               </span>
             </li>
           );

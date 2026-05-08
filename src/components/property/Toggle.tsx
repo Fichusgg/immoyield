@@ -49,7 +49,7 @@ export function Toggle({ on, onChange, label, description, ariaLabel, disabled }
       <div className="min-w-0">
         <p className="text-sm font-medium text-[#1C2B20]">{label}</p>
         {description && (
-          <p className="mt-0.5 text-xs text-[#9CA3AF]">{description}</p>
+          <p className="mt-0.5 text-xs text-[#6B7480]">{description}</p>
         )}
       </div>
       {switchEl}

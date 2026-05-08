@@ -32,7 +32,7 @@ type StepData = z.infer<typeof stepSchema>;
 const fieldClass =
   'w-full border border-[#E2E0DA] bg-white px-3.5 py-2.5 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
 const labelClass =
-  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase';
+  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase';
 
 interface Props {
   onBack: () => void;
@@ -117,7 +117,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
       <div>
         <h2 className="text-base font-bold text-[#1C2B20]">Compra & Custos de Aquisição</h2>
-        <p className="mt-0.5 text-sm text-[#9CA3AF]">
+        <p className="mt-0.5 text-sm text-[#6B7480]">
           ITBI, cartório, reformas e estrutura de financiamento.
         </p>
       </div>
@@ -126,7 +126,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
       <div>
         <label className={labelClass}>Valor de Compra</label>
         <div className="relative">
-          <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#9CA3AF]">
+          <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm font-medium text-[#6B7480]">
             R$
           </span>
           <Controller
@@ -150,19 +150,19 @@ export function CompraECustos({ onBack, onNext }: Props) {
       {/* Live summary strip */}
       <div className="grid grid-cols-3 gap-px border border-[#E2E0DA] bg-[#E2E0DA] text-center">
         <div className="bg-[#F0EFEB] p-4">
-          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
             ITBI estimado
           </p>
           <p className="mt-1 font-mono text-sm font-bold text-[#1C2B20]">{fmt(itbiValue)}</p>
         </div>
         <div className="bg-[#F0EFEB] p-4">
-          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
             Financiamento
           </p>
           <p className="mt-1 font-mono text-sm font-bold text-[#1C2B20]">{fmt(loanAmount)}</p>
         </div>
         <div className="bg-[#F0EFEB] p-4">
-          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <p className="font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
             Capital próprio
           </p>
           <p className="mt-1 font-mono text-sm font-bold text-[#4A7C59]">{fmt(cashNeeded)}</p>
@@ -182,7 +182,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
                 {...register('acquisitionCosts.itbiPercent', { valueAsNumber: true })}
                 className={`${fieldClass} pr-8`}
               />
-              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+              <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                 %
               </span>
             </div>
@@ -220,7 +220,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
         </div>
 
         <details className="mt-3 text-xs text-[#6B7280]">
-          <summary className="cursor-pointer font-mono tracking-wide text-[#9CA3AF] uppercase">
+          <summary className="cursor-pointer font-mono tracking-wide text-[#6B7480] uppercase">
             Detalhar cartório (escritura · registro · avaliação)
           </summary>
           <div className="mt-3 grid grid-cols-3 gap-4">
@@ -270,7 +270,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
               />
             </div>
           </div>
-          <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
             Se preenchidos, a soma destes três substitui o campo Cartório no cálculo.
           </p>
         </details>
@@ -303,7 +303,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
                 }`}
               />
             </div>
-            <span className="font-mono text-xs text-[#9CA3AF]">
+            <span className="font-mono text-xs text-[#6B7480]">
               {isEnabled ? 'Com financiamento' : 'À vista'}
             </span>
           </label>
@@ -335,7 +335,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
                   {...register('financing.interestRateYear', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                   %
                 </span>
               </div>
@@ -366,11 +366,11 @@ export function CompraECustos({ onBack, onNext }: Props) {
                   {...register('financing.insurancePercentYear', { valueAsNumber: true })}
                   className={`${fieldClass} pr-8`}
                 />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                   %
                 </span>
               </div>
-              <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-1 font-mono text-[10px] text-[#6B7480]">
                 Caixa/Itaú cobram tipicamente 0,30% a 0,60% a.a. sobre saldo devedor.
               </p>
             </div>
@@ -382,7 +382,7 @@ export function CompraECustos({ onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>

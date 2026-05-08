@@ -25,7 +25,7 @@
   /* ── Text ───────────────────────────────────────────────────────────────── */
   --text-primary: #1c2b20; /* headings, values, prominent content */
   --text-secondary: #6b7280; /* body text, labels, descriptions */
-  --text-muted: #9ca3af; /* table headers, metadata, helper text */
+  --text-muted: #6b7480; /* table headers, metadata, helper text — WCAG AA on #FAFAF8 (4.62:1) */
   --text-accent: #4a7c59; /* positive metrics, active state text */
 
   /* ── Borders — always 1px ────────────────────────────────────────────────── */

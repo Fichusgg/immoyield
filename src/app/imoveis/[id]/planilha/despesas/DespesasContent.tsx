@@ -154,7 +154,7 @@ export default function DespesasContent({ deal }: Props) {
             <SectionHeading
               label="Despesas Detalhadas"
               rightSlot={
-                <span className="rounded bg-[#F0EFEB] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#9CA3AF] uppercase">
+                <span className="rounded bg-[#F0EFEB] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#6B7480] uppercase">
                   Linhas Customizadas · Em Breve
                 </span>
               }
@@ -175,7 +175,7 @@ export default function DespesasContent({ deal }: Props) {
                       disabled={!!r.bound}
                     />
                     {r.unit === 'pctRent' && (
-                      <p className="mt-1 text-[10px] text-[#9CA3AF] italic">
+                      <p className="mt-1 text-[10px] text-[#6B7480] italic">
                         Aplicado sobre o aluguel mensal
                       </p>
                     )}
@@ -219,7 +219,7 @@ export default function DespesasContent({ deal }: Props) {
                   <p className="font-mono text-sm font-bold text-[#4A7C59]">
                     {brl(totalMonthly)} / mês
                   </p>
-                  <p className="font-mono text-[10px] text-[#9CA3AF]">
+                  <p className="font-mono text-[10px] text-[#6B7480]">
                     ({brl(totalAnnual)} / ano)
                   </p>
                 </div>

@@ -55,7 +55,7 @@ export default function ConfiguracoesContent({ userEmail, createdAt }: Props) {
     <div className="mx-auto max-w-[1200px] px-6 py-10">
       <header className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-[#1C2B20]">Configurações</h1>
-        <p className="mt-1 text-sm text-[#9CA3AF]">
+        <p className="mt-1 text-sm text-[#6B7480]">
           Gerencie sua conta, plano e preferências da ImmoYield.
         </p>
       </header>
@@ -117,7 +117,7 @@ function SectionCard({
     <section className="border border-[#E2E0DA] bg-[#FAFAF8]">
       <header className="border-b border-[#E2E0DA] px-6 py-4">
         <h2 className="text-base font-bold text-[#1C2B20]">{title}</h2>
-        {description && <p className="mt-1 text-xs text-[#9CA3AF]">{description}</p>}
+        {description && <p className="mt-1 text-xs text-[#6B7480]">{description}</p>}
       </header>
       <div className="px-6 py-5">{children}</div>
     </section>
@@ -177,7 +177,7 @@ function SecondaryButton({
 
 function ComingSoonBadge() {
   return (
-    <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#9CA3AF] uppercase">
+    <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#6B7480] uppercase">
       Em breve
     </span>
   );
@@ -217,7 +217,7 @@ function PerfilSection({
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-[#1C2B20]">{userEmail}</p>
           {memberSince && (
-            <p className="font-mono text-xs text-[#9CA3AF]">Membro desde {memberSince}</p>
+            <p className="font-mono text-xs text-[#6B7480]">Membro desde {memberSince}</p>
           )}
         </div>
       </div>
@@ -253,7 +253,7 @@ function ContaSection({ userEmail }: { userEmail: string }) {
       <SectionCard title="E-mail da conta">
         <FieldLabel>E-mail</FieldLabel>
         <TextInput value={userEmail} readOnly disabled />
-        <p className="mt-2 text-xs text-[#9CA3AF]">
+        <p className="mt-2 text-xs text-[#6B7480]">
           Para alterar o e-mail, fale com o suporte em{' '}
           <a className="font-semibold text-[#4A7C59] hover:underline" href="mailto:contato@immoyield.com.br">
             contato@immoyield.com.br
@@ -317,7 +317,7 @@ function SegurancaSection({ userEmail }: { userEmail: string }) {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-[#1C2B20]">Autenticação em 2 fatores (2FA)</p>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+            <p className="mt-0.5 text-xs text-[#6B7480]">
               Use um aplicativo autenticador como Google Authenticator ou 1Password.
             </p>
           </div>
@@ -334,7 +334,7 @@ function SegurancaSection({ userEmail }: { userEmail: string }) {
         <div className="flex items-center justify-between border border-[#E2E0DA] bg-[#F0EFEB] px-4 py-3">
           <div>
             <p className="text-sm font-semibold text-[#1C2B20]">Esta sessão</p>
-            <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">Navegador atual · agora</p>
+            <p className="mt-0.5 font-mono text-xs text-[#6B7480]">Navegador atual · agora</p>
           </div>
           <span className="flex items-center gap-1 font-mono text-[10px] font-semibold text-[#4A7C59]">
             <CheckCircle2 size={12} />
@@ -391,7 +391,7 @@ function NotificacoesSection() {
           <li key={it.key} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[#1C2B20]">{it.label}</p>
-              <p className="mt-0.5 text-xs text-[#9CA3AF]">{it.description}</p>
+              <p className="mt-0.5 text-xs text-[#6B7480]">{it.description}</p>
             </div>
             <Switch checked={settings[it.key]} onChange={() => toggle(it.key)} ariaLabel={it.label} />
           </li>
@@ -447,7 +447,7 @@ function PlanoSection() {
               Free
             </p>
             <p className="mt-1 text-base font-bold text-[#1C2B20]">5 análises por mês</p>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+            <p className="mt-0.5 text-xs text-[#6B7480]">
               Faça upgrade para análises ilimitadas e PDFs sem marca d&apos;água.
             </p>
           </div>
@@ -458,7 +458,7 @@ function PlanoSection() {
       </SectionCard>
 
       <SectionCard title="Histórico de cobrança" description="Faturas e recibos.">
-        <p className="text-sm text-[#9CA3AF]">
+        <p className="text-sm text-[#6B7480]">
           Você ainda não tem cobranças. <ComingSoonBadge />
         </p>
       </SectionCard>
@@ -548,7 +548,7 @@ function IntegracoesSection() {
                 <p className="text-sm font-semibold text-[#1C2B20]">{it.name}</p>
                 {it.soon && <ComingSoonBadge />}
               </div>
-              <p className="mt-0.5 text-xs text-[#9CA3AF]">{it.description}</p>
+              <p className="mt-0.5 text-xs text-[#6B7480]">{it.description}</p>
             </div>
             <SecondaryButton disabled={it.soon}>
               {it.connected ? 'Desconectar' : 'Conectar'}

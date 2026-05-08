@@ -59,7 +59,7 @@ export function ShareButton({ dealId, dealName, compact = false, className }: Sh
               : 'Compartilhar'
         }
         className={
-          className ?? 'text-[#9CA3AF] transition-colors hover:text-[#4A7C59] disabled:opacity-50'
+          className ?? 'text-[#6B7480] transition-colors hover:text-[#4A7C59] disabled:opacity-50'
         }
         disabled={state === 'loading'}
       >

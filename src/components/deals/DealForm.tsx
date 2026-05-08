@@ -155,7 +155,7 @@ const fc = (hasError: boolean) =>
 
 const labelClass = 'mb-1 block text-xs font-medium text-[#6B7280]';
 const sectionHeadClass =
-  'mb-2 text-[10px] font-semibold tracking-widest text-[#9CA3AF] uppercase';
+  'mb-2 text-[10px] font-semibold tracking-widest text-[#6B7480] uppercase';
 
 function Spinner() {
   return (
@@ -734,7 +734,7 @@ export function DealForm({ mode, initialDeal }: Props) {
             <ImagePlus size={14} />
             Selecionar imagens
           </label>
-          <p className="mt-1.5 text-[10px] text-[#9CA3AF]">
+          <p className="mt-1.5 text-[10px] text-[#6B7480]">
             Formatos aceitos: JPG, PNG, WEBP. As imagens são enviadas ao salvar.
           </p>
         </div>

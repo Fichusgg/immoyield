@@ -26,7 +26,7 @@ export function KpiCard({ label, value, sub, tone = 'neutral', benchmarkPct, cla
 
   return (
     <div className={cn('border border-[#E2E0DA] bg-[#FAFAF8] p-5', className)}>
-      <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         {label}
       </p>
       <p className={cn('font-mono text-2xl leading-tight font-bold tabular-nums', valueColor)}>
@@ -40,7 +40,7 @@ export function KpiCard({ label, value, sub, tone = 'neutral', benchmarkPct, cla
           />
         </div>
       )}
-      {sub && <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">{sub}</p>}
+      {sub && <p className="mt-2 font-mono text-[10px] text-[#6B7480]">{sub}</p>}
     </div>
   );
 }

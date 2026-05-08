@@ -60,7 +60,7 @@
   --secondary: #f0efeb;
   --secondary-foreground: #1c2b20;
   --muted: #f0efeb;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #6b7480;
   --accent-tw: #f0efeb;
   --accent-foreground: #1c2b20;
   --destructive: #dc2626;
@@ -82,7 +82,7 @@
   --sidebar-primary: #4a7c59;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #ebf3ee;
-  --sidebar-accent-foreground: #4a7c59;
+  --sidebar-accent-foreground: #3d6b4f;
   --sidebar-border: #e2e0da;
   --sidebar-ring: #4a7c59;
 
@@ -149,6 +149,18 @@
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   opacity: 0.3;
+}
+
+/* ── Prevent iOS zoom-on-focus for form fields under 16px ────────────────────
+   On screens < 640px, force 16px on inputs/textareas/selects so iOS Safari
+   doesn't auto-zoom when focused. The desktop styling (text-sm etc.) takes
+   over from sm: breakpoint up. */
+@media (max-width: 639px) {
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 /* ── Hero calculator slider ─────────────────────────────────────────────── */

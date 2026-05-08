@@ -49,7 +49,7 @@ interface KpiCardProps {
 function KpiCard({ label, value, sub, positive, benchmarkPct }: KpiCardProps) {
   return (
     <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-      <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+      <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
         {label}
       </p>
       <p className={`font-mono text-xl font-bold ${positive === false ? 'text-[#DC2626]' : 'text-[#1C2B20]'}`}>
@@ -63,7 +63,7 @@ function KpiCard({ label, value, sub, positive, benchmarkPct }: KpiCardProps) {
           />
         </div>
       )}
-      {sub && <p className="mt-1 font-mono text-[10px] text-[#9CA3AF]">{sub}</p>}
+      {sub && <p className="mt-1 font-mono text-[10px] text-[#6B7480]">{sub}</p>}
     </div>
   );
 }
@@ -110,11 +110,11 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
       {/* Input column */}
       <div className="space-y-4">
         <div>
-          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
             Preço do imóvel
           </label>
           <div className="flex items-center border border-[#E2E0DA] bg-[#F0EFEB] focus-within:border-[#4A7C59]">
-            <span className="px-3 font-mono text-sm text-[#9CA3AF]">R$</span>
+            <span className="px-3 font-mono text-sm text-[#6B7480]">R$</span>
             <input
               type="text"
               inputMode="numeric"
@@ -127,11 +127,11 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
         </div>
 
         <div>
-          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
             Entrada
           </label>
           <div className="flex items-center border border-[#E2E0DA] bg-[#F0EFEB] focus-within:border-[#4A7C59]">
-            <span className="px-3 font-mono text-sm text-[#9CA3AF]">R$</span>
+            <span className="px-3 font-mono text-sm text-[#6B7480]">R$</span>
             <input
               type="text"
               inputMode="numeric"
@@ -144,11 +144,11 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
         </div>
 
         <div>
-          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+          <label className="mb-1.5 block font-mono text-[11px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
             Aluguel esperado / mês
           </label>
           <div className="flex items-center border border-[#E2E0DA] bg-[#F0EFEB] focus-within:border-[#4A7C59]">
-            <span className="px-3 font-mono text-sm text-[#9CA3AF]">R$</span>
+            <span className="px-3 font-mono text-sm text-[#6B7480]">R$</span>
             <input
               type="text"
               inputMode="numeric"
@@ -160,7 +160,7 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
           </div>
         </div>
 
-        <p className="font-mono text-[10px] text-[#9CA3AF]">
+        <p className="font-mono text-[10px] text-[#6B7480]">
           Exemplo: Apartamento 70m² · Pinheiros, SP
         </p>
       </div>
@@ -189,7 +189,7 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
           </motion.div>
         ) : (
           <div className="flex h-full items-center justify-center border border-[#E2E0DA] bg-[#FAFAF8] p-8 text-center">
-            <p className="font-mono text-xs text-[#9CA3AF]">Preencha os campos para ver a análise</p>
+            <p className="font-mono text-xs text-[#6B7480]">Preencha os campos para ver a análise</p>
           </div>
         )}
 
@@ -200,7 +200,7 @@ export default function InteractiveDemo({ cdi = CDI_RATE }: InteractiveDemoProps
         >
           Continuar com este imóvel →
         </Link>
-        <p className="text-center font-mono text-[10px] text-[#9CA3AF]">
+        <p className="text-center font-mono text-[10px] text-[#6B7480]">
           Sem cartão · Análise completa em 3 minutos
         </p>
       </div>

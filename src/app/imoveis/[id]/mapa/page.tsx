@@ -38,7 +38,7 @@ export default async function MapaPage({ params }: Props) {
                 <button
                   type="button"
                   disabled
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-3.5 py-1.5 text-xs font-medium text-[#9CA3AF] disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-3.5 py-1.5 text-xs font-medium text-[#6B7480] disabled:cursor-not-allowed"
                 >
                   <Navigation size={12} />
                   Minha Localização
@@ -57,7 +57,7 @@ export default async function MapaPage({ params }: Props) {
                   <button
                     type="button"
                     disabled
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-3.5 py-1.5 text-xs font-medium text-[#9CA3AF] disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E0DA] bg-[#FAFAF8] px-3.5 py-1.5 text-xs font-medium text-[#6B7480] disabled:cursor-not-allowed"
                   >
                     <ExternalLink size={12} />
                     Como Chegar

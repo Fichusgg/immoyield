@@ -54,17 +54,17 @@ export default function Footer() {
             </span>
             <span className="font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
           </Link>
-          <p className="mt-3 text-xs leading-relaxed text-[#9CA3AF]">
+          <p className="mt-3 text-xs leading-relaxed text-[#6B7480]">
             Calculadora de investimento imobiliário para o mercado brasileiro.
           </p>
-          <p className="mt-4 font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-4 font-mono text-[10px] text-[#6B7480]">
             contato@immoyield.com.br
           </p>
         </div>
 
         {COLUMNS.map((col) => (
           <div key={col.title}>
-            <p className="mb-3 text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+            <p className="mb-3 text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
               {col.title}
             </p>
             <ul className="space-y-2">
@@ -84,7 +84,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[#E2E0DA]">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-2 px-6 py-4 text-[10px] leading-relaxed text-[#9CA3AF] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-2 px-6 py-4 text-[10px] leading-relaxed text-[#6B7480] sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} ImmoYield. CNPJ XX.XXX.XXX/0001-XX. CDI: fonte BACEN SGS, atualizado
             semanalmente.

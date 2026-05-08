@@ -6,7 +6,7 @@
     "node": ">=20.0.0 <23.0.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -47,6 +47,16 @@
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },
+  "browserslist": [
+    "chrome >= 105",
+    "firefox >= 104",
+    "edge >= 105",
+    "safari >= 16",
+    "ios_saf >= 16",
+    "samsung >= 21",
+    "and_chr >= 105",
+    "and_ff >= 104"
+  ],
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",

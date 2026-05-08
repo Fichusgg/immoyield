@@ -114,7 +114,7 @@ export async function middleware(request: NextRequest) {
 
     const redirectResponse = NextResponse.redirect(redirectUrl);
     copyResponseCookies(response, redirectResponse);
-    redirectResponse.headers.set('Cache-Control', 'private, no-store');
+    redirectResponse.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
     return redirectResponse;
   }
 

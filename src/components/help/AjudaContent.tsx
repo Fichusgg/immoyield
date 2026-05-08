@@ -137,7 +137,7 @@ export default function AjudaContent() {
     <div className="mx-auto max-w-[1100px] px-6 py-10">
       {/* ── Hero / search ──────────────────────────────────────────── */}
       <header className="mb-12 text-center">
-        <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+        <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
           Central de ajuda
         </p>
         <h1 className="text-[28px] font-bold leading-tight tracking-tight text-[#1C2B20] md:text-[34px]">
@@ -155,7 +155,7 @@ export default function AjudaContent() {
         </p>
 
         <div className="relative mx-auto mt-8 max-w-xl">
-          <Search size={16} className="absolute top-1/2 left-4 -translate-y-1/2 text-[#9CA3AF]" />
+          <Search size={16} className="absolute top-1/2 left-4 -translate-y-1/2 text-[#6B7480]" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -168,7 +168,7 @@ export default function AjudaContent() {
       {/* ── Categories ────────────────────────────────────────────── */}
       {!query && (
         <section className="mb-12">
-          <p className="mb-4 text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+          <p className="mb-4 text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
             Explorar por categoria
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -208,7 +208,7 @@ export default function AjudaContent() {
       {/* ── Articles list ─────────────────────────────────────────── */}
       <section className="mb-12">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
             {query
               ? `${filtered.length} resultado${filtered.length === 1 ? '' : 's'} para "${query}"`
               : activeCategory
@@ -221,7 +221,7 @@ export default function AjudaContent() {
                 setActiveCategory(null);
                 setQuery('');
               }}
-              className="font-mono text-xs text-[#9CA3AF] underline transition-colors hover:text-[#6B7280]"
+              className="font-mono text-xs text-[#6B7480] underline transition-colors hover:text-[#6B7280]"
             >
               Limpar
             </button>
@@ -231,7 +231,7 @@ export default function AjudaContent() {
         {filtered.length === 0 ? (
           <div className="border border-dashed border-[#E2E0DA] bg-[#FAFAF8] p-10 text-center">
             <p className="text-sm font-semibold text-[#1C2B20]">Nenhum artigo encontrado.</p>
-            <p className="mt-1 text-xs text-[#9CA3AF]">
+            <p className="mt-1 text-xs text-[#6B7480]">
               Tente outros termos ou{' '}
               <a
                 href="mailto:contato@immoyield.com.br"
@@ -253,7 +253,7 @@ export default function AjudaContent() {
 
       {/* ── Resources ─────────────────────────────────────────────── */}
       <section className="mb-12">
-        <p className="mb-4 text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+        <p className="mb-4 text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
           Outros recursos
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -286,7 +286,7 @@ export default function AjudaContent() {
         <ContactForm />
       </section>
 
-      <p className="mt-12 text-center text-xs text-[#9CA3AF]">
+      <p className="mt-12 text-center text-xs text-[#6B7480]">
         Ver{' '}
         <Link href="/legal/termos" className="font-semibold hover:text-[#1C2B20]">
           Termos de uso
@@ -313,7 +313,7 @@ function ArticleRow({ article }: { article: Article }) {
         <span className="flex-1 text-sm font-semibold text-[#1C2B20]">{article.title}</span>
         <ChevronRight
           size={14}
-          className={`shrink-0 text-[#9CA3AF] transition-transform ${open ? 'rotate-90' : ''}`}
+          className={`shrink-0 text-[#6B7480] transition-transform ${open ? 'rotate-90' : ''}`}
         />
       </button>
       {open && (
@@ -351,7 +351,7 @@ function ResourceCard({
       <span className="mt-auto flex items-center gap-1.5 text-xs font-semibold text-[#4A7C59]">
         {cta}
         {comingSoon && (
-          <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#9CA3AF] uppercase">
+          <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-[#6B7480] uppercase">
             Em breve
           </span>
         )}
@@ -392,7 +392,7 @@ function ContactForm() {
 
   return (
     <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6 md:p-8">
-      <p className="text-[11px] font-semibold tracking-[0.12em] text-[#9CA3AF] uppercase">
+      <p className="text-[11px] font-semibold tracking-[0.12em] text-[#6B7480] uppercase">
         Ainda precisa de ajuda?
       </p>
       <h2 className="mt-2 text-lg font-bold tracking-tight text-[#1C2B20] md:text-xl">
@@ -428,7 +428,7 @@ function ContactForm() {
         </div>
 
         <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-[#9CA3AF]">
+          <p className="text-xs text-[#6B7480]">
             Ou escreva direto para{' '}
             <a
               href="mailto:contato@immoyield.com.br"

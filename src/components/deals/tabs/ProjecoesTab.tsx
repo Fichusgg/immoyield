@@ -28,7 +28,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
     <div className="space-y-7">
       <div>
         <h2 className="text-base font-bold text-[#1C2B20]">Revisar & Calcular</h2>
-        <p className="mt-0.5 text-sm text-[#9CA3AF]">
+        <p className="mt-0.5 text-sm text-[#6B7480]">
           Confirme os dados antes de rodar a análise completa.
         </p>
       </div>
@@ -95,7 +95,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
         <div className="flex items-center justify-between gap-4 bg-[#FAFAF8] px-4 py-3">
           <div>
             <p className="text-sm text-[#1C2B20]">Regime tributário</p>
-            <p className="font-mono text-[10px] text-[#9CA3AF]">
+            <p className="font-mono text-[10px] text-[#6B7480]">
               CPF: Carnê-Leão até 27,5%. CNPJ: Lucro Presumido (~11,33%).
             </p>
           </div>
@@ -136,7 +136,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
         <button
           type="button"
           onClick={onBack}
-          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+          className="border border-[#E2E0DA] px-5 py-2.5 text-sm font-medium text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           ← Voltar
         </button>
@@ -155,7 +155,7 @@ export function ProjecoesTab({ onBack, onCalculate, loading, apiError }: Props) 
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="bg-[#F8F7F4] px-4 py-2.5">
-      <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+      <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
         {label}
       </span>
     </div>
@@ -165,7 +165,7 @@ function SectionHeader({ label }: { label: string }) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between bg-[#FAFAF8] px-4 py-3">
-      <span className="text-[#9CA3AF]">{label}</span>
+      <span className="text-[#6B7480]">{label}</span>
       <span className="font-mono font-semibold text-[#1C2B20]">{value}</span>
     </div>
   );

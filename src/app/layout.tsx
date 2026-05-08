@@ -33,6 +33,26 @@ const jetbrainsMono = JetBrains_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://immoyield.com.br';
 
+const SUPABASE_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').origin;
+  } catch {
+    return '';
+  }
+})();
+
+const POSTHOG_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_POSTHOG_HOST ?? '').origin;
+  } catch {
+    return '';
+  }
+})();
+
+const POSTHOG_ASSETS_ORIGIN = POSTHOG_ORIGIN
+  ? POSTHOG_ORIGIN.replace('://us.i.', '://us-assets.i.').replace('://eu.i.', '://eu-assets.i.')
+  : '';
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -90,6 +110,26 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
+      <head>
+        {SUPABASE_ORIGIN && (
+          <>
+            <link rel="preconnect" href={SUPABASE_ORIGIN} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={SUPABASE_ORIGIN} />
+          </>
+        )}
+        {POSTHOG_ORIGIN && (
+          <>
+            <link rel="preconnect" href={POSTHOG_ORIGIN} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={POSTHOG_ORIGIN} />
+          </>
+        )}
+        {POSTHOG_ASSETS_ORIGIN && POSTHOG_ASSETS_ORIGIN !== POSTHOG_ORIGIN && (
+          <>
+            <link rel="preconnect" href={POSTHOG_ASSETS_ORIGIN} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={POSTHOG_ASSETS_ORIGIN} />
+          </>
+        )}
+      </head>
       <body className="flex min-h-full flex-col bg-[#F8F7F4] text-[#1C2B20]">
         <NumberInputGuard />
         <Providers>

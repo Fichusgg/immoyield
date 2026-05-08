@@ -69,7 +69,7 @@ function FaqItem({ index, q, a, open, onToggle }: FaqItemProps) {
           className={`grid h-7 w-7 shrink-0 place-items-center border transition-all duration-200 ${
             open
               ? 'rotate-45 border-[#4A7C59] text-[#4A7C59]'
-              : 'border-[#D0CEC8] text-[#9CA3AF]'
+              : 'border-[#D0CEC8] text-[#6B7480]'
           }`}
         >
           <svg
@@ -108,7 +108,7 @@ export default function FaqSection() {
     <section id="faq" className="border-b border-[#E2E0DA] py-[100px]">
       <div className="mx-auto max-w-[860px] px-6">
         <FadeInSection className="mb-12 text-center">
-          <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+          <p className="mb-3 text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
             Perguntas frequentes
           </p>
           <h2 className="text-[28px] font-bold leading-tight tracking-tight text-[#1C2B20] md:text-[32px]">

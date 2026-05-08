@@ -100,7 +100,7 @@ export default function FloatingFeedbackButton() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Fechar"
-                className="text-[#9CA3AF] hover:text-[#1C2B20]"
+                className="text-[#6B7480] hover:text-[#1C2B20]"
               >
                 <X size={18} />
               </button>
@@ -108,7 +108,7 @@ export default function FloatingFeedbackButton() {
             <p className="mb-3 text-xs text-[#6B7280]">
               Encontrou um bug? Tem uma sugestão? Conte aqui — lemos tudo.
             </p>
-            <label className="mb-1 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase">
+            <label className="mb-1 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase">
               Mensagem
             </label>
             <textarea
@@ -121,7 +121,7 @@ export default function FloatingFeedbackButton() {
               className="mb-3 w-full rounded-lg border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2 text-sm text-[#1C2B20] focus:border-[#4A7C59] focus:outline-none"
               placeholder="O que você quer nos contar?"
             />
-            <label className="mb-1 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase">
+            <label className="mb-1 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase">
               E-mail (opcional)
             </label>
             <input

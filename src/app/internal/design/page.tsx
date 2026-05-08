@@ -5,7 +5,7 @@ import Link from 'next/link';
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border-b border-[#E2E0DA] py-10">
-      <h2 className="mb-6 font-mono text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+      <h2 className="mb-6 font-mono text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
         {title}
       </h2>
       {children}
@@ -18,7 +18,7 @@ function Swatch({ bg, label, value }: { bg: string; label: string; value: string
     <div className="flex flex-col gap-1.5">
       <div className="h-10 w-full border border-[#E2E0DA]" style={{ backgroundColor: bg }} />
       <p className="text-xs font-semibold text-[#1C2B20]">{label}</p>
-      <p className="font-mono text-[10px] text-[#9CA3AF]">{value}</p>
+      <p className="font-mono text-[10px] text-[#6B7480]">{value}</p>
     </div>
   );
 }
@@ -37,9 +37,9 @@ export default function InternalDesignPage() {
             </div>
             <span className="text-sm font-bold text-[#1C2B20]">ImmoYield</span>
             <span className="font-mono text-[11px] text-[#D0CEC8]">/</span>
-            <span className="font-mono text-[11px] text-[#9CA3AF]">Sistema de Design · Interno</span>
+            <span className="font-mono text-[11px] text-[#6B7480]">Sistema de Design · Interno</span>
           </div>
-          <Link href="/" className="font-mono text-[11px] text-[#9CA3AF] transition-colors hover:text-[#6B7280]">
+          <Link href="/" className="font-mono text-[11px] text-[#6B7480] transition-colors hover:text-[#6B7280]">
             ← Voltar ao site
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default function InternalDesignPage() {
       <main className="mx-auto max-w-[72rem] px-6 pb-20">
         {/* Intro */}
         <div className="border-b border-[#E2E0DA] py-10">
-          <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+          <p className="mb-2 font-mono text-[11px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
             Documentação interna
           </p>
           <h1 className="text-3xl font-bold text-[#1C2B20]">Sistema de Design</h1>
@@ -56,7 +56,7 @@ export default function InternalDesignPage() {
             Tokens, tipografia, componentes e regras visuais do ImmoYield. Referência central para
             qualquer nova página ou componente — use este guia antes de abrir um novo arquivo.
           </p>
-          <p className="mt-3 font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-3 font-mono text-[10px] text-[#6B7480]">
             Versão 2.0 · Abril 2026 · Atualizado com Volume II
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function InternalDesignPage() {
           </div>
 
           <div className="mt-6 border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-            <p className="mb-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+            <p className="mb-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
               Regra crítica
             </p>
             <p className="text-xs text-[#6B7280]">
@@ -123,7 +123,7 @@ export default function InternalDesignPage() {
         <Section title="2 · Tipografia">
           <div className="space-y-6">
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6">
-              <p className="mb-1 font-mono text-[10px] text-[#9CA3AF]">DM Sans · var(--font-dm-sans) · Todo o corpo de texto</p>
+              <p className="mb-1 font-mono text-[10px] text-[#6B7480]">DM Sans · var(--font-dm-sans) · Todo o corpo de texto</p>
               <p className="text-4xl font-bold text-[#1C2B20]">Análise de Investimento</p>
               <p className="mt-2 text-base font-medium text-[#6B7280]">
                 Pesos: 300 Light · 400 Regular · 500 Medium · 600 SemiBold · 700 Bold
@@ -131,41 +131,41 @@ export default function InternalDesignPage() {
             </div>
 
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6">
-              <p className="mb-1 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mb-1 font-mono text-[10px] text-[#6B7480]">
                 Display serif · Removido · Fontes de script/display não são mais usadas
               </p>
-              <p className="text-4xl font-bold text-[#9CA3AF] line-through">em minutos, não planilhas.</p>
-              <p className="mt-2 text-sm text-[#9CA3AF]">Acentos editoriais agora usam sans bold.</p>
+              <p className="text-4xl font-bold text-[#6B7480] line-through">em minutos, não planilhas.</p>
+              <p className="mt-2 text-sm text-[#6B7480]">Acentos editoriais agora usam sans bold.</p>
             </div>
 
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-6">
-              <p className="mb-1 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mb-1 font-mono text-[10px] text-[#6B7480]">
                 JetBrains Mono · var(--font-jetbrains-mono) · Todos os números e métricas
               </p>
               <div className="flex gap-8">
                 <div>
                   <p className="font-mono text-3xl font-bold text-[#1C2B20]">R$ 3.800</p>
-                  <p className="font-mono text-sm text-[#9CA3AF]">Aluguel mensal</p>
+                  <p className="font-mono text-sm text-[#6B7480]">Aluguel mensal</p>
                 </div>
                 <div>
                   <p className="font-mono text-3xl font-bold text-[#4A7C59]">6,7%</p>
-                  <p className="font-mono text-sm text-[#9CA3AF]">Yield bruto</p>
+                  <p className="font-mono text-sm text-[#6B7480]">Yield bruto</p>
                 </div>
                 <div>
                   <p className="font-mono text-3xl font-bold text-[#1C2B20]">12,4 anos</p>
-                  <p className="font-mono text-sm text-[#9CA3AF]">Payback</p>
+                  <p className="font-mono text-sm text-[#6B7480]">Payback</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="mt-4 border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-            <p className="mb-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+            <p className="mb-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
               Regras
             </p>
             <ul className="space-y-1 text-xs text-[#6B7280]">
               <li>· Todo valor monetário, percentual e data → JetBrains Mono</li>
-              <li>· Eyebrows → <code className="font-mono">text-[10px] font-semibold tracking-[0.12em] uppercase text-[#9CA3AF]</code></li>
+              <li>· Eyebrows → <code className="font-mono">text-[10px] font-semibold tracking-[0.12em] uppercase text-[#6B7480]</code></li>
               <li>· Serif decorativo → máximo uma ocorrência por tela, sempre itálico</li>
               <li>· Nenhum texto de corpo em serifa</li>
             </ul>
@@ -177,19 +177,19 @@ export default function InternalDesignPage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
               <div className="h-16 border border-[#E2E0DA] bg-[#FAFAF8]" style={{ borderRadius: 0 }} />
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">Cards: 0px (padrão)</p>
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">Cards: 0px (padrão)</p>
             </div>
             <div>
               <div className="h-16 border border-[#E2E0DA] bg-[#FAFAF8]" style={{ borderRadius: 4 }} />
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">4px (máximo permitido)</p>
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">4px (máximo permitido)</p>
             </div>
             <div>
               <div className="h-16 border-2 border-[#4A7C59] bg-[#FAFAF8]" style={{ borderRadius: 0 }} />
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">Borda 2px: destaque/foco</p>
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">Borda 2px: destaque/foco</p>
             </div>
             <div>
               <div className="h-16 border border-[#E2E0DA] bg-[#FAFAF8] shadow-[0_10px_30px_rgba(28,43,32,0.08)]" />
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">Sombra: só popovers/modais</p>
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">Sombra: só popovers/modais</p>
             </div>
           </div>
           <div className="mt-4 border border-[#E2E0DA] bg-[#FAFAF8] p-4">
@@ -220,7 +220,7 @@ export default function InternalDesignPage() {
                   Destructive
                 </button>
               </div>
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
                 Sem border-radius · Padding: py-2.5 px-5 (md), py-3 px-8 (lg CTA)
               </p>
             </div>
@@ -230,7 +230,7 @@ export default function InternalDesignPage() {
               <p className="mb-3 text-xs font-semibold text-[#6B7280]">Inputs</p>
               <div className="max-w-xs space-y-3">
                 <div className="flex items-center border border-[#E2E0DA] bg-[#F0EFEB] focus-within:border-[#4A7C59]">
-                  <span className="px-3 font-mono text-sm text-[#9CA3AF]">R$</span>
+                  <span className="px-3 font-mono text-sm text-[#6B7480]">R$</span>
                   <input
                     readOnly
                     value="680.000"
@@ -238,7 +238,7 @@ export default function InternalDesignPage() {
                   />
                 </div>
                 <div className="flex items-center border-2 border-[#4A7C59] bg-[#F0EFEB]">
-                  <span className="px-3 font-mono text-sm text-[#9CA3AF]">%</span>
+                  <span className="px-3 font-mono text-sm text-[#6B7480]">%</span>
                   <input
                     readOnly
                     value="6,7"
@@ -246,7 +246,7 @@ export default function InternalDesignPage() {
                   />
                 </div>
                 <div className="flex items-center border border-[#DC2626] bg-[#FEE2E2]">
-                  <span className="px-3 font-mono text-sm text-[#9CA3AF]">R$</span>
+                  <span className="px-3 font-mono text-sm text-[#6B7480]">R$</span>
                   <input
                     readOnly
                     value=""
@@ -255,7 +255,7 @@ export default function InternalDesignPage() {
                   />
                 </div>
               </div>
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
                 bg-[#F0EFEB] idle · borda brand no focus · borda vermelha no erro
               </p>
             </div>
@@ -271,7 +271,7 @@ export default function InternalDesignPage() {
                   { label: 'Payback', value: '15 anos', bar: 50 },
                 ].map((k) => (
                   <div key={k.label} className="bg-[#FAFAF8] p-4">
-                    <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+                    <p className="mb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
                       {k.label}
                     </p>
                     <p className="font-mono text-xl font-bold text-[#1C2B20]">{k.value}</p>
@@ -283,7 +283,7 @@ export default function InternalDesignPage() {
                   </div>
                 ))}
               </div>
-              <p className="mt-2 font-mono text-[10px] text-[#9CA3AF]">
+              <p className="mt-2 font-mono text-[10px] text-[#6B7480]">
                 grid gap-px bg-[#E2E0DA] — cria divisórias de 1px entre células sem borda adicional
               </p>
             </div>
@@ -294,7 +294,7 @@ export default function InternalDesignPage() {
         <Section title="5 · Regras de gráficos (Recharts)">
           <div className="space-y-4">
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
-              <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+              <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
                 axisProps padrão
               </p>
               <pre className="overflow-x-auto font-mono text-xs text-[#1C2B20]">{`const axisProps = {
@@ -309,7 +309,7 @@ export default function InternalDesignPage() {
             </div>
 
             <div className="border border-[#E2E0DA] bg-[#FAFAF8] p-5">
-              <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#9CA3AF] uppercase">
+              <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.1em] text-[#6B7480] uppercase">
                 DSTooltip padrão
               </p>
               <pre className="overflow-x-auto font-mono text-xs text-[#1C2B20]">{`<Tooltip
@@ -335,7 +335,7 @@ export default function InternalDesignPage() {
                   <div className="h-3 w-3 shrink-0" style={{ backgroundColor: c.color }} />
                   <div>
                     <p className="font-mono text-[10px] font-bold text-[#1C2B20]">{c.color}</p>
-                    <p className="font-mono text-[9px] text-[#9CA3AF]">{c.use}</p>
+                    <p className="font-mono text-[9px] text-[#6B7480]">{c.use}</p>
                   </div>
                 </div>
               ))}
@@ -363,7 +363,7 @@ export default function InternalDesignPage() {
               { do: 'Cálculos para fins informativos', dont: 'Invista agora', label: 'Tom: análise, não recomendação' },
             ].map((r) => (
               <div key={r.label} className="border border-[#E2E0DA] bg-[#FAFAF8] p-4">
-                <p className="mb-2 font-mono text-[10px] text-[#9CA3AF]">{r.label}</p>
+                <p className="mb-2 font-mono text-[10px] text-[#6B7480]">{r.label}</p>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs font-bold text-[#4A7C59]">✓ {r.do}</span>
                   <span className="font-mono text-[10px] text-[#D0CEC8]">vs</span>
@@ -422,7 +422,7 @@ export default function InternalDesignPage() {
 
         {/* Footer */}
         <div className="pt-6">
-          <p className="font-mono text-[10px] text-[#9CA3AF]">
+          <p className="font-mono text-[10px] text-[#6B7480]">
             ImmoYield · Sistema de Design v2.0 · Uso interno · Não indexado
           </p>
         </div>

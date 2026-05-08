@@ -251,7 +251,7 @@ export default function ProjecoesContent({ deal }: Props) {
                       className="border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2"
                       style={{ boxShadow: '0 10px 30px rgba(28,43,32,0.08)' }}
                     >
-                      <p className="font-mono text-[10px] text-[#9CA3AF]">{label}</p>
+                      <p className="font-mono text-[10px] text-[#6B7480]">{label}</p>
                       {payload.map((p) => (
                         <p
                           key={p.dataKey as string}
@@ -296,7 +296,7 @@ export default function ProjecoesContent({ deal }: Props) {
       <SectionHeading
         label="Detalhamento por Ano"
         rightSlot={
-          <span className="font-mono text-[10px] text-[#9CA3AF]">
+          <span className="font-mono text-[10px] text-[#6B7480]">
             Capital inicial: {brl(cashOutlay)}
           </span>
         }
@@ -305,7 +305,7 @@ export default function ProjecoesContent({ deal }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#E2E0DA] bg-[#F0EFEB] text-[10px] font-semibold tracking-wider text-[#9CA3AF] uppercase">
+              <tr className="border-b border-[#E2E0DA] bg-[#F0EFEB] text-[10px] font-semibold tracking-wider text-[#6B7480] uppercase">
                 <th className="px-5 py-2.5 text-left">Ano</th>
                 <th className="px-3 py-2.5 text-right">Valor do Imóvel</th>
                 <th className="px-3 py-2.5 text-right">Equity</th>
@@ -361,7 +361,7 @@ export default function ProjecoesContent({ deal }: Props) {
         </div>
       </FormCard>
 
-      <p className="pb-4 text-center font-mono text-[10px] text-[#9CA3AF]">
+      <p className="pb-4 text-center font-mono text-[10px] text-[#6B7480]">
         <TrendingUp size={10} className="-mt-0.5 mr-1 inline-block" />
         Projeção baseada em valorização constante e NOI ajustado pelo IPCA. Não considera
         eventos de mercado, vacância prolongada ou refinanciamento.

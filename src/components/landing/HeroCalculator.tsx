@@ -162,10 +162,10 @@ export function HeroCalculator() {
       >
         {/* Header */}
         <div className="mb-5 flex items-baseline justify-between">
-          <p className="text-[10px] font-semibold tracking-[0.14em] text-[#9CA3AF] uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.14em] text-[#6B7480] uppercase">
             Calculadora · Tempo Real
           </p>
-          <p className="font-mono text-[10px] text-[#9CA3AF]">
+          <p className="font-mono text-[10px] text-[#6B7480]">
             Cap Rate · {pct(computed.capRate)}
           </p>
         </div>
@@ -229,7 +229,7 @@ export function HeroCalculator() {
             >
               {brlSigned(computed.monthlyCashFlow)}
             </span>
-            <span className="text-[10px] text-[#9CA3AF]">
+            <span className="text-[10px] text-[#6B7480]">
               líquido de IR e despesas
             </span>
           </div>
@@ -258,7 +258,7 @@ export function HeroCalculator() {
         </div>
 
         {/* Footnote */}
-        <p className="mt-4 font-mono text-[10px] text-[#9CA3AF]">
+        <p className="mt-4 font-mono text-[10px] text-[#6B7480]">
           Estimativa em 5s · sem cadastro · matemática igual à do app
         </p>
 

@@ -258,7 +258,7 @@ function SimuladorBody({ deal, baseInputs }: BodyProps) {
               Restaurar valores reais
             </button>
           ) : (
-            <span className="font-mono text-[10px] tracking-widest text-[#9CA3AF] uppercase">
+            <span className="font-mono text-[10px] tracking-widest text-[#6B7480] uppercase">
               Cenário: real
             </span>
           )
@@ -453,7 +453,7 @@ function SimuladorBody({ deal, baseInputs }: BodyProps) {
             />
           </FormCard>
 
-          <p className="mt-3 font-mono text-[10px] text-[#9CA3AF]">
+          <p className="mt-3 font-mono text-[10px] text-[#6B7480]">
             Cálculos consideram financiamento, IR (regime do deal), vacância e despesas operacionais.
           </p>
         </div>
@@ -529,14 +529,14 @@ function ResultPill({
   const showDelta = Math.abs(delta) > 1e-3;
   const Arrow = !showDelta ? Minus : delta > 0 ? ArrowUp : ArrowDown;
   const arrowColor = !showDelta
-    ? 'text-[#9CA3AF]'
+    ? 'text-[#6B7480]'
     : delta > 0
       ? 'text-[#4A7C59]'
       : 'text-[#DC2626]';
 
   return (
     <div className="text-right">
-      <p className="font-mono text-[9px] tracking-widest text-[#9CA3AF] uppercase">{label}</p>
+      <p className="font-mono text-[9px] tracking-widest text-[#6B7480] uppercase">{label}</p>
       <p
         className={`font-mono text-base font-black tabular-nums ${
           tone === 'positive'
@@ -561,7 +561,7 @@ function ResultPill({
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="border border-[#E2E0DA] bg-[#FAFAF8] px-3 py-2">
-      <p className="font-mono text-[9px] tracking-widest text-[#9CA3AF] uppercase">{label}</p>
+      <p className="font-mono text-[9px] tracking-widest text-[#6B7480] uppercase">{label}</p>
       <p className="font-mono text-sm font-semibold tabular-nums text-[#1C2B20]">{value}</p>
     </div>
   );
@@ -593,11 +593,11 @@ function TargetRow({
     >
       <div className="min-w-0">
         <p className="text-sm font-semibold text-[#1C2B20]">{title}</p>
-        <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{subtitle}</p>
+        <p className="mt-0.5 text-[11px] text-[#6B7480]">{subtitle}</p>
       </div>
       <div className="shrink-0 text-right">
         {targetRent == null ? (
-          <p className="font-mono text-xs text-[#9CA3AF]">—</p>
+          <p className="font-mono text-xs text-[#6B7480]">—</p>
         ) : (
           <>
             <p
@@ -669,7 +669,7 @@ function SimField({
           percent={percent}
         />
         {hint && (
-          <p className="font-mono text-[10px] text-[#9CA3AF]">{hint}</p>
+          <p className="font-mono text-[10px] text-[#6B7480]">{hint}</p>
         )}
       </div>
     </FormRow>

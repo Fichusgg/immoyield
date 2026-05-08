@@ -68,11 +68,11 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
           <div className="min-w-0">
             <p className="truncate text-sm font-black text-[#1C2B20]">{displayTitle}</p>
             {deal.property_type && (
-              <span className="mt-0.5 inline-block border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+              <span className="mt-0.5 inline-block border border-[#E2E0DA] bg-[#F0EFEB] px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
                 {PROPERTY_TYPE_LABELS[deal.property_type as PropertyType] ?? deal.property_type}
               </span>
             )}
-            <p className="mt-0.5 font-mono text-xs text-[#9CA3AF]">
+            <p className="mt-0.5 font-mono text-xs text-[#6B7480]">
               {new Date(deal.updated_at).toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: 'short',
@@ -89,7 +89,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
               onClick={handleDelete}
               disabled={deleting}
               aria-label="Excluir análise"
-              className="relative z-20 text-[#9CA3AF] transition-colors hover:text-[#DC2626] disabled:opacity-50"
+              className="relative z-20 text-[#6B7480] transition-colors hover:text-[#DC2626] disabled:opacity-50"
             >
               <Trash2 size={14} />
             </button>
@@ -99,7 +99,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
         {/* KPI grid */}
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="border border-[#E2E0DA] bg-[#F0EFEB] p-3">
-            <p className="mb-1 font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+            <p className="mb-1 font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
               Cap Rate
             </p>
             <p className="font-mono font-black text-[#1C2B20]">{m?.capRate?.toFixed(2)}%</p>
@@ -107,7 +107,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
           <div
             className={`border p-3 ${positive ? 'border-[#A8C5B2] bg-[#EBF3EE]' : 'border-[#FECACA] bg-[#FEF2F2]'}`}
           >
-            <p className="mb-1 font-mono text-[9px] font-bold tracking-[0.1em] text-[#9CA3AF] uppercase">
+            <p className="mb-1 font-mono text-[9px] font-bold tracking-[0.1em] text-[#6B7480] uppercase">
               Fluxo/mês
             </p>
             <p
@@ -120,7 +120,7 @@ export default function DealCard({ deal, onDelete }: DealCardProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between border-t border-[#E2E0DA] pt-2 font-mono text-xs text-[#9CA3AF]">
+        <div className="flex justify-between border-t border-[#E2E0DA] pt-2 font-mono text-xs text-[#6B7480]">
           <span>{fmt(deal.inputs?.purchasePrice ?? deal.price ?? 0)}</span>
           <span>
             {deal.inputs?.financing?.enabled

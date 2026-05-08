@@ -93,7 +93,7 @@ export default function DealList() {
         <p className="font-mono text-sm text-[#DC2626]">{error}</p>
         <button
           onClick={load}
-          className="mt-4 border border-[#E2E0DA] px-4 py-2 font-mono text-xs text-[#9CA3AF] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
+          className="mt-4 border border-[#E2E0DA] px-4 py-2 font-mono text-xs text-[#6B7480] transition-colors hover:border-[#D0CEC8] hover:text-[#6B7280]"
         >
           Tentar novamente
         </button>
@@ -107,7 +107,7 @@ export default function DealList() {
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-[#1C2B20]">{title}</h1>
-          <p className="mt-0.5 text-sm text-[#9CA3AF]">{description}</p>
+          <p className="mt-0.5 text-sm text-[#6B7480]">{description}</p>
         </div>
         <Link
           href={activeType ? `/analisar?tipo=${activeType}` : '/analisar'}
@@ -121,7 +121,7 @@ export default function DealList() {
       {/* ── Filter toolbar ─────────────────────────────────────────────────────── */}
       <div className="mb-5 flex items-center gap-3 border-b border-[#E2E0DA] pb-4">
         <div className="relative w-64">
-          <Search size={13} className="absolute top-1/2 left-3 -translate-y-1/2 text-[#9CA3AF]" />
+          <Search size={13} className="absolute top-1/2 left-3 -translate-y-1/2 text-[#6B7480]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -131,7 +131,7 @@ export default function DealList() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="font-mono text-xs text-[#9CA3AF]">Ordenar por:</span>
+          <span className="font-mono text-xs text-[#6B7480]">Ordenar por:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'name' | 'date')}
@@ -146,7 +146,7 @@ export default function DealList() {
       {/* ── Deal grid ──────────────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
         <div className="border border-dashed border-[#E2E0DA] py-20 text-center">
-          <p className="mb-1 text-sm text-[#9CA3AF]">
+          <p className="mb-1 text-sm text-[#6B7480]">
             {activeType
               ? `Nenhum imóvel do tipo "${PROPERTY_TYPE_LABELS[activeType]}" salvo.`
               : search

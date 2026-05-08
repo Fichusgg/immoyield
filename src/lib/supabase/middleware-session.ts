@@ -11,7 +11,11 @@ export async function getSupabaseSession(request: NextRequest) {
       headers: request.headers,
     },
   });
-  response.headers.set('Cache-Control', 'private, no-store');
+  // Avoid 'no-store': it disables back/forward cache (Lighthouse bf-cache audit).
+  // 'private, max-age=0, must-revalidate' still prevents shared/CDN caching and
+  // forces revalidation, but lets the browser keep the page in bf-cache.
+  // The browser auto-evicts bf-cache entries on cookie/auth changes.
+  response.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
 
   const domain = getCookieDomain(request.headers.get('host'));
 

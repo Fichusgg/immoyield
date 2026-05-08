@@ -39,13 +39,13 @@ const fieldClass =
   'w-full border border-[#E2E0DA] bg-[#F0EFEB] px-3 py-2 text-sm text-[#1C2B20] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#4A7C59] focus:shadow-[0_0_0_2px_rgba(74,124,89,0.12)]';
 const selectClass = `${fieldClass} appearance-none pr-9`;
 const labelClass =
-  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase';
-const helperClass = 'mt-1 font-mono text-[10px] text-[#9CA3AF]';
+  'mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase';
+const helperClass = 'mt-1 font-mono text-[10px] text-[#6B7480]';
 const errorClass = 'mt-1 font-mono text-xs text-[#DC2626]';
 const cardClass = 'border border-[#E2E0DA] bg-[#F8F7F4]';
 const rowClass = 'grid grid-cols-1 gap-2 px-5 py-4 sm:grid-cols-[220px_1fr] sm:gap-6';
 const sectionTitleClass =
-  'font-mono text-[11px] font-semibold tracking-[0.08em] text-[#9CA3AF] uppercase';
+  'font-mono text-[11px] font-semibold tracking-[0.08em] text-[#6B7480] uppercase';
 
 interface Props {
   onNext: () => void;
@@ -163,7 +163,7 @@ export function DadosImovel({ onNext }: Props) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#6B7480]" />
               </div>
               <p className={helperClass}>
                 Selecione o tipo para habilitar ferramentas específicas de análise.
@@ -191,7 +191,7 @@ export function DadosImovel({ onNext }: Props) {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#9CA3AF]" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#6B7480]" />
                 </div>
               </div>
 
@@ -213,7 +213,7 @@ export function DadosImovel({ onNext }: Props) {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#9CA3AF]" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#6B7480]" />
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ export function DadosImovel({ onNext }: Props) {
                 <option value="carport">Cobertura</option>
                 <option value="assigned">Vaga demarcada</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#9CA3AF]" />
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#6B7480]" />
             </div>
           </div>
 
@@ -277,7 +277,7 @@ export function DadosImovel({ onNext }: Props) {
                 })}
                 className={`${fieldClass} pr-12`}
               />
-              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#9CA3AF]">
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-xs text-[#6B7480]">
                 m²
               </span>
             </div>

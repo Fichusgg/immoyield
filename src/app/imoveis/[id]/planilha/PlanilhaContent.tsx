@@ -526,7 +526,7 @@ export default function PlanilhaContent({ deal }: Props) {
               />
             </FormRow>
             {sqft != null && sqft > 0 && (inp.acquisitionCosts.reforms ?? 0) > 0 && (
-              <div className="flex items-center justify-between px-5 py-2.5 text-xs text-[#9CA3AF]">
+              <div className="flex items-center justify-between px-5 py-2.5 text-xs text-[#6B7480]">
                 <span>Custo por m²</span>
                 <span className="font-mono">
                   {brl((inp.acquisitionCosts.reforms ?? 0) / sqft)} / m²
@@ -774,7 +774,7 @@ export default function PlanilhaContent({ deal }: Props) {
               <p className="text-sm font-semibold text-[#1C2B20]">
                 Total Mensal · {brl(operatingExpensesMonthly)}
               </p>
-              <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              <p className="mt-0.5 text-xs text-[#6B7480]">
                 Inclui condomínio, IPTU rateado, gestão e manutenção.
               </p>
             </div>
@@ -887,7 +887,7 @@ export default function PlanilhaContent({ deal }: Props) {
           </button>
         </div>
 
-        <p className="pt-2 text-center text-[11px] text-[#9CA3AF]">
+        <p className="pt-2 text-center text-[11px] text-[#6B7480]">
           A análise será recalculada na próxima visita à página{' '}
           <Link href={`/imoveis/${deal.id}/analise`} className="underline">
             Análise

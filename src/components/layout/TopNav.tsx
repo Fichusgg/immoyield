@@ -30,9 +30,9 @@ export default function TopNav({ userEmail }: TopNavProps) {
   };
 
   return (
-    <header className="flex h-12 shrink-0 items-center border-b border-[#E2E0DA] bg-[#FAFAF8] px-6">
+    <header className="flex h-12 shrink-0 items-center border-b border-[#E2E0DA] bg-[#FAFAF8] px-3 sm:px-6">
       {/* ── Logo ─────────────────────────────────────────────────────── */}
-      <Link href="/" className="mr-8 flex items-center gap-2">
+      <Link href="/" className="mr-3 flex items-center gap-2 sm:mr-8">
         <Image
           src="/immoyield_logo_dark.png"
           alt="ImmoYield logo"
@@ -40,7 +40,7 @@ export default function TopNav({ userEmail }: TopNavProps) {
           height={28}
           className="object-contain"
         />
-        <span className="text-sm font-bold tracking-tight text-[#1C2B20]">ImmoYield</span>
+        <span className="hidden text-sm font-bold tracking-tight text-[#1C2B20] sm:inline">ImmoYield</span>
       </Link>
 
       {/* ── Primary nav (3 links, centered active underline) ──────────── */}
@@ -56,15 +56,15 @@ export default function TopNav({ userEmail }: TopNavProps) {
             <Link
               key={href}
               href={href}
-              className={`flex h-full items-center gap-1.5 border-b-2 px-4 text-sm font-medium transition-colors ${
+              className={`flex h-full items-center gap-1.5 border-b-2 px-2 text-sm font-medium transition-colors sm:px-4 ${
                 active
                   ? 'border-[#4A7C59] text-[#1C2B20]'
-                  : 'border-transparent text-[#9CA3AF] hover:text-[#6B7280]'
+                  : 'border-transparent text-[#6B7480] hover:text-[#6B7280]'
               }`}
             >
               {label}
               {comingSoon && (
-                <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[8px] font-semibold tracking-wide text-[#9CA3AF] uppercase">
+                <span className="rounded bg-[#F0EFEB] px-1.5 py-0.5 font-mono text-[8px] font-semibold tracking-wide text-[#6B7480] uppercase">
                   Em Breve
                 </span>
               )}
@@ -75,18 +75,18 @@ export default function TopNav({ userEmail }: TopNavProps) {
 
       {/* ── Right cluster ─────────────────────────────────────────────── */}
       <div className="ml-auto flex items-center gap-1">
-        <IconButton ariaLabel="Importar / Upgrade" icon={<ArrowUpCircle size={15} />} />
-        <IconLink ariaLabel="Ajuda" href="/ajuda" icon={<HelpCircle size={15} />} />
+        <IconButton ariaLabel="Importar / Upgrade" icon={<ArrowUpCircle size={15} />} className="hidden sm:flex" />
+        <IconLink ariaLabel="Ajuda" href="/ajuda" icon={<HelpCircle size={15} />} className="hidden sm:flex" />
         <IconLink ariaLabel="Configurações" href="/configuracoes" icon={<Settings size={15} />} />
 
         {userEmail && (
           <>
-            <span className="ml-3 hidden font-mono text-xs text-[#9CA3AF] sm:inline">
+            <span className="ml-3 hidden font-mono text-xs text-[#6B7480] md:inline">
               {userEmail}
             </span>
             <div
               aria-hidden
-              className="ml-1 flex h-7 w-7 items-center justify-center bg-[#4A7C59] font-mono text-xs font-bold text-white"
+              className="ml-1 hidden h-7 w-7 items-center justify-center bg-[#4A7C59] font-mono text-xs font-bold text-white sm:flex"
             >
               {userEmail[0].toUpperCase()}
             </div>
@@ -94,22 +94,23 @@ export default function TopNav({ userEmail }: TopNavProps) {
         )}
         <button
           onClick={handleLogout}
-          className="ml-2 flex items-center gap-1.5 font-mono text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+          aria-label="Sair"
+          className="ml-1 flex h-9 items-center gap-1.5 px-2 font-mono text-xs text-[#6B7480] transition-colors hover:text-[#6B7280] sm:ml-2"
         >
           <LogOut size={13} />
-          Sair
+          <span className="hidden sm:inline">Sair</span>
         </button>
       </div>
     </header>
   );
 }
 
-function IconButton({ ariaLabel, icon }: { ariaLabel: string; icon: React.ReactNode }) {
+function IconButton({ ariaLabel, icon, className = '' }: { ariaLabel: string; icon: React.ReactNode; className?: string }) {
   return (
     <button
       type="button"
       aria-label={ariaLabel}
-      className="flex h-8 w-8 items-center justify-center rounded-md text-[#9CA3AF] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20]"
+      className={`flex h-9 w-9 items-center justify-center rounded-md text-[#6B7480] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20] ${className}`}
     >
       {icon}
     </button>
@@ -120,16 +121,18 @@ function IconLink({
   ariaLabel,
   href,
   icon,
+  className = '',
 }: {
   ariaLabel: string;
   href: string;
   icon: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Link
       href={href}
       aria-label={ariaLabel}
-      className="flex h-8 w-8 items-center justify-center rounded-md text-[#9CA3AF] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20]"
+      className={`flex h-9 w-9 items-center justify-center rounded-md text-[#6B7480] transition-colors hover:bg-[#F0EFEB] hover:text-[#1C2B20] ${className}`}
     >
       {icon}
     </Link>

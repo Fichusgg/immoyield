@@ -100,7 +100,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
       {/* Back link */}
       <button
         onClick={onBack}
-        className="mb-6 flex items-center gap-1.5 text-sm text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+        className="mb-6 flex items-center gap-1.5 text-sm text-[#6B7480] transition-colors hover:text-[#6B7280]"
       >
         <ArrowLeft size={14} />
         Voltar
@@ -114,7 +114,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
         <h2 className="text-lg font-bold tracking-tight text-[#1C2B20]">
           Importar de URL
         </h2>
-        <p className="mt-1 text-sm text-[#9CA3AF]">
+        <p className="mt-1 text-sm text-[#6B7480]">
           Cole o link de qualquer portal imobiliário brasileiro. Os campos do formulário serão preenchidos automaticamente.
         </p>
       </div>
@@ -124,7 +124,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
         <div>
           <label
             htmlFor="listing-url"
-            className="mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#9CA3AF] uppercase"
+            className="mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#6B7480] uppercase"
           >
             Link do anúncio
           </label>
@@ -142,7 +142,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
         </div>
 
         {/* Supported sites */}
-        <p className="font-mono text-[10px] text-[#9CA3AF]">
+        <p className="font-mono text-[10px] text-[#6B7480]">
           Funciona com {FEATURED_SITES.join(', ')} e outros portais brasileiros.
         </p>
 
@@ -152,7 +152,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
             <AlertCircle size={14} className="mt-0.5 shrink-0 text-[#DC2626]" />
             <div className="min-w-0">
               <p className="text-xs font-semibold text-[#DC2626]">Não foi possível importar</p>
-              <p className="mt-0.5 text-xs text-[#9CA3AF]">{error}</p>
+              <p className="mt-0.5 text-xs text-[#6B7480]">{error}</p>
             </div>
           </div>
         )}
@@ -215,7 +215,7 @@ export default function UrlImportScreen({ propertyType, onReady, onSkip, onBack 
 
       {/* Divider + what gets imported */}
       <div className="mt-8 border-t border-[#E2E0DA] pt-6">
-        <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.08em] text-[#9CA3AF] uppercase">
+        <p className="mb-3 font-mono text-[10px] font-semibold tracking-[0.08em] text-[#6B7480] uppercase">
           O que é importado
         </p>
         <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 font-mono text-xs text-[#6B7280]">
