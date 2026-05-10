@@ -81,6 +81,7 @@ const nextConfig: NextConfig = {
   turbopack: {},
   productionBrowserSourceMaps: false,
   compress: true,
+  allowedDevOrigins: ['192.168.68.63'],
   images: {
     formats: ['image/avif', 'image/webp'],
   },
@@ -90,13 +91,21 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: securityHeaders,
       },
-      {
-        // Long-cache hashed Next build assets — these are immutable.
-        source: '/_next/static/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
+      // Long-cache hashed Next build assets — these are immutable in prod.
+      // CRITICAL: do NOT apply this in development. In dev, Turbopack rebuilds
+      // chunk hashes constantly; an `immutable` Cache-Control freezes the
+      // browser onto a stale chunk and surfaces as cryptic runtime errors like
+      // "Module compiler-runtime.js ... module factory is not available."
+      ...(isDev
+        ? []
+        : [
+            {
+              source: '/_next/static/:path*',
+              headers: [
+                { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+              ],
+            },
+          ]),
     ];
   },
 };

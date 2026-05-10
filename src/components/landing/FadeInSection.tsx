@@ -1,38 +1,26 @@
 'use client';
 
-import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { useRef } from 'react';
-
 interface Props {
   children: React.ReactNode;
+  /** Kept for API compatibility — the old scroll-fade animation has been removed. */
   delay?: number;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export default function FadeInSection({ children, delay = 0, className, style }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-80px 0px' });
-  const reduced = useReducedMotion();
-
-  if (reduced) {
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
-  }
-
+/**
+ * Passthrough wrapper around children.
+ *
+ * Previously, this component used framer-motion's `useInView` to fade content
+ * in on scroll. That caused sections below the fold to remain invisible
+ * (opacity: 0) whenever the React tree errored upstream, or when the observer
+ * failed to fire under Next 16 + React 19 — manifesting as "I see the hero but
+ * nothing else." The animation isn't worth the risk; we render plain HTML.
+ */
+export default function FadeInSection({ children, className, style }: Props) {
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      style={style}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-      transition={{ duration: 0.55, delay, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
-    >
+    <div className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }

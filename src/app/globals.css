@@ -216,3 +216,43 @@ input[type='number']::-webkit-outer-spin-button {
   outline: 2px solid rgba(74, 124, 89, 0.35);
   outline-offset: 2px;
 }
+
+/* ── Landing-page reveal animations ───────────────────────────────────────
+   Plain CSS so visibility doesn't depend on framer-motion / IntersectionObserver
+   firing. The element animates once on first paint; if JS is disabled it
+   simply settles into the "visible" end-state immediately (animation-fill-mode
+   both keeps the final state). Staggered via animationDelay on each element. */
+@keyframes immoRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes immoFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.immo-rise {
+  animation: immoRise 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.immo-fade {
+  animation: immoFade 0.9s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .immo-rise,
+  .immo-fade {
+    animation: none;
+  }
+}
