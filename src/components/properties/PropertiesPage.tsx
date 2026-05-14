@@ -9,6 +9,7 @@ import { PROPERTY_TYPE_LABELS, PropertyType } from '@/lib/validations/deal';
 import { useDealStore } from '@/store/useDealStore';
 import { Home, CalendarDays, Wrench, Plus, Search, ArrowLeft, PencilLine, Link2 } from 'lucide-react';
 import { getDealDisplayTitle } from '@/lib/deals/display';
+import { buildExampleDeal, EXAMPLE_DEAL_ID } from '@/lib/deals/example';
 
 // Heavy components only shown after user interaction — keep them out of the
 // initial /propriedades bundle. DealWizard pulls in recharts and the full deal
@@ -65,8 +66,11 @@ interface PropertiesPageProps {
   benchmarks?: Benchmarks;
 }
 
+const EXAMPLE_DISMISSED_KEY = 'immoyield:exampleDealDismissed';
+
 export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
   const [deals, setDeals] = useState<SavedDeal[]>([]);
+  const [exampleDismissed, setExampleDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category>('residential');
@@ -109,6 +113,28 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
     load();
   }, [load]);
 
+  useEffect(() => {
+    try {
+      setExampleDismissed(localStorage.getItem(EXAMPLE_DISMISSED_KEY) === '1');
+    } catch {
+      setExampleDismissed(false);
+    }
+  }, []);
+
+  const dismissExample = useCallback(() => {
+    try {
+      localStorage.setItem(EXAMPLE_DISMISSED_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+    setExampleDismissed(true);
+  }, []);
+
+  // Prepend the example deal to the user's list (unless dismissed) so every
+  // tester sees the output shape before typing anything. It lives in-memory
+  // only — no DB row, no RLS — and "delete" just sets a localStorage flag.
+  const dealsWithExample = exampleDismissed ? deals : [buildExampleDeal(), ...deals];
+
   // ── Auto-open wizard when arriving with `?wizard=1` ──────────────────────
   // The hero calculator seeds the deal store and links here. Open the wizard
   // immediately, *without* resetting — so the seeded values pre-fill the form.
@@ -126,9 +152,9 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
 
   // ── Derived data ──────────────────────────────────────────────────────────
   const countByCategory = (cat: Category) =>
-    deals.filter((d) => mapToCategory(d.property_type ?? 'residential') === cat).length;
+    dealsWithExample.filter((d) => mapToCategory(d.property_type ?? 'residential') === cat).length;
 
-  const filteredDeals = deals
+  const filteredDeals = dealsWithExample
     .filter((d) => mapToCategory(d.property_type ?? 'residential') === activeCategory)
     .filter((d) => !search || getDealDisplayTitle(d).toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
@@ -373,7 +399,7 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
               <p className="mt-0.5 text-sm text-[#6B7480]">{activeDef.description}</p>
             </div>
 
-            {/* Aggregate KPI header */}
+            {/* Aggregate KPI header — based on real deals only */}
             {!loading && deals.length > 0 && (
               <PortfolioHeader deals={deals} />
             )}
@@ -433,7 +459,12 @@ export default function PropertiesPage({ benchmarks }: PropertiesPageProps) {
             {!loading && !error && filteredDeals.length > 0 && (
               <div className="space-y-0">
                 {filteredDeals.map((d) => (
-                  <PropertyRow key={d.id} deal={d} onDelete={load} />
+                  <PropertyRow
+                    key={d.id}
+                    deal={d}
+                    onDelete={load}
+                    onDismissExample={dismissExample}
+                  />
                 ))}
               </div>
             )}
@@ -546,11 +577,21 @@ function PortfolioHeader({ deals }: { deals: SavedDeal[] }) {
 
 // ─── Property Row — denser DealCheck style ────────────────────────────────────
 
-function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void }) {
+function PropertyRow({
+  deal,
+  onDelete,
+  onDismissExample,
+}: {
+  deal: SavedDeal;
+  onDelete: () => void;
+  onDismissExample: () => void;
+}) {
   const [deleting, setDeleting] = useState(false);
+  const isExample = deal.id === EXAMPLE_DEAL_ID;
   const m = deal.results_cache?.metrics;
   const positive = (m?.monthlyCashFlow ?? 0) >= 0;
   const displayTitle = getDealDisplayTitle(deal);
+  const detailHref = `/imoveis/${deal.id}`;
 
   const fmt = (v: number) =>
     new Intl.NumberFormat('pt-BR', {
@@ -560,6 +601,11 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
     }).format(v);
 
   const handleDelete = async () => {
+    if (isExample) {
+      if (!confirm('Esconder o imóvel de exemplo?')) return;
+      onDismissExample();
+      return;
+    }
     if (!confirm('Remover esta análise?')) return;
     setDeleting(true);
     try {
@@ -576,7 +622,7 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
   return (
     <div className="group flex flex-col items-stretch border border-[#E2E0DA] bg-[#FAFAF8] transition-colors hover:border-[#D0CEC8] sm:flex-row sm:items-center">
       {/* Left: property info */}
-      <a href={`/imoveis/${deal.id}`} className="flex min-w-0 flex-1 items-center gap-3 p-4 sm:gap-4">
+      <a href={detailHref} className="flex min-w-0 flex-1 items-center gap-3 p-4 sm:gap-4">
         {/* Thumbnail placeholder */}
         <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[#E2E0DA] bg-[#F0EFEB] sm:h-14 sm:w-16">
           <Home size={18} className="text-[#D0CEC8]" />
@@ -585,7 +631,14 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
         {/* Info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
+            <div className="flex min-w-0 items-center gap-2">
+              <p className="truncate text-sm font-bold text-[#1C2B20]">{displayTitle}</p>
+              {isExample && (
+                <span className="shrink-0 border border-[#A8C5B2] bg-[#EBF3EE] px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wider text-[#4A7C59] uppercase">
+                  Exemplo
+                </span>
+              )}
+            </div>
             <span className="shrink-0 font-mono text-[10px] text-[#6B7480]">{dateLabel}</span>
           </div>
           <p className="mt-0.5 font-mono text-xs text-[#6B7480]">
@@ -645,3 +698,4 @@ function PropertyRow({ deal, onDelete }: { deal: SavedDeal; onDelete: () => void
     </div>
   );
 }
+

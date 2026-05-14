@@ -40,10 +40,12 @@ import {
 
 function extractListingId(url: string): string | undefined {
   // QuintoAndar: /imovel/{uuid} or /imovel/{slug}-{id}
+  // Atlas partner inventory: /classificados/{idA}.{idB}
   return (
     url.match(/\/imovel\/([a-f0-9-]{36})/)?.[1] ??
     url.match(/\/imovel\/.*?-(\d{8,})/)?.[1] ??
-    url.match(/\/imovel\/(\d+)/)?.[1]
+    url.match(/\/imovel\/(\d+)/)?.[1] ??
+    url.match(/\/classificados\/([a-f0-9]+\.[a-f0-9]+)/)?.[1]
   );
 }
 
@@ -173,6 +175,105 @@ function parseNextData(nextData: Record<string, any>, url: string): ScrapedPrope
     dateUpdated,
     _extractionMethod: 'next_data',
     _confidence: process.env.SCRAPERAPI_KEY ? 'medium' : 'low',
+  };
+}
+
+// ─── Strategy 1b: atlasHouse (Atlas partner inventory) ──────────────────────
+//
+// QuintoAndar's `/classificados/{idA}.{idB}` URLs serve listings imported
+// from partner sites (e.g. ImovelWeb). The __NEXT_DATA__ payload uses a
+// completely different shape: `props.pageProps.atlasHouse`.
+//
+function parseAtlasHouse(nextData: Record<string, any>, html: string, url: string): ScrapedProperty | null {
+  const h = nextData?.props?.pageProps?.atlasHouse;
+  if (!h || typeof h !== 'object') return null;
+
+  const pricing = h.pricing ?? {};
+  const features = h.features ?? {};
+  const address = h.address ?? {};
+
+  const businessContext = String(h.businessContext ?? '').toUpperCase();
+  const isRent = businessContext === 'RENT' || pricing.rentValueUnformatted != null;
+
+  const price: number | undefined = isRent
+    ? pricing.rentValueUnformatted ?? undefined
+    : pricing.saleValueUnformatted ?? undefined;
+
+  const area = parseIntSafe(features.area);
+  const bedrooms = parseIntSafe(features.bedrooms);
+  const bathrooms = parseIntSafe(features.bathrooms);
+  const suites = parseIntSafe(features.suites);
+  const parkingSpots = parseIntSafe(features.parkingSlots ?? features.parkingSpots);
+
+  const condoFee =
+    typeof pricing.condominiumUnformatted === 'number' && pricing.condominiumUnformatted > 0
+      ? pricing.condominiumUnformatted
+      : undefined;
+  const iptu =
+    typeof pricing.iptuUnformatted === 'number' && pricing.iptuUnformatted > 0
+      ? pricing.iptuUnformatted
+      : undefined;
+
+  const pricePerSqm =
+    typeof pricing.pricePerAreaUnformatted === 'number'
+      ? pricing.pricePerAreaUnformatted
+      : price && area
+        ? Math.round(price / area)
+        : undefined;
+
+  // Atlas pages don't surface a description in __NEXT_DATA__; pull the
+  // <meta name="description"> from the rendered HTML as a fallback.
+  const descMatch = html.match(/<meta[^>]+name="description"[^>]+content="([^"]*)"/i);
+  const description = descMatch?.[1]?.trim() || undefined;
+
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  const rawTitle = titleMatch?.[1]?.trim();
+  // Strip the " - QuintoAndar" suffix QA appends to every title.
+  const title = rawTitle?.replace(/\s*[-–]\s*QuintoAndar\s*$/i, '');
+
+  const photos = dedupePhotos(
+    Array.isArray(h.imagesUrls) ? h.imagesUrls.filter((u: unknown): u is string => typeof u === 'string') : []
+  );
+
+  // QuintoAndar Atlas address details often include the unit number — keep
+  // street alone in `street`, expose the unit through `fullText` so the
+  // user can review it before saving.
+  const unit = address?.details?.unit;
+  const fullText = [address.street, unit ? `nº ${unit}` : null, address.neighborhood, address.city, address.stateCode]
+    .filter(Boolean)
+    .join(', ') || undefined;
+
+  return {
+    listingId: typeof h.dejavuId === 'string' ? h.dejavuId : extractListingId(url),
+    sourceUrl: url,
+    sourceSite: 'quintoandar',
+    scrapedAt: new Date().toISOString(),
+    title,
+    type: detectPropertyType(h.houseType ?? title),
+    listingType: isRent ? 'rent' : 'sale',
+    price,
+    condoFee,
+    iptu,
+    iptuPeriod: 'monthly',
+    area,
+    bedrooms,
+    bathrooms,
+    suites,
+    parkingSpots,
+    address: {
+      street: address.street ?? undefined,
+      neighborhood: address.neighborhood ?? h.region?.name ?? undefined,
+      city: address.city ?? undefined,
+      state: address.stateCode ?? undefined,
+      fullText,
+    },
+    photos,
+    description,
+    pricePerSqm,
+    amenities: normalizeAmenities(Array.isArray(h.amenities) ? h.amenities : []),
+    dateUpdated: pricing.updatedAt ?? undefined,
+    _extractionMethod: 'next_data',
+    _confidence: 'high',
   };
 }
 
@@ -328,9 +429,15 @@ function parseCssSelectors(html: string, url: string): ScrapedProperty | null {
 export async function scrapeQuintoAndar(url: string): Promise<ScrapedProperty> {
   const html = await fetchRendered(url);
 
-  // 1. __NEXT_DATA__
+  // 1a. __NEXT_DATA__ — Atlas (/classificados/) inventory.
+  // Tried first because the Atlas shape is unambiguous: when atlasHouse is
+  // present, the regular `listing` shape is not, and vice versa.
   const nextData = extractNextData(html);
   if (nextData) {
+    const atlas = parseAtlasHouse(nextData, html, url);
+    if (atlas && (atlas.price || atlas.area || atlas.bedrooms)) return atlas;
+
+    // 1b. __NEXT_DATA__ — standard /imovel/ listing.
     const result = parseNextData(nextData, url);
     if (result && (result.price || result.area || result.bedrooms)) return result;
   }

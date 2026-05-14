@@ -17,6 +17,14 @@ Sentry.init({
   // Enable sending user PII (Personally Identifiable Information)
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
+
+  ignoreErrors: [
+    // Production CSP intentionally omits 'unsafe-eval' (see next.config.ts).
+    // Hits on this rule are almost always content blockers / browser
+    // extensions / injected scripts running eval inside a wrapped handler —
+    // we have no callsite for eval/new Function on our own pages.
+    /Refused to evaluate a string as JavaScript/,
+  ],
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
