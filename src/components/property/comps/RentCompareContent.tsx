@@ -177,7 +177,21 @@ export function RentCompareContent({ deal }: Props) {
         }),
       });
 
-      const data = (await res.json()) as ApiResponse;
+      // The server always replies JSON; if it doesn't (Vercel timeout HTML
+      // page, Cloudflare interstitial, network proxy) we surface a clean
+      // error instead of the cryptic "Unexpected token 'A'" from JSON.parse.
+      const raw = await res.text();
+      let data: ApiResponse;
+      try {
+        data = JSON.parse(raw) as ApiResponse;
+      } catch {
+        console.error('[rent-compare] non-JSON response', { status: res.status, raw: raw.slice(0, 500) });
+        throw new Error(
+          res.status === 504 || res.status === 408
+            ? 'A busca demorou mais do que o esperado. Tente novamente em alguns segundos.'
+            : `Resposta inválida do servidor (HTTP ${res.status}). Tente novamente.`,
+        );
+      }
       setLastResponse(data);
       if (!res.ok || !data.ok) {
         if (data.error === 'SCRAPER_QUOTA_EXHAUSTED') {

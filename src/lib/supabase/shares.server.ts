@@ -123,7 +123,7 @@ export async function getPublicReportBySlug(slug: string): Promise<PublicReport 
       view_count,
       created_at,
       deal:deals!shared_reports_deal_id_fkey (
-        name,
+        name:title,
         property_type,
         inputs,
         results_cache,

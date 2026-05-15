@@ -44,11 +44,13 @@ async function fetchRendered(url: string): Promise<string> {
     const proxy =
       `https://api.scraperapi.com/?api_key=${apiKey}` +
       `&url=${encodeURIComponent(url)}&country_code=br&render=true`;
-    const r = await axios.get(proxy, { headers: BROWSER_HEADERS, timeout: 45000 });
+    // 30s — must fit inside the route's SCRAPER_DEADLINE_MS so a stuck
+    // ScraperAPI call doesn't burn the entire serverless budget.
+    const r = await axios.get(proxy, { headers: BROWSER_HEADERS, timeout: 30000 });
     return r.data as string;
   }
   // No proxy — fetch the SPA shell. Won't return useful data but doesn't crash.
-  const r = await axios.get(url, { headers: BROWSER_HEADERS, timeout: 20000 });
+  const r = await axios.get(url, { headers: BROWSER_HEADERS, timeout: 15000 });
   return r.data as string;
 }
 

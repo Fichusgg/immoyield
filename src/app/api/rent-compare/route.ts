@@ -29,6 +29,10 @@ export const runtime = 'nodejs';
 export const maxDuration = 45;
 
 const CACHE_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+// Hard cap on the scraper fan-out so the handler always has time to return
+// JSON before Vercel cuts the function at maxDuration and serves its generic
+// HTML error page (which clients can't JSON-parse).
+const SCRAPER_DEADLINE_MS = 35_000;
 
 interface RentCompareRequest {
   city?: unknown;
@@ -92,6 +96,23 @@ function parseQuery(body: RentCompareRequest): RentalSearchQuery | null {
 }
 
 export async function POST(req: NextRequest) {
+  try {
+    return await handleRentCompare(req);
+  } catch (err) {
+    // Anything that escapes the inner handler — Redis blowups, scraper
+    // throws, JSON.stringify cycles — would otherwise be served as an HTML
+    // error page by Next/Vercel and break `await res.json()` on the client.
+    // Always respond with JSON so the client error path is consistent.
+    console.error('[rent-compare] unhandled error:', err);
+    const message = err instanceof Error ? err.message : 'Erro inesperado.';
+    return NextResponse.json(
+      { ok: false, error: 'INTERNAL_ERROR', message },
+      { status: 500 },
+    );
+  }
+}
+
+async function handleRentCompare(req: NextRequest): Promise<NextResponse> {
   let body: RentCompareRequest;
   try {
     body = await req.json();
@@ -170,9 +191,31 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Search ───────────────────────────────────────────────────────────────
+  // Deadline race: if scrapers exceed SCRAPER_DEADLINE_MS we degrade to an
+  // empty result rather than letting Vercel time out the whole function.
   const t0 = Date.now();
-  const { listings, perSource, sourcesUsed } = await searchRentals(query);
+  const searchResult = await Promise.race([
+    searchRentals(query).then((r) => ({ kind: 'ok' as const, ...r })),
+    new Promise<{ kind: 'timeout' }>((resolve) =>
+      setTimeout(() => resolve({ kind: 'timeout' }), SCRAPER_DEADLINE_MS),
+    ),
+  ]);
   const elapsedMs = Date.now() - t0;
+
+  if (searchResult.kind === 'timeout') {
+    console.warn('[rent-compare] scraper deadline exceeded', { user: user.id, query, elapsedMs });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'TIMEOUT',
+        message:
+          'A busca demorou mais do que o esperado. Tente novamente em alguns segundos ou ajuste o bairro/quartos.',
+      },
+      { status: 504 },
+    );
+  }
+
+  const { listings, perSource, sourcesUsed } = searchResult;
 
   console.log('[rent-compare] search complete', {
     user: user.id,
